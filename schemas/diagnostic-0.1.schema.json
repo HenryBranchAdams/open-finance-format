@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openfinanceformat.org/schemas/diagnostic-0.1.schema.json",
+  "title": "OFF Diagnostic 0.1",
+  "type": "object",
+  "required": ["code", "severity", "instanceLocation", "ruleId", "parameters"],
+  "properties": {
+    "code": { "type": "string", "pattern": "^OFF-[EW][0-9]{4}$" },
+    "severity": { "enum": ["error", "warning"] },
+    "instanceLocation": {
+      "type": "string",
+      "pattern": "^(?:|(?:/(?:[^~/]|~[01])*)+)$"
+    },
+    "entityId": { "type": "string", "minLength": 1 },
+    "ruleId": {
+      "type": "string",
+      "pattern": "^OFF\\.[A-Z][A-Z0-9_]*(?:\\.[A-Z][A-Z0-9_]*)+$"
+    },
+    "parameters": { "type": "object" }
+  },
+  "additionalProperties": false
+}

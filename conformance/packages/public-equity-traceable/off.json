@@ -1,0 +1,209 @@
+{
+  "offVersion": "0.1",
+  "package": {
+    "id": "https://openfinanceformat.org/examples/public-equity-traceable",
+    "releaseId": "https://openfinanceformat.org/examples/public-equity-traceable/releases/1",
+    "releaseVersion": "1",
+    "title": "Synthetic Public Equity Traceable package",
+    "authors": [
+      {
+        "id": "https://example.org/analysts/synthetic",
+        "name": "Synthetic OFF Author"
+      }
+    ],
+    "license": {
+      "id": "CC0-1.0",
+      "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    "publishedAt": "2026-07-17T12:00:00Z",
+    "canonicalUrl": "https://openfinanceformat.org/examples/public-equity-traceable/releases/1",
+    "entrypointResourceId": "https://openfinanceformat.org/examples/public-equity-traceable/resources/narrative"
+  },
+  "profiles": [
+    "https://openfinanceformat.org/profiles/public-equity-research/0.1"
+  ],
+  "resources": [
+    {
+      "id": "https://openfinanceformat.org/examples/public-equity-traceable/resources/narrative",
+      "mediaType": "text/markdown",
+      "roles": ["entrypoint", "narrative"],
+      "locations": [
+        {
+          "kind": "local",
+          "path": "OFF.md"
+        }
+      ],
+      "byteSize": 188,
+      "sha256": "47d36969f6ebded49dee0c34b0b9976e2c83762ef0791a752989e8cb9f8be3f9"
+    },
+    {
+      "id": "https://openfinanceformat.org/examples/public-equity-traceable/resources/model",
+      "mediaType": "text/csv",
+      "roles": ["model-artifact"],
+      "locations": [
+        {
+          "kind": "local",
+          "path": "model.csv"
+        }
+      ],
+      "byteSize": 60,
+      "sha256": "86fb920f7ee34bef0074fa1013e9f47adb383a3ed53507fb6572a5687df2a33e"
+    },
+    {
+      "id": "https://openfinanceformat.org/examples/public-equity-traceable/resources/evidence",
+      "mediaType": "text/plain",
+      "roles": ["source-evidence"],
+      "locations": [
+        {
+          "kind": "local",
+          "path": "evidence.txt"
+        },
+        {
+          "kind": "remote",
+          "url": "https://example.org/evidence/synthetic-filing.txt"
+        }
+      ],
+      "byteSize": 75,
+      "sha256": "df41053bdc1888756d6b6a25efde95a9e3410cbbb2eb6635efdb158da876dd9b"
+    }
+  ],
+  "relationships": [
+    {
+      "fromResourceId": "https://openfinanceformat.org/examples/public-equity-traceable/resources/narrative",
+      "relation": "describes",
+      "toResourceId": "https://openfinanceformat.org/examples/public-equity-traceable/resources/model"
+    },
+    {
+      "fromResourceId": "https://openfinanceformat.org/examples/public-equity-traceable/resources/evidence",
+      "relation": "supports",
+      "toResourceId": "https://openfinanceformat.org/examples/public-equity-traceable/resources/model"
+    }
+  ],
+  "profileData": {
+    "https://openfinanceformat.org/profiles/public-equity-research/0.1": {
+      "securities": [
+        {
+          "id": "https://openfinanceformat.org/examples/public-equity-traceable/entities/security",
+          "issuerName": "Synthetic Issuer",
+          "ticker": "SYN",
+          "exchange": "XNYS",
+          "securityType": "common-stock",
+          "reportingCurrencyUnitId": "https://openfinanceformat.org/examples/public-equity-traceable/entities/unit/usd"
+        }
+      ],
+      "scenarios": [
+        {
+          "id": "https://openfinanceformat.org/examples/public-equity-traceable/entities/scenario/base",
+          "label": "Base case",
+          "role": "base"
+        }
+      ],
+      "units": [
+        {
+          "id": "https://openfinanceformat.org/examples/public-equity-traceable/entities/unit/usd",
+          "label": "US dollars",
+          "kind": "currency",
+          "symbol": "$",
+          "currency": "USD"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/public-equity-traceable/entities/unit/ratio",
+          "label": "Ratio",
+          "kind": "ratio",
+          "symbol": "x"
+        }
+      ],
+      "sources": [
+        {
+          "id": "https://openfinanceformat.org/examples/public-equity-traceable/entities/source/filing",
+          "title": "Synthetic issuer filing",
+          "publisher": "Synthetic Issuer",
+          "evidenceResourceId": "https://openfinanceformat.org/examples/public-equity-traceable/resources/evidence"
+        }
+      ],
+      "sourceFacts": [
+        {
+          "id": "https://openfinanceformat.org/examples/public-equity-traceable/entities/fact/revenue",
+          "label": "Reported revenue",
+          "value": {
+            "type": "decimal",
+            "value": "100"
+          },
+          "unitId": "https://openfinanceformat.org/examples/public-equity-traceable/entities/unit/usd",
+          "effectiveDate": "2026-06-30",
+          "sourceId": "https://openfinanceformat.org/examples/public-equity-traceable/entities/source/filing",
+          "staleAt": "2026-07-18T00:00:00Z"
+        }
+      ],
+      "assumptions": [
+        {
+          "id": "https://openfinanceformat.org/examples/public-equity-traceable/entities/assumption/growth",
+          "label": "Forward revenue growth",
+          "value": {
+            "type": "decimal",
+            "value": "0.1"
+          },
+          "unitId": "https://openfinanceformat.org/examples/public-equity-traceable/entities/unit/ratio",
+          "effectiveDate": "2026-07-17",
+          "designation": "analystJudgment",
+          "reviewBy": "2026-07-18T00:00:00Z",
+          "scenarioIds": [
+            "https://openfinanceformat.org/examples/public-equity-traceable/entities/scenario/base"
+          ]
+        }
+      ],
+      "outputs": [
+        {
+          "id": "https://openfinanceformat.org/examples/public-equity-traceable/entities/output/forward-revenue",
+          "label": "Forward revenue",
+          "value": {
+            "type": "decimal",
+            "value": "110"
+          },
+          "unitId": "https://openfinanceformat.org/examples/public-equity-traceable/entities/unit/usd",
+          "asOfDate": "2026-07-17",
+          "scenarioId": "https://openfinanceformat.org/examples/public-equity-traceable/entities/scenario/base",
+          "headline": true,
+          "artifactResourceId": "https://openfinanceformat.org/examples/public-equity-traceable/resources/model",
+          "methodology": "Multiplies sourced revenue by one plus the declared growth ratio: 100 × (1 + 0.1) = 110.",
+          "attestationId": "https://openfinanceformat.org/examples/public-equity-traceable/entities/attestation/forward-revenue"
+        }
+      ],
+      "lineageEdges": [
+        {
+          "fromId": "https://openfinanceformat.org/examples/public-equity-traceable/entities/output/forward-revenue",
+          "toId": "https://openfinanceformat.org/examples/public-equity-traceable/entities/fact/revenue",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/public-equity-traceable/entities/output/forward-revenue",
+          "toId": "https://openfinanceformat.org/examples/public-equity-traceable/entities/assumption/growth",
+          "material": true
+        }
+      ],
+      "attestations": [
+        {
+          "id": "https://openfinanceformat.org/examples/public-equity-traceable/entities/attestation/forward-revenue",
+          "outputIds": [
+            "https://openfinanceformat.org/examples/public-equity-traceable/entities/output/forward-revenue"
+          ],
+          "authorId": "https://example.org/analysts/synthetic",
+          "attestedAt": "2026-07-17T12:00:00Z",
+          "artifactResourceId": "https://openfinanceformat.org/examples/public-equity-traceable/resources/model",
+          "artifactSha256": "86fb920f7ee34bef0074fa1013e9f47adb383a3ed53507fb6572a5687df2a33e",
+          "lineageBasis": "author-declared",
+          "materialityPolicy": "Sourced revenue and the growth assumption are the complete material inputs to forward revenue.",
+          "scope": "The synthetic headline forward revenue.",
+          "knownExclusions": [],
+          "lineageCompleteness": "attested-not-independently-verified"
+        }
+      ]
+    }
+  },
+  "extensions": {
+    "https://example.org/extensions/research-note/0.1": {
+      "reviewState": "synthetic",
+      "supportsExecution": false
+    }
+  }
+}

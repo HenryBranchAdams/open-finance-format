@@ -1,0 +1,270 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openfinanceformat.org/schemas/profiles/public-equity-research-0.1.schema.json",
+  "title": "OFF Public Equity Research 0.1 manifest",
+  "allOf": [
+    { "$ref": "https://openfinanceformat.org/schemas/off-core-0.1.schema.json" },
+    {
+      "type": "object",
+      "required": ["profileData"],
+      "properties": {
+        "profiles": {
+          "type": "array",
+          "contains": {
+            "const": "https://openfinanceformat.org/profiles/public-equity-research/0.1"
+          }
+        },
+        "profileData": {
+          "type": "object",
+          "required": ["https://openfinanceformat.org/profiles/public-equity-research/0.1"],
+          "properties": {
+            "https://openfinanceformat.org/profiles/public-equity-research/0.1": {
+              "$ref": "#/$defs/profileData"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "absoluteUri": { "type": "string", "minLength": 1 },
+    "nonEmptyString": { "type": "string", "minLength": 1 },
+    "date": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+    "timestamp": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]Z$"
+    },
+    "decimal": {
+      "type": "string",
+      "pattern": "^(?:0|[1-9][0-9]*|-[1-9][0-9]*|(?:-?(?:0|[1-9][0-9]*))\\.[0-9]*[1-9])$"
+    },
+    "typedValue": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["type", "value"],
+          "properties": {
+            "type": { "const": "decimal" },
+            "value": { "$ref": "#/$defs/decimal" }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["type", "value"],
+          "properties": {
+            "type": { "const": "string" },
+            "value": { "type": "string" }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["type", "value"],
+          "properties": {
+            "type": { "const": "boolean" },
+            "value": { "type": "boolean" }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["type", "value"],
+          "properties": {
+            "type": { "const": "date" },
+            "value": { "$ref": "#/$defs/date" }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "security": {
+      "type": "object",
+      "required": ["id", "issuerName", "ticker", "exchange", "securityType", "reportingCurrencyUnitId"],
+      "properties": {
+        "id": { "$ref": "#/$defs/absoluteUri" },
+        "issuerName": { "$ref": "#/$defs/nonEmptyString" },
+        "ticker": { "$ref": "#/$defs/nonEmptyString" },
+        "exchange": { "$ref": "#/$defs/nonEmptyString" },
+        "securityType": { "$ref": "#/$defs/nonEmptyString" },
+        "reportingCurrencyUnitId": { "$ref": "#/$defs/absoluteUri" },
+        "identifiers": {
+          "type": "object",
+          "minProperties": 1,
+          "propertyNames": { "pattern": "^[\\x21-\\x7e]+$" },
+          "additionalProperties": { "$ref": "#/$defs/nonEmptyString" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "scenario": {
+      "type": "object",
+      "required": ["id", "label", "role"],
+      "properties": {
+        "id": { "$ref": "#/$defs/absoluteUri" },
+        "label": { "$ref": "#/$defs/nonEmptyString" },
+        "role": { "enum": ["base", "bull", "bear", "other"] },
+        "description": { "$ref": "#/$defs/nonEmptyString" }
+      },
+      "additionalProperties": false
+    },
+    "unit": {
+      "type": "object",
+      "required": ["id", "label", "kind", "symbol"],
+      "properties": {
+        "id": { "$ref": "#/$defs/absoluteUri" },
+        "label": { "$ref": "#/$defs/nonEmptyString" },
+        "kind": { "enum": ["currency", "shares", "ratio", "percentage", "multiple", "count", "custom"] },
+        "symbol": { "$ref": "#/$defs/nonEmptyString" },
+        "currency": { "type": "string", "pattern": "^[A-Z]{3}$" }
+      },
+      "if": { "properties": { "kind": { "const": "currency" } }, "required": ["kind"] },
+      "then": { "properties": { "currency": true }, "required": ["currency"] },
+      "else": { "not": { "properties": { "currency": true }, "required": ["currency"] } },
+      "additionalProperties": false
+    },
+    "source": {
+      "type": "object",
+      "required": ["id", "title", "publisher"],
+      "properties": {
+        "id": { "$ref": "#/$defs/absoluteUri" },
+        "title": { "$ref": "#/$defs/nonEmptyString" },
+        "publisher": { "$ref": "#/$defs/nonEmptyString" },
+        "canonicalUrl": { "type": "string", "minLength": 1 },
+        "evidenceResourceId": { "$ref": "#/$defs/absoluteUri" }
+      },
+      "anyOf": [
+        { "properties": { "canonicalUrl": true }, "required": ["canonicalUrl"] },
+        { "properties": { "evidenceResourceId": true }, "required": ["evidenceResourceId"] }
+      ],
+      "additionalProperties": false
+    },
+    "sourceFact": {
+      "$ref": "#/$defs/valuedEntity",
+      "type": "object",
+      "required": ["effectiveDate", "sourceId", "staleAt"],
+      "properties": {
+        "effectiveDate": { "$ref": "#/$defs/date" },
+        "sourceId": { "$ref": "#/$defs/absoluteUri" },
+        "staleAt": { "$ref": "#/$defs/timestamp" }
+      },
+      "unevaluatedProperties": false
+    },
+    "assumption": {
+      "$ref": "#/$defs/valuedEntity",
+      "type": "object",
+      "required": ["effectiveDate", "designation", "reviewBy"],
+      "properties": {
+        "effectiveDate": { "$ref": "#/$defs/date" },
+        "designation": { "const": "analystJudgment" },
+        "reviewBy": { "$ref": "#/$defs/timestamp" },
+        "scenarioIds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/absoluteUri" }
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "output": {
+      "$ref": "#/$defs/valuedEntity",
+      "type": "object",
+      "required": ["asOfDate", "scenarioId", "headline", "artifactResourceId", "methodology"],
+      "properties": {
+        "asOfDate": { "$ref": "#/$defs/date" },
+        "scenarioId": { "$ref": "#/$defs/absoluteUri" },
+        "headline": { "type": "boolean" },
+        "artifactResourceId": { "$ref": "#/$defs/absoluteUri" },
+        "methodology": { "$ref": "#/$defs/nonEmptyString" },
+        "attestationId": { "$ref": "#/$defs/absoluteUri" }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "headline": { "const": true } }, "required": ["headline"] },
+          "then": { "properties": { "attestationId": true }, "required": ["attestationId"] },
+          "else": { "not": { "required": ["attestationId"] } }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "valuedEntity": {
+      "type": "object",
+      "required": ["id", "label", "value"],
+      "properties": {
+        "id": { "$ref": "#/$defs/absoluteUri" },
+        "label": { "$ref": "#/$defs/nonEmptyString" },
+        "value": { "$ref": "#/$defs/typedValue" },
+        "unitId": { "$ref": "#/$defs/absoluteUri" }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "value": {
+                "type": "object",
+                "properties": { "type": { "const": "decimal" } },
+                "required": ["type"]
+              }
+            },
+            "required": ["value"]
+          },
+          "then": { "properties": { "unitId": true }, "required": ["unitId"] },
+          "else": { "not": { "properties": { "unitId": true }, "required": ["unitId"] } }
+        }
+      ]
+    },
+    "lineageEdge": {
+      "type": "object",
+      "required": ["fromId", "toId", "material"],
+      "properties": {
+        "fromId": { "$ref": "#/$defs/absoluteUri" },
+        "toId": { "$ref": "#/$defs/absoluteUri" },
+        "material": { "const": true }
+      },
+      "additionalProperties": false
+    },
+    "attestation": {
+      "type": "object",
+      "required": ["id", "outputIds", "authorId", "attestedAt", "artifactResourceId", "artifactSha256", "lineageBasis", "materialityPolicy", "scope", "knownExclusions", "lineageCompleteness"],
+      "properties": {
+        "id": { "$ref": "#/$defs/absoluteUri" },
+        "outputIds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/absoluteUri" }
+        },
+        "authorId": { "$ref": "#/$defs/absoluteUri" },
+        "attestedAt": { "$ref": "#/$defs/timestamp" },
+        "artifactResourceId": { "$ref": "#/$defs/absoluteUri" },
+        "artifactSha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "lineageBasis": { "const": "author-declared" },
+        "materialityPolicy": { "$ref": "#/$defs/nonEmptyString" },
+        "scope": { "$ref": "#/$defs/nonEmptyString" },
+        "knownExclusions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/nonEmptyString" }
+        },
+        "lineageCompleteness": { "const": "attested-not-independently-verified" }
+      },
+      "additionalProperties": false
+    },
+    "profileData": {
+      "type": "object",
+      "required": ["securities", "scenarios", "units", "sources", "sourceFacts", "assumptions", "outputs", "lineageEdges", "attestations"],
+      "properties": {
+        "securities": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/security" } },
+        "scenarios": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/scenario" } },
+        "units": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/unit" } },
+        "sources": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/source" } },
+        "sourceFacts": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/sourceFact" } },
+        "assumptions": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/assumption" } },
+        "outputs": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/output" } },
+        "lineageEdges": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/lineageEdge" } },
+        "attestations": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/attestation" } }
+      },
+      "additionalProperties": false
+    }
+  }
+}

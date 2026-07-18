@@ -1,0 +1,40 @@
+version: 2.1
+
+jobs:
+  acceptance:
+    docker:
+      - image: cimg/node:22.13.0
+    steps:
+      - checkout
+      - run:
+          name: Activate locked Corepack and pnpm
+          command: |
+            mkdir -p "$HOME/.local/bin"
+            npm install --global --prefix "$HOME/.local" --no-audit --no-fund corepack@0.35.0
+            echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$BASH_ENV"
+            source "$BASH_ENV"
+            corepack enable --install-directory "$HOME/.local/bin" pnpm
+            corepack install --global pnpm@10.34.1
+            test "$(node --version)" = "v22.13.0"
+            test "$(corepack --version)" = "0.35.0"
+            test "$(pnpm --version)" = "10.34.1"
+      - run:
+          name: Install locked dependencies
+          command: pnpm install --frozen-lockfile
+      - run:
+          name: Run complete acceptance matrix
+          environment:
+            COREPACK_ENABLE_NETWORK: "0"
+            COREPACK_DEFAULT_TO_LATEST: "0"
+          command: |
+            pnpm build
+            pnpm check
+            pnpm test
+            pnpm test:node22
+            pnpm test:offline
+            node dist/off.mjs corpus verify --corpus conformance/corpus.json
+
+workflows:
+  acceptance:
+    jobs:
+      - acceptance

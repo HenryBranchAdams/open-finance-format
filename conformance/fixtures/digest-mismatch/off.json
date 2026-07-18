@@ -1,0 +1,25 @@
+{
+  "offVersion": "0.1",
+  "package": {
+    "id": "https://openfinanceformat.org/examples/digest-mismatch",
+    "releaseId": "https://openfinanceformat.org/examples/digest-mismatch/releases/1",
+    "releaseVersion": "1",
+    "title": "Digest mismatch fixture",
+    "authors": [{"id": "https://example.org/analysts/synthetic", "name": "Synthetic OFF Author"}],
+    "license": {"id": "CC0-1.0"},
+    "publishedAt": "2026-07-17T12:00:00Z",
+    "canonicalUrl": "https://openfinanceformat.org/examples/digest-mismatch/releases/1",
+    "entrypointResourceId": "https://openfinanceformat.org/examples/digest-mismatch/resources/narrative"
+  },
+  "profiles": [],
+  "resources": [
+    {
+      "id": "https://openfinanceformat.org/examples/digest-mismatch/resources/narrative",
+      "mediaType": "text/markdown",
+      "roles": ["entrypoint"],
+      "locations": [{"kind": "local", "path": "OFF.md"}],
+      "byteSize": 88,
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  ]
+}

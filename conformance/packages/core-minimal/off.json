@@ -1,0 +1,38 @@
+{
+  "offVersion": "0.1",
+  "package": {
+    "id": "https://openfinanceformat.org/examples/core-minimal",
+    "releaseId": "https://openfinanceformat.org/examples/core-minimal/releases/1",
+    "releaseVersion": "1",
+    "title": "Minimal Core reference package",
+    "authors": [
+      {
+        "id": "https://example.org/analysts/synthetic",
+        "name": "Synthetic OFF Author"
+      }
+    ],
+    "license": {
+      "id": "CC0-1.0",
+      "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    "publishedAt": "2026-07-17T12:00:00Z",
+    "canonicalUrl": "https://openfinanceformat.org/examples/core-minimal/releases/1",
+    "entrypointResourceId": "https://openfinanceformat.org/examples/core-minimal/resources/narrative"
+  },
+  "profiles": [],
+  "resources": [
+    {
+      "id": "https://openfinanceformat.org/examples/core-minimal/resources/narrative",
+      "mediaType": "text/markdown",
+      "roles": ["entrypoint", "narrative"],
+      "locations": [
+        {
+          "kind": "local",
+          "path": "OFF.md"
+        }
+      ],
+      "byteSize": 88,
+      "sha256": "363c92ab8903666ff06452f804ede1c9c7a5bc54e34d2a5442babbd51448a7d4"
+    }
+  ]
+}

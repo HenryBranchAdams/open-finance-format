@@ -1,0 +1,17 @@
+{
+  "vectorVersion": "0.1",
+  "cases": [
+    {
+      "id": "configuration/fractional-evaluated-at",
+      "boundary": "A fractional-second evaluation timestamp is an evaluator-configuration failure before package I/O.",
+      "package": "configuration-io-sentinel-must-not-exist",
+      "evaluatedAt": "2026-07-17T12:00:00.001Z",
+      "requestedProfiles": [],
+      "expected": {
+        "kind": "evaluatorFailure",
+        "code": "OFF-T1004",
+        "operation": "configuration"
+      }
+    }
+  ]
+}

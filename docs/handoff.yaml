@@ -1,0 +1,111 @@
+package: open-finance-format-v0.1-rc.1-handoff
+version: 0.1.0-rc.1
+prepared_at: 2026-07-17
+status: experimental-release-candidate
+name: Open Finance Format
+acronym: OFF
+implementation_authorized: true
+purpose: >-
+  Transfer the implemented experimental interoperability contract, local
+  conformance corpus, release boundaries, and pending external evidence.
+
+authority:
+  normative_manifest: off.json
+  core_specification: spec/OFF-Core-0.1.md
+  public_equity_specification: spec/profiles/public-equity-research-0.1.md
+  normalization: spec/normalization-0.1.md
+  diagnostics: spec/diagnostics-0.1.md
+  conformance: spec/conformance-0.1.md
+  rule_registry: spec/rules-0.1.json
+  corpus: conformance/corpus.json
+
+normative_manifest: off.json
+normative_profiles:
+  - OFF Core 0.1
+  - OFF Public Equity Research 0.1
+
+conformance:
+  evaluation_mode: offline
+  network_requests: prohibited
+  public_equity_claim: Traceable - author-declared lineage
+  lineage_completeness: attested-not-independently-verified
+  remote_resource_status: notEvaluated
+  xbrl_evidence_locator: illustrative_only
+
+implemented_candidate:
+  specification: present
+  schemas: present
+  rule_registry: present
+  reference_evaluator_source: present
+  local_corpus: implemented
+  positive_packages: 2
+  fixed_time_freshness_states:
+    - current
+    - stale
+  boundary_fixtures: present
+  hand_reviewed_expected_results: present
+  documentation_contract_tests: present
+  dependency_free_cli_bundle: present
+  offline_harness: passing
+  release_allowlist: present
+  drift_checksums: present
+  local_release_validation: passing
+
+external_evidence:
+  immutable_public_anchor: pending
+  checksum_manifest_digest: pending
+  independent_consumer: pending
+  independent_producer: pending
+  ten_minute_core_authoring: pending
+  public_human_review: pending
+  external_design_partner: pending
+
+claims:
+  promotion_to_v0_1: not_claimed
+  independent_interoperability: not_claimed
+  automated_promotion_certification: not_provided
+  adoption: not_claimed
+  financial_correctness: not_claimed
+  independent_lineage_review: not_claimed
+  exact_spreadsheet_execution: not_claimed
+
+deferred:
+  - presentation_standardization_and_multi_renderer_requirements
+  - execution_formula_graphs_and_interactive_recalculation
+  - social_registry_discovery_comments_and_reputation
+  - other_asset_class_profiles
+  - independently_reviewed_lineage
+  - private_permissions_and_enterprise_access
+  - brokerage_execution_and_automated_recommendations
+  - monetization_formal_governance_and_platform_brand
+  - xbrl_processing_and_validation
+
+files:
+  - path: README.md
+    role: repository_entrypoint
+  - path: STRATEGY.md
+    role: product_strategy
+  - path: docs/PROJECT_BRIEF.md
+    role: current_product_boundary
+  - path: docs/ROADMAP.md
+    role: evidence_and_adoption_roadmap
+  - path: docs/OPEN_QUESTIONS.md
+    role: pending_evidence_and_decision_queue
+  - path: docs/AGENT_BRIEF.md
+    role: continuation_instructions
+  - path: spec/OFF-Core-0.1.md
+    role: normative_core_contract
+  - path: spec/profiles/public-equity-research-0.1.md
+    role: normative_public_equity_contract
+  - path: conformance/corpus.json
+    role: layered_conformance_corpus
+
+ambiguity_policy: >-
+  Any requirement that needs private clarification must be resolved publicly in
+  a new immutable release candidate before the clean-room test restarts.
+
+next_task: >-
+  Bind the public candidate to an immutable public commit and publish the
+  checksum-manifest digest through an authenticated channel, then run the
+  unaffiliated consumer, producer, and timed Core-authoring tasks while leaving
+  every result pending until its immutable evidence is publicly reviewed.

@@ -1,0 +1,106 @@
+{
+  "corpusVersion": "0.1",
+  "evaluatorFailures": "evaluator-failures.json",
+  "cases": [
+    {
+      "id": "core-minimal/valid",
+      "boundary": "A profile-agnostic one-resource package passes Core without warnings.",
+      "package": "packages/core-minimal",
+      "evaluatedAt": "2026-07-17T12:00:00Z",
+      "requestedProfiles": [],
+      "expectedOutcome": "valid",
+      "expectedDiagnosticCodes": [],
+      "expected": "expected/core-minimal-valid.json"
+    },
+    {
+      "id": "public-equity-traceable/current",
+      "boundary": "The Traceable package is current immediately before its fixed thresholds; only its remote descriptor warns.",
+      "package": "packages/public-equity-traceable",
+      "evaluatedAt": "2026-07-17T23:59:59Z",
+      "requestedProfiles": ["https://openfinanceformat.org/profiles/public-equity-research/0.1"],
+      "expectedOutcome": "validWithWarnings",
+      "expectedDiagnosticCodes": ["OFF-W5003"],
+      "expected": "expected/public-equity-current.json"
+    },
+    {
+      "id": "unsupported-profile/invalid",
+      "boundary": "A declared profile stays opaque until requested, then fails deterministically when rc.1 has no consumer for it.",
+      "package": "fixtures/unsupported-profile",
+      "evaluatedAt": "2026-07-17T12:00:00Z",
+      "requestedProfiles": ["urn:off:test:profile:unsupported"],
+      "expectedOutcome": "invalid",
+      "expectedDiagnosticCodes": ["OFF-E2006"],
+      "expected": "expected/unsupported-profile-invalid.json"
+    },
+    {
+      "id": "public-equity-traceable/stale",
+      "boundary": "The same immutable package becomes stale exactly at its fixed thresholds.",
+      "package": "packages/public-equity-traceable",
+      "evaluatedAt": "2026-07-18T00:00:00Z",
+      "requestedProfiles": ["https://openfinanceformat.org/profiles/public-equity-research/0.1"],
+      "expectedOutcome": "validWithWarnings",
+      "expectedDiagnosticCodes": ["OFF-W5001", "OFF-W5001", "OFF-W5002", "OFF-W5003"],
+      "expected": "expected/public-equity-stale.json"
+    },
+    {
+      "id": "duplicate-json-name/invalid",
+      "boundary": "A decoded duplicate member name fails admission before schema or filesystem work.",
+      "package": "fixtures/duplicate-json-name",
+      "evaluatedAt": "2026-07-17T12:00:00Z",
+      "requestedProfiles": [],
+      "expectedOutcome": "invalid",
+      "expectedDiagnosticCodes": ["OFF-E1003"],
+      "expected": "expected/duplicate-json-name-invalid.json"
+    },
+    {
+      "id": "unsafe-resource-path/invalid",
+      "boundary": "A parent-segment local path is invalid even when its referenced bytes would otherwise be harmless.",
+      "package": "fixtures/unsafe-resource-path",
+      "evaluatedAt": "2026-07-17T12:00:00Z",
+      "requestedProfiles": [],
+      "expectedOutcome": "invalid",
+      "expectedDiagnosticCodes": ["OFF-E3002"],
+      "expected": "expected/unsafe-resource-path-invalid.json"
+    },
+    {
+      "id": "digest-mismatch/invalid",
+      "boundary": "A stable local file whose raw SHA-256 differs from the manifest fails Core integrity.",
+      "package": "fixtures/digest-mismatch",
+      "evaluatedAt": "2026-07-17T12:00:00Z",
+      "requestedProfiles": [],
+      "expectedOutcome": "invalid",
+      "expectedDiagnosticCodes": ["OFF-E3006"],
+      "expected": "expected/digest-mismatch-invalid.json"
+    },
+    {
+      "id": "unresolved-lineage/invalid",
+      "boundary": "A lineage edge to an undeclared dependency fails the Public Equity reference gate.",
+      "package": "fixtures/unresolved-lineage",
+      "evaluatedAt": "2026-07-17T23:59:59Z",
+      "requestedProfiles": ["https://openfinanceformat.org/profiles/public-equity-research/0.1"],
+      "expectedOutcome": "invalid",
+      "expectedDiagnosticCodes": ["OFF-E4002"],
+      "expected": "expected/unresolved-lineage-invalid.json"
+    },
+    {
+      "id": "lineage-cycle/invalid",
+      "boundary": "Two disjoint output cycles select the exact deterministic witness required by the profile.",
+      "package": "fixtures/lineage-cycle",
+      "evaluatedAt": "2026-07-17T23:59:59Z",
+      "requestedProfiles": ["https://openfinanceformat.org/profiles/public-equity-research/0.1"],
+      "expectedOutcome": "invalid",
+      "expectedDiagnosticCodes": ["OFF-E4005"],
+      "expected": "expected/lineage-cycle-invalid.json"
+    },
+    {
+      "id": "attestation-mismatch/invalid",
+      "boundary": "An author attestation bound to the wrong artifact digest fails without implying spreadsheet execution.",
+      "package": "fixtures/attestation-mismatch",
+      "evaluatedAt": "2026-07-17T23:59:59Z",
+      "requestedProfiles": ["https://openfinanceformat.org/profiles/public-equity-research/0.1"],
+      "expectedOutcome": "invalid",
+      "expectedDiagnosticCodes": ["OFF-E4007"],
+      "expected": "expected/attestation-mismatch-invalid.json"
+    }
+  ]
+}

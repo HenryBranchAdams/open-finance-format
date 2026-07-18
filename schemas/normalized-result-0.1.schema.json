@@ -1,0 +1,231 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openfinanceformat.org/schemas/normalized-result-0.1.schema.json",
+  "title": "OFF Normalized Result 0.1",
+  "type": "object",
+  "required": ["evaluationContext", "outcome", "profileResults", "diagnostics"],
+  "properties": {
+    "evaluationContext": { "$ref": "#/$defs/evaluationContext" },
+    "outcome": { "enum": ["valid", "validWithWarnings", "invalid"] },
+    "profileResults": { "$ref": "#/$defs/profileResults" },
+    "packageIdentity": { "$ref": "#/$defs/packageIdentity" },
+    "resourceInventory": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/resource" }
+    },
+    "relationshipInventory": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/relationship" }
+    },
+    "profileEntities": { "$ref": "#/$defs/profileEntities" },
+    "resolvedLineage": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/lineageEdge" }
+    },
+    "freshness": { "$ref": "#/$defs/freshness" },
+    "extensions": { "type": "object" },
+    "diagnostics": {
+      "type": "array",
+      "items": { "$ref": "https://openfinanceformat.org/schemas/diagnostic-0.1.schema.json" }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "coreStatus": { "enum": ["passed", "failed"] },
+    "status": { "enum": ["passed", "failed", "notEvaluated"] },
+    "asciiToken": {
+      "type": "string",
+      "pattern": "^[!#$%&'*+.^_`|~0-9A-Za-z-]+$"
+    },
+    "mediaType": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9!#$&^_.+-]*/[a-z0-9][a-z0-9!#$&^_.+-]*$"
+    },
+    "evaluationContext": {
+      "type": "object",
+      "required": ["offVersion", "normalizerVersion", "evaluatedAt", "requestedProfiles"],
+      "properties": {
+        "offVersion": { "const": "0.1" },
+        "normalizerVersion": { "const": "0.1" },
+        "evaluatedAt": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]Z$" },
+        "requestedProfiles": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      },
+      "additionalProperties": false
+    },
+    "profileResult": {
+      "type": "object",
+      "required": ["uri", "requested", "status"],
+      "properties": {
+        "uri": { "type": "string", "minLength": 1 },
+        "requested": { "type": "boolean" },
+        "status": { "$ref": "#/$defs/status" },
+        "claim": { "const": "Traceable — author-declared lineage" },
+        "structuralConformance": { "const": "passed" },
+        "lineageCompleteness": { "const": "attested-not-independently-verified" }
+      },
+      "additionalProperties": false
+    },
+    "profileResults": {
+      "type": "object",
+      "required": ["core", "declared"],
+      "properties": {
+        "core": {
+          "type": "object",
+          "required": ["status"],
+          "properties": { "status": { "$ref": "#/$defs/coreStatus" } },
+          "additionalProperties": false
+        },
+        "declared": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/profileResult" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "author": {
+      "type": "object",
+      "required": ["id", "name"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "license": {
+      "type": "object",
+      "required": ["id"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "url": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "packageIdentity": {
+      "type": "object",
+      "required": ["id", "releaseId", "releaseVersion", "title", "authors", "license", "publishedAt", "canonicalUrl", "entrypointResourceId", "declaredProfiles"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "releaseId": { "type": "string", "minLength": 1 },
+        "releaseVersion": { "type": "string", "minLength": 1 },
+        "title": { "type": "string", "minLength": 1 },
+        "authors": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/author" } },
+        "license": { "$ref": "#/$defs/license" },
+        "publishedAt": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]Z$" },
+        "canonicalUrl": { "type": "string", "minLength": 1 },
+        "entrypointResourceId": { "type": "string", "minLength": 1 },
+        "declaredProfiles": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }
+      },
+      "additionalProperties": false
+    },
+    "localLocation": {
+      "type": "object",
+      "required": ["kind", "path", "availability", "integrity"],
+      "properties": {
+        "kind": { "const": "local" },
+        "path": { "type": "string", "minLength": 1 },
+        "availability": { "enum": ["available", "notEvaluated"] },
+        "integrity": { "enum": ["verified", "notEvaluated"] }
+      },
+      "additionalProperties": false
+    },
+    "remoteLocation": {
+      "type": "object",
+      "required": ["kind", "url", "availability", "integrity"],
+      "properties": {
+        "kind": { "const": "remote" },
+        "url": { "type": "string", "minLength": 1 },
+        "availability": { "const": "notEvaluated" },
+        "integrity": { "const": "notEvaluated" }
+      },
+      "additionalProperties": false
+    },
+    "resource": {
+      "type": "object",
+      "required": ["id", "mediaType", "roles", "locations"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "mediaType": { "$ref": "#/$defs/mediaType" },
+        "roles": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/asciiToken" } },
+        "locations": { "type": "array", "minItems": 1, "items": { "oneOf": [{ "$ref": "#/$defs/localLocation" }, { "$ref": "#/$defs/remoteLocation" }] } },
+        "byteSize": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      },
+      "additionalProperties": false
+    },
+    "relationship": {
+      "type": "object",
+      "required": ["fromResourceId", "relation", "toResourceId"],
+      "properties": {
+        "fromResourceId": { "type": "string", "minLength": 1 },
+        "relation": { "$ref": "#/$defs/asciiToken" },
+        "toResourceId": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "lineageEdge": {
+      "type": "object",
+      "required": ["fromId", "toId", "material"],
+      "properties": {
+        "fromId": { "type": "string", "minLength": 1 },
+        "toId": { "type": "string", "minLength": 1 },
+        "material": { "const": true }
+      },
+      "additionalProperties": false
+    },
+    "profileEntities": {
+      "type": "object",
+      "properties": {
+        "https://openfinanceformat.org/profiles/public-equity-research/0.1": {
+          "type": "object",
+          "required": ["securities", "scenarios", "units", "sources", "sourceFacts", "assumptions", "outputs", "attestations"],
+          "properties": {
+            "securities": { "type": "array", "minItems": 1, "items": { "$ref": "https://openfinanceformat.org/schemas/profiles/public-equity-research-0.1.schema.json#/$defs/security" } },
+            "scenarios": { "type": "array", "minItems": 1, "items": { "$ref": "https://openfinanceformat.org/schemas/profiles/public-equity-research-0.1.schema.json#/$defs/scenario" } },
+            "units": { "type": "array", "minItems": 1, "items": { "$ref": "https://openfinanceformat.org/schemas/profiles/public-equity-research-0.1.schema.json#/$defs/unit" } },
+            "sources": { "type": "array", "minItems": 1, "items": { "$ref": "https://openfinanceformat.org/schemas/profiles/public-equity-research-0.1.schema.json#/$defs/source" } },
+            "sourceFacts": { "type": "array", "minItems": 1, "items": { "$ref": "https://openfinanceformat.org/schemas/profiles/public-equity-research-0.1.schema.json#/$defs/sourceFact" } },
+            "assumptions": { "type": "array", "minItems": 1, "items": { "$ref": "https://openfinanceformat.org/schemas/profiles/public-equity-research-0.1.schema.json#/$defs/assumption" } },
+            "outputs": { "type": "array", "minItems": 1, "items": { "$ref": "https://openfinanceformat.org/schemas/profiles/public-equity-research-0.1.schema.json#/$defs/output" } },
+            "attestations": { "type": "array", "minItems": 1, "items": { "$ref": "https://openfinanceformat.org/schemas/profiles/public-equity-research-0.1.schema.json#/$defs/attestation" } }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "freshness": {
+      "type": "object",
+      "required": ["leaves", "headlines"],
+      "properties": {
+        "leaves": { "type": "array", "items": { "$ref": "#/$defs/freshnessLeaf" } },
+        "headlines": { "type": "array", "items": { "$ref": "#/$defs/freshnessHeadline" } }
+      },
+      "additionalProperties": false
+    },
+    "freshnessLeaf": {
+      "type": "object",
+      "required": ["entityId", "status", "threshold"],
+      "properties": {
+        "entityId": { "type": "string", "minLength": 1 },
+        "status": { "enum": ["current", "stale"] },
+        "threshold": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]Z$" }
+      },
+      "additionalProperties": false
+    },
+    "freshnessHeadline": {
+      "type": "object",
+      "required": ["entityId", "status", "staleDependencyIds"],
+      "properties": {
+        "entityId": { "type": "string", "minLength": 1 },
+        "status": { "enum": ["current", "stale"] },
+        "staleDependencyIds": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }
+      },
+      "additionalProperties": false
+    }
+  }
+}

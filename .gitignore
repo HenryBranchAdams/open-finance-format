@@ -1,0 +1,7 @@
+.DS_Store
+node_modules/
+.pnpm-store/
+build/
+coverage/
+
+# dist/ is checked in for dependency-free conformance runs.

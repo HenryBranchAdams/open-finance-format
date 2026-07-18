@@ -1,0 +1,173 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openfinanceformat.org/schemas/off-core-0.1.schema.json",
+  "title": "OFF Core 0.1 manifest",
+  "type": "object",
+  "required": ["offVersion", "package", "profiles", "resources"],
+  "properties": {
+    "offVersion": { "const": "0.1" },
+    "package": { "$ref": "#/$defs/package" },
+    "profiles": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "resources": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/resource" }
+    },
+    "relationships": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/relationship" }
+    },
+    "profileData": { "type": "object" },
+    "extensions": { "type": "object" }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "absoluteUri": { "type": "string", "minLength": 1 },
+    "httpsUrl": { "type": "string", "minLength": 1 },
+    "nonEmptyString": { "type": "string", "minLength": 1 },
+    "asciiToken": {
+      "type": "string",
+      "pattern": "^[!#$%&'*+.^_`|~0-9A-Za-z-]+$"
+    },
+    "author": {
+      "type": "object",
+      "required": ["id", "name"],
+      "properties": {
+        "id": { "$ref": "#/$defs/absoluteUri" },
+        "name": { "$ref": "#/$defs/nonEmptyString" }
+      },
+      "additionalProperties": false
+    },
+    "license": {
+      "type": "object",
+      "required": ["id"],
+      "properties": {
+        "id": { "$ref": "#/$defs/nonEmptyString" },
+        "url": { "$ref": "#/$defs/httpsUrl" }
+      },
+      "additionalProperties": false
+    },
+    "package": {
+      "type": "object",
+      "required": [
+        "id",
+        "releaseId",
+        "releaseVersion",
+        "title",
+        "authors",
+        "license",
+        "publishedAt",
+        "canonicalUrl",
+        "entrypointResourceId"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/absoluteUri" },
+        "releaseId": { "$ref": "#/$defs/absoluteUri" },
+        "releaseVersion": { "$ref": "#/$defs/nonEmptyString" },
+        "title": { "$ref": "#/$defs/nonEmptyString" },
+        "authors": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/author" }
+        },
+        "license": { "$ref": "#/$defs/license" },
+        "publishedAt": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]Z$"
+        },
+        "canonicalUrl": { "$ref": "#/$defs/httpsUrl" },
+        "entrypointResourceId": { "$ref": "#/$defs/absoluteUri" }
+      },
+      "additionalProperties": false
+    },
+    "localLocation": {
+      "type": "object",
+      "required": ["kind", "path"],
+      "properties": {
+        "kind": { "const": "local" },
+        "path": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "remoteLocation": {
+      "type": "object",
+      "required": ["kind", "url"],
+      "properties": {
+        "kind": { "const": "remote" },
+        "url": { "$ref": "#/$defs/httpsUrl" }
+      },
+      "additionalProperties": false
+    },
+    "resource": {
+      "type": "object",
+      "required": ["id", "mediaType", "roles", "locations"],
+      "properties": {
+        "id": { "$ref": "#/$defs/absoluteUri" },
+        "mediaType": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9!#$&^_.+-]*/[a-z0-9][a-z0-9!#$&^_.+-]*$"
+        },
+        "roles": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/asciiToken" }
+        },
+        "locations": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "oneOf": [
+              { "$ref": "#/$defs/localLocation" },
+              { "$ref": "#/$defs/remoteLocation" }
+            ]
+          },
+          "contains": { "$ref": "#/$defs/localLocation" },
+          "minContains": 0,
+          "maxContains": 1
+        },
+        "byteSize": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "locations": {
+                "type": "array",
+                "contains": { "$ref": "#/$defs/localLocation" }
+              }
+            },
+            "required": ["locations"]
+          },
+          "then": {
+            "properties": { "byteSize": true, "sha256": true },
+            "required": ["byteSize", "sha256"]
+          }
+        }
+      ],
+      "additionalProperties": false
+    },
+    "relationship": {
+      "type": "object",
+      "required": ["fromResourceId", "relation", "toResourceId"],
+      "properties": {
+        "fromResourceId": { "$ref": "#/$defs/absoluteUri" },
+        "relation": { "$ref": "#/$defs/asciiToken" },
+        "toResourceId": { "$ref": "#/$defs/absoluteUri" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

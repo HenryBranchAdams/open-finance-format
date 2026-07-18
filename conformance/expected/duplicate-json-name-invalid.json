@@ -1,0 +1,1 @@
+{"diagnostics":[{"code":"OFF-E1003","instanceLocation":"/package","parameters":{"name":"title","occurrence":2},"ruleId":"OFF.ADMISSION.DUPLICATE_NAME","severity":"error"}],"evaluationContext":{"evaluatedAt":"2026-07-17T12:00:00Z","normalizerVersion":"0.1","offVersion":"0.1","requestedProfiles":[]},"outcome":"invalid","profileResults":{"core":{"status":"failed"},"declared":[]}}

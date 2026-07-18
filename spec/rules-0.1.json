@@ -1,0 +1,254 @@
+{
+  "registryVersion": "0.1",
+  "offVersion": "0.1",
+  "stages": [
+    "admission",
+    "schema",
+    "request",
+    "core",
+    "publicEquity",
+    "freshness"
+  ],
+  "rules": [
+    {
+      "id": "OFF.MANIFEST.MISSING",
+      "stage": "admission",
+      "authority": "spec/normalization-0.1.md#2-admission",
+      "prerequisites": [],
+      "diagnostic": { "code": "OFF-E1006", "severity": "error" },
+      "emission": { "cardinality": "onePerEvaluation", "instanceLocationRule": "manifest root (empty pointer)", "entityIdRule": "omit", "requiredParameterKeys": [] }
+    },
+    {
+      "id": "OFF.ADMISSION.UTF8",
+      "stage": "admission",
+      "authority": "spec/normalization-0.1.md#2-admission",
+      "prerequisites": [],
+      "diagnostic": { "code": "OFF-E1001", "severity": "error" },
+      "emission": { "cardinality": "onePerEvaluation", "instanceLocationRule": "manifest root (empty pointer)", "entityIdRule": "omit", "requiredParameterKeys": ["byteOffset"] }
+    },
+    {
+      "id": "OFF.ADMISSION.JSON",
+      "stage": "admission",
+      "authority": "spec/normalization-0.1.md#2-admission",
+      "prerequisites": ["OFF.ADMISSION.UTF8"],
+      "diagnostic": { "code": "OFF-E1002", "severity": "error" },
+      "emission": { "cardinality": "onePerEvaluation", "instanceLocationRule": "manifest root (empty pointer)", "entityIdRule": "omit", "requiredParameterKeys": ["byteOffset"] }
+    },
+    {
+      "id": "OFF.ADMISSION.DUPLICATE_NAME",
+      "stage": "admission",
+      "authority": "spec/normalization-0.1.md#2-admission",
+      "prerequisites": ["OFF.ADMISSION.JSON"],
+      "diagnostic": { "code": "OFF-E1003", "severity": "error" },
+      "emission": { "cardinality": "onePerInstanceLocation", "instanceLocationRule": "pointer to the containing object", "entityIdRule": "omit", "requiredParameterKeys": ["name", "occurrence"] }
+    },
+    {
+      "id": "OFF.ADMISSION.UNICODE",
+      "stage": "admission",
+      "authority": "spec/normalization-0.1.md#2-admission",
+      "prerequisites": ["OFF.ADMISSION.JSON"],
+      "diagnostic": { "code": "OFF-E1004", "severity": "error" },
+      "emission": { "cardinality": "onePerInstanceLocation", "instanceLocationRule": "pointer to the string value; for an invalid member name, the nearest containing object whose pointer contains only Unicode scalar values", "entityIdRule": "omit", "requiredParameterKeys": ["codeUnitOffset"] }
+    },
+    {
+      "id": "OFF.ADMISSION.NUMBER",
+      "stage": "admission",
+      "authority": "spec/normalization-0.1.md#2-admission",
+      "prerequisites": ["OFF.ADMISSION.JSON"],
+      "diagnostic": { "code": "OFF-E1005", "severity": "error" },
+      "emission": { "cardinality": "onePerInstanceLocation", "instanceLocationRule": "pointer to the numeric value", "entityIdRule": "omit", "requiredParameterKeys": ["lexeme", "reason"] }
+    },
+    {
+      "id": "OFF.SCHEMA.ROOT",
+      "stage": "schema",
+      "authority": "spec/OFF-Core-0.1.md#2-manifest-members",
+      "prerequisites": ["OFF.ADMISSION.JSON", "OFF.ADMISSION.DUPLICATE_NAME", "OFF.ADMISSION.UNICODE", "OFF.ADMISSION.NUMBER"],
+      "diagnostic": { "code": "OFF-E2001", "severity": "error" },
+      "emission": { "cardinality": "onePerInstanceLocation", "instanceLocationRule": "pointer to the value failing the OFF root-shape constraint, or root when absent", "entityIdRule": "omit", "requiredParameterKeys": ["constraint"] }
+    },
+    {
+      "id": "OFF.SCHEMA.VERSION",
+      "stage": "schema",
+      "authority": "spec/OFF-Core-0.1.md#2-manifest-members",
+      "prerequisites": ["OFF.SCHEMA.ROOT"],
+      "diagnostic": { "code": "OFF-E2002", "severity": "error" },
+      "emission": { "cardinality": "onePerInstanceLocation", "instanceLocationRule": "/offVersion", "entityIdRule": "omit", "requiredParameterKeys": ["supportedVersion"] }
+    },
+    {
+      "id": "OFF.SCHEMA.IDENTITY",
+      "stage": "schema",
+      "authority": "spec/OFF-Core-0.1.md#2-manifest-members",
+      "prerequisites": ["OFF.SCHEMA.ROOT"],
+      "diagnostic": { "code": "OFF-E2003", "severity": "error" },
+      "emission": { "cardinality": "onePerInstanceLocation", "instanceLocationRule": "pointer to the invalid package identity member, or /package when absent", "entityIdRule": "omit", "requiredParameterKeys": ["field", "reason"] }
+    },
+    {
+      "id": "OFF.SCHEMA.PROFILE_DECLARATION",
+      "stage": "schema",
+      "authority": "spec/OFF-Core-0.1.md#4-relationships-profiles-and-extensions",
+      "prerequisites": ["OFF.SCHEMA.ROOT"],
+      "diagnostic": { "code": "OFF-E2004", "severity": "error" },
+      "emission": { "cardinality": "onePerInstanceLocation", "instanceLocationRule": "pointer to the invalid profiles array entry or profileData key", "entityIdRule": "omit", "requiredParameterKeys": ["profileUri", "reason"] }
+    },
+    {
+      "id": "OFF.SCHEMA.EXTENSION_NAMESPACE",
+      "stage": "schema",
+      "authority": "spec/OFF-Core-0.1.md#4-relationships-profiles-and-extensions",
+      "prerequisites": ["OFF.SCHEMA.ROOT"],
+      "diagnostic": { "code": "OFF-E2005", "severity": "error" },
+      "emission": { "cardinality": "onePerInstanceLocation", "instanceLocationRule": "pointer to the invalid extensions member", "entityIdRule": "omit", "requiredParameterKeys": ["namespace", "reason"] }
+    },
+    {
+      "id": "OFF.SCHEMA.PROFILE_TARGET",
+      "stage": "request",
+      "authority": "spec/conformance-0.1.md#4-claims",
+      "prerequisites": ["OFF.SCHEMA.ROOT"],
+      "diagnostic": { "code": "OFF-E2006", "severity": "error" },
+      "emission": { "cardinality": "onePerEntity", "instanceLocationRule": "manifest root (empty pointer), because the requested target belongs to evaluation context", "entityIdRule": "exact requested profile URI", "requiredParameterKeys": ["reason"] }
+    },
+    {
+      "id": "OFF.CORE.RESOURCE_ID",
+      "stage": "core",
+      "authority": "spec/OFF-Core-0.1.md#3-resources",
+      "prerequisites": ["OFF.SCHEMA.ROOT"],
+      "diagnostic": { "code": "OFF-E3001", "severity": "error" },
+      "emission": { "cardinality": "onePerInstanceLocation", "instanceLocationRule": "pointer to each duplicate resource id after its first occurrence", "entityIdRule": "exact duplicate resource id", "requiredParameterKeys": ["firstInstanceLocation"] }
+    },
+    {
+      "id": "OFF.CORE.RESOURCE_PATH",
+      "stage": "core",
+      "authority": "spec/OFF-Core-0.1.md#3-resources",
+      "prerequisites": ["OFF.SCHEMA.ROOT"],
+      "diagnostic": { "code": "OFF-E3002", "severity": "error" },
+      "emission": { "cardinality": "onePerInstanceLocation", "instanceLocationRule": "pointer to the invalid local path member", "entityIdRule": "containing resource id", "requiredParameterKeys": ["path", "reason"] }
+    },
+    {
+      "id": "OFF.CORE.RESOURCE_REQUIRED_LOCAL",
+      "stage": "core",
+      "authority": "spec/OFF-Core-0.1.md#3-resources",
+      "prerequisites": ["OFF.CORE.RESOURCE_PATH"],
+      "diagnostic": { "code": "OFF-E3003", "severity": "error" },
+      "emission": { "cardinality": "onePerEntity", "instanceLocationRule": "pointer to the resource object", "entityIdRule": "resource id", "requiredParameterKeys": ["roles"] }
+    },
+    {
+      "id": "OFF.CORE.RESOURCE_FILE",
+      "stage": "core",
+      "authority": "spec/OFF-Core-0.1.md#3-resources",
+      "prerequisites": ["OFF.CORE.RESOURCE_PATH"],
+      "diagnostic": { "code": "OFF-E3004", "severity": "error" },
+      "emission": { "cardinality": "onePerEntity", "instanceLocationRule": "pointer to the resource local path member", "entityIdRule": "resource id", "requiredParameterKeys": ["path", "reason"] }
+    },
+    {
+      "id": "OFF.CORE.RESOURCE_SIZE",
+      "stage": "core",
+      "authority": "spec/OFF-Core-0.1.md#3-resources",
+      "prerequisites": ["OFF.CORE.RESOURCE_FILE"],
+      "diagnostic": { "code": "OFF-E3005", "severity": "error" },
+      "emission": { "cardinality": "onePerEntity", "instanceLocationRule": "pointer to the resource byteSize member", "entityIdRule": "resource id", "requiredParameterKeys": ["actualByteSize", "declaredByteSize"] }
+    },
+    {
+      "id": "OFF.CORE.RESOURCE_DIGEST",
+      "stage": "core",
+      "authority": "spec/OFF-Core-0.1.md#3-resources",
+      "prerequisites": ["OFF.CORE.RESOURCE_FILE"],
+      "diagnostic": { "code": "OFF-E3006", "severity": "error" },
+      "emission": { "cardinality": "onePerEntity", "instanceLocationRule": "pointer to the resource sha256 member", "entityIdRule": "resource id", "requiredParameterKeys": ["actualSha256", "declaredSha256"] }
+    },
+    {
+      "id": "OFF.CORE.ENTRYPOINT",
+      "stage": "core",
+      "authority": "spec/OFF-Core-0.1.md#2-manifest-members",
+      "prerequisites": ["OFF.CORE.RESOURCE_ID", "OFF.CORE.RESOURCE_FILE"],
+      "diagnostic": { "code": "OFF-E3007", "severity": "error" },
+      "emission": { "cardinality": "onePerEvaluation", "instanceLocationRule": "/package/entrypointResourceId", "entityIdRule": "omit", "requiredParameterKeys": ["reason", "referencedId"] }
+    },
+    {
+      "id": "OFF.CORE.RELATIONSHIP",
+      "stage": "core",
+      "authority": "spec/OFF-Core-0.1.md#4-relationships-profiles-and-extensions",
+      "prerequisites": ["OFF.CORE.RESOURCE_ID"],
+      "diagnostic": { "code": "OFF-E3008", "severity": "error" },
+      "emission": { "cardinality": "onePerEdge", "instanceLocationRule": "pointer to the relationship object", "entityIdRule": "omit", "requiredParameterKeys": ["fromResourceId", "reason", "toResourceId"] }
+    },
+    {
+      "id": "OFF.PROFILE.ENTITY_ID",
+      "stage": "publicEquity",
+      "authority": "spec/profiles/public-equity-research-0.1.md#1-profile-data",
+      "prerequisites": ["OFF.CORE.ENTRYPOINT"],
+      "diagnostic": { "code": "OFF-E4001", "severity": "error" },
+      "emission": { "cardinality": "onePerInstanceLocation", "instanceLocationRule": "pointer to each duplicate profile entity id after its first occurrence", "entityIdRule": "exact duplicate entity id", "requiredParameterKeys": ["entityKind", "firstInstanceLocation"] }
+    },
+    {
+      "id": "OFF.PROFILE.REFERENCE",
+      "stage": "publicEquity",
+      "authority": "spec/profiles/public-equity-research-0.1.md#2-entities",
+      "prerequisites": ["OFF.PROFILE.ENTITY_ID"],
+      "diagnostic": { "code": "OFF-E4002", "severity": "error" },
+      "emission": { "cardinality": "onePerInstanceLocation", "instanceLocationRule": "pointer to the unresolved or wrong-kind reference member", "entityIdRule": "id of the containing profile entity", "requiredParameterKeys": ["expectedKind", "referencedId"] }
+    },
+    {
+      "id": "OFF.PROFILE.HEADLINE",
+      "stage": "publicEquity",
+      "authority": "spec/profiles/public-equity-research-0.1.md#2-entities",
+      "prerequisites": ["OFF.PROFILE.REFERENCE"],
+      "diagnostic": { "code": "OFF-E4003", "severity": "error" },
+      "emission": { "cardinality": "onePerEntity", "instanceLocationRule": "pointer to the headline output object", "entityIdRule": "headline output id", "requiredParameterKeys": ["missingFields"] }
+    },
+    {
+      "id": "OFF.PROFILE.LINEAGE_EDGE",
+      "stage": "publicEquity",
+      "authority": "spec/profiles/public-equity-research-0.1.md#3-lineage-and-attestation",
+      "prerequisites": ["OFF.PROFILE.REFERENCE"],
+      "diagnostic": { "code": "OFF-E4004", "severity": "error" },
+      "emission": { "cardinality": "onePerEdge", "instanceLocationRule": "pointer to the invalid lineage edge object", "entityIdRule": "fromId when it resolves, otherwise omit", "requiredParameterKeys": ["fromId", "reason", "toId"] }
+    },
+    {
+      "id": "OFF.PROFILE.LINEAGE_CYCLE",
+      "stage": "publicEquity",
+      "authority": "spec/profiles/public-equity-research-0.1.md#3-lineage-and-attestation",
+      "prerequisites": ["OFF.PROFILE.LINEAGE_EDGE"],
+      "diagnostic": { "code": "OFF-E4005", "severity": "error" },
+      "emission": { "cardinality": "onePerEvaluation", "instanceLocationRule": "pointer to the Public Equity lineageEdges array", "entityIdRule": "omit", "requiredParameterKeys": ["cycleEntityIds"] }
+    },
+    {
+      "id": "OFF.PROFILE.LINEAGE_TERMINAL",
+      "stage": "publicEquity",
+      "authority": "spec/profiles/public-equity-research-0.1.md#3-lineage-and-attestation",
+      "prerequisites": ["OFF.PROFILE.HEADLINE", "OFF.PROFILE.LINEAGE_CYCLE"],
+      "diagnostic": { "code": "OFF-E4006", "severity": "error" },
+      "emission": { "cardinality": "onePerAffectedHeadline", "instanceLocationRule": "pointer to the headline output object", "entityIdRule": "headline output id", "requiredParameterKeys": ["unterminatedNodeIds"] }
+    },
+    {
+      "id": "OFF.PROFILE.ATTESTATION",
+      "stage": "publicEquity",
+      "authority": "spec/profiles/public-equity-research-0.1.md#3-lineage-and-attestation",
+      "prerequisites": ["OFF.PROFILE.LINEAGE_TERMINAL", "OFF.CORE.RESOURCE_DIGEST"],
+      "diagnostic": { "code": "OFF-E4007", "severity": "error" },
+      "emission": { "cardinality": "onePerAffectedHeadline", "instanceLocationRule": "pointer to the headline output attestationId member", "entityIdRule": "headline output id", "requiredParameterKeys": ["attestationId", "reason"] }
+    },
+    {
+      "id": "OFF.FRESHNESS.LEAF_STALE",
+      "stage": "freshness",
+      "authority": "spec/profiles/public-equity-research-0.1.md#4-freshness",
+      "prerequisites": ["OFF.PROFILE.ATTESTATION"],
+      "diagnostic": { "code": "OFF-W5001", "severity": "warning" },
+      "emission": { "cardinality": "onePerEntity", "instanceLocationRule": "pointer to the leaf staleAt or reviewBy member", "entityIdRule": "stale leaf id", "requiredParameterKeys": ["evaluatedAt", "threshold"] }
+    },
+    {
+      "id": "OFF.FRESHNESS.HEADLINE_STALE",
+      "stage": "freshness",
+      "authority": "spec/profiles/public-equity-research-0.1.md#4-freshness",
+      "prerequisites": ["OFF.FRESHNESS.LEAF_STALE"],
+      "diagnostic": { "code": "OFF-W5002", "severity": "warning" },
+      "emission": { "cardinality": "onePerAffectedHeadline", "instanceLocationRule": "pointer to the headline output object", "entityIdRule": "headline output id", "requiredParameterKeys": ["evaluatedAt", "staleDependencyIds"] }
+    },
+    {
+      "id": "OFF.CORE.REMOTE_NOT_EVALUATED",
+      "stage": "core",
+      "authority": "spec/OFF-Core-0.1.md#3-resources",
+      "prerequisites": ["OFF.SCHEMA.ROOT"],
+      "diagnostic": { "code": "OFF-W5003", "severity": "warning" },
+      "emission": { "cardinality": "onePerRemoteLocation", "instanceLocationRule": "pointer to the remote location object", "entityIdRule": "containing resource id", "requiredParameterKeys": ["locationIndex", "url"] }
+    }
+  ]
+}

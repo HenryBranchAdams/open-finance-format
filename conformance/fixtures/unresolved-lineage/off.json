@@ -1,0 +1,97 @@
+{
+  "offVersion": "0.1",
+  "package": {
+    "id": "urn:off:fixture:unresolved-lineage",
+    "releaseId": "urn:off:fixture:unresolved-lineage:release:1",
+    "releaseVersion": "1",
+    "title": "Unresolved lineage fixture",
+    "authors": [{"id": "urn:off:fixture:author", "name": "Synthetic OFF Author"}],
+    "license": {"id": "CC0-1.0"},
+    "publishedAt": "2026-07-17T12:00:00Z",
+    "canonicalUrl": "https://example.org/off/fixtures/unresolved-lineage/1",
+    "entrypointResourceId": "urn:off:fixture:resource:model"
+  },
+  "profiles": ["https://openfinanceformat.org/profiles/public-equity-research/0.1"],
+  "resources": [
+    {
+      "id": "urn:off:fixture:resource:model",
+      "mediaType": "text/csv",
+      "roles": ["entrypoint", "model-artifact", "source-evidence"],
+      "locations": [{"kind": "local", "path": "model.csv"}],
+      "byteSize": 57,
+      "sha256": "89e7f1bd47fe027d3411a43693ab93edaef9f1fd1d7abed1d1d0c0c9727b1f91"
+    }
+  ],
+  "profileData": {
+    "https://openfinanceformat.org/profiles/public-equity-research/0.1": {
+      "securities": [
+        {
+          "id": "urn:off:fixture:security",
+          "issuerName": "Synthetic Issuer",
+          "ticker": "SYN",
+          "exchange": "XNYS",
+          "securityType": "common-stock",
+          "reportingCurrencyUnitId": "urn:off:fixture:unit:usd"
+        }
+      ],
+      "scenarios": [{"id": "urn:off:fixture:scenario:base", "label": "Base", "role": "base"}],
+      "units": [{"id": "urn:off:fixture:unit:usd", "label": "US dollars", "kind": "currency", "symbol": "$", "currency": "USD"}],
+      "sources": [{"id": "urn:off:fixture:source", "title": "Synthetic evidence", "publisher": "Synthetic Issuer", "evidenceResourceId": "urn:off:fixture:resource:model"}],
+      "sourceFacts": [
+        {
+          "id": "urn:off:fixture:fact:revenue",
+          "label": "Revenue",
+          "value": {"type": "decimal", "value": "100"},
+          "unitId": "urn:off:fixture:unit:usd",
+          "effectiveDate": "2026-06-30",
+          "sourceId": "urn:off:fixture:source",
+          "staleAt": "2026-07-18T00:00:00Z"
+        }
+      ],
+      "assumptions": [
+        {
+          "id": "urn:off:fixture:assumption:growth",
+          "label": "Growth",
+          "value": {"type": "decimal", "value": "0.1"},
+          "unitId": "urn:off:fixture:unit:usd",
+          "effectiveDate": "2026-07-17",
+          "designation": "analystJudgment",
+          "reviewBy": "2026-07-18T00:00:00Z"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "urn:off:fixture:output:headline",
+          "label": "Price target",
+          "value": {"type": "decimal", "value": "125"},
+          "unitId": "urn:off:fixture:unit:usd",
+          "asOfDate": "2026-07-17",
+          "scenarioId": "urn:off:fixture:scenario:base",
+          "headline": true,
+          "artifactResourceId": "urn:off:fixture:resource:model",
+          "methodology": "Synthetic methodology.",
+          "attestationId": "urn:off:fixture:attestation"
+        }
+      ],
+      "lineageEdges": [
+        {"fromId": "urn:off:fixture:output:headline", "toId": "urn:off:fixture:fact:revenue", "material": true},
+        {"fromId": "urn:off:fixture:output:headline", "toId": "urn:off:fixture:assumption:missing", "material": true}
+      ],
+      "attestations": [
+        {
+          "id": "urn:off:fixture:attestation",
+          "outputIds": ["urn:off:fixture:output:headline"],
+          "authorId": "urn:off:fixture:author",
+          "attestedAt": "2026-07-17T12:00:00Z",
+          "artifactResourceId": "urn:off:fixture:resource:model",
+          "artifactSha256": "89e7f1bd47fe027d3411a43693ab93edaef9f1fd1d7abed1d1d0c0c9727b1f91",
+          "lineageBasis": "author-declared",
+          "materialityPolicy": "All material dependencies are declared.",
+          "scope": "Headline output.",
+          "knownExclusions": [],
+          "lineageCompleteness": "attested-not-independently-verified"
+        }
+      ]
+    }
+  }
+}
