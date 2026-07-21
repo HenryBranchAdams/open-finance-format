@@ -3,9 +3,7 @@ title: OFF v0.1 Layered Conformance Corpus - Plan
 type: feat
 date: 2026-07-17
 topic: off-v0-1-layered-conformance-corpus
-artifact_contract: ce-unified-plan/v1
 artifact_readiness: implementation-ready
-product_contract_source: ce-brainstorm
 execution: code
 deepened: 2026-07-17
 ---

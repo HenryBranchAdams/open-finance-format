@@ -3,9 +3,7 @@ title: "feat: Ship OFF public release candidate"
 type: feat
 date: 2026-07-20
 topic: off-public-release-shipping
-artifact_contract: ce-unified-plan/v1
 artifact_readiness: implementation-ready
-product_contract_source: ce-plan-bootstrap
 execution: code
 ---
 
@@ -17,7 +15,7 @@ execution: code
 - **Authority:** `STRATEGY.md` governs product identity; `README.md`, `release/v0.1-rc.1/README.md`, `spec/`, and `docs/handoff.yaml` govern the current candidate and its claim boundary.
 - **Execution profile:** Release engineering and documentation with one narrow CircleCI configuration enhancement; preserve the committed candidate and its deterministic local acceptance matrix.
 - **Stop conditions:** Stop rather than invent an external-evidence pass, alter the pending rc.1 evidence template, promote the candidate to v0.1, or invite clean-room testing without the separate authenticated checksum-digest record.
-- **Tail ownership:** LFG owns the implementation, review, GitHub repository creation, public push, PR, and CI observation. A CircleCI project connection that requires an unavailable third-party account action is a surfaced operational residual, not a reason to weaken the release claim.
+- **Delivery ownership:** This slice includes implementation, review, GitHub repository creation, public push, PR, and CI observation. A CircleCI project connection that requires an unavailable third-party account action is a surfaced operational residual, not a reason to weaken the release claim.
 
 ---
 
