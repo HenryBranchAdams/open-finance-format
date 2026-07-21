@@ -8,6 +8,7 @@ const repositoryRoot = dirname(dirname(fileURLToPath(import.meta.url)));
 const markdownPaths = [
   "README.md",
   "docs/START_HERE.md",
+  "docs/PUBLICATION.md",
   "docs/AGENT_BRIEF.md",
   "docs/PROJECT_BRIEF.md",
   "docs/ROADMAP.md",
@@ -16,6 +17,8 @@ const markdownPaths = [
   "clean-room/CONSUMER_TASK.md",
   "clean-room/PRODUCER_TASK.md",
   "clean-room/INTEROPERABILITY_REPORT.template.md",
+  "CONCEPTS.md",
+  "docs/solutions/architecture-patterns/separating-local-conformance-from-clean-room-interoperability.md",
 ] as const;
 
 async function readRepositoryFile(path: string): Promise<string> {
@@ -94,6 +97,19 @@ test("external promotion evidence remains explicitly pending", async () => {
   assert.match(handoff, /promotion_to_v0_1:\s*not_claimed/u);
   assert.match(handoff, /adoption:\s*not_claimed/u);
   assert.match(handoff, /financial_correctness:\s*not_claimed/u);
+});
+
+test("publication guidance preserves the clean-room and authentication boundary", async () => {
+  const publication = await readRepositoryFile("docs/PUBLICATION.md");
+
+  assert.match(publication, /does \*\*not\*\* establish independent interoperability/iu);
+  assert.match(publication, /embedded external-evidence fields as `pending`/iu);
+  assert.match(publication, /SHA-256 of `release\/v0\.1-rc\.1\/checksums\.json`/u);
+  assert.match(publication, /separate authenticated record is required before inviting clean-room work/iu);
+  assert.match(publication, /Record the returned immutable Gist revision URL in the GitHub release metadata/iu);
+  assert.match(publication, /declares no context or write credential/iu);
+  assert.match(publication, /no injected environment variables or contexts/iu);
+  assert.match(publication, /new immutable candidate and restart/iu);
 });
 
 test("the handoff declares exactly the two normative v0.1-rc.1 profiles", async () => {

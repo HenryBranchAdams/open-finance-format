@@ -3,20 +3,18 @@ version: 2.1
 jobs:
   acceptance:
     docker:
-      - image: cimg/node:22.13.0
+      - image: cimg/node:22.13.0@sha256:47504124be519c77780c25843a2dfe37a87e238a2325487af84c61f126dd05d6
     steps:
       - checkout
       - run:
           name: Activate locked Corepack and pnpm
           command: |
             mkdir -p "$HOME/.local/bin"
-            npm install --global --prefix "$HOME/.local" --no-audit --no-fund corepack@0.35.0
             echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$BASH_ENV"
             source "$BASH_ENV"
             corepack enable --install-directory "$HOME/.local/bin" pnpm
             corepack install --global pnpm@10.34.1
             test "$(node --version)" = "v22.13.0"
-            test "$(corepack --version)" = "0.35.0"
             test "$(pnpm --version)" = "10.34.1"
       - run:
           name: Install locked dependencies
@@ -27,14 +25,83 @@ jobs:
             COREPACK_ENABLE_NETWORK: "0"
             COREPACK_DEFAULT_TO_LATEST: "0"
           command: |
-            pnpm build
-            pnpm check
-            pnpm test
-            pnpm test:node22
-            pnpm test:offline
-            node dist/off.mjs corpus verify --corpus conformance/corpus.json
+            mkdir -p artifacts
+            outcomes=()
+            run_acceptance() {
+              name="$1"
+              shift
+              if "$@"; then
+                outcomes+=("$name:0")
+              else
+                outcomes+=("$name:$?")
+              fi
+            }
+            run_acceptance build pnpm build
+            run_acceptance typecheck pnpm exec tsc --noEmit
+            run_acceptance contract-tests node --test test/diagnostics.test.ts test/schema.test.ts test/docs.test.ts test/circleci.test.ts
+            run_acceptance test pnpm test
+            run_acceptance node22 pnpm test:node22
+            run_acceptance offline pnpm test:offline
+            run_acceptance corpus sh -c 'node dist/off.mjs corpus verify --corpus conformance/corpus.json > artifacts/corpus.json'
+            run_acceptance release-validation sh -c 'node scripts/release-validate.mjs --root . > artifacts/release-validation.json'
+            OFF_CI_OUTCOMES="$(IFS=,; echo "${outcomes[*]}")" node --input-type=module <<'NODE'
+            import { createHash } from "node:crypto";
+            import { execFileSync } from "node:child_process";
+            import { readFile, writeFile } from "node:fs/promises";
+
+            const outputFiles = ["artifacts/corpus.json", "artifacts/release-validation.json"];
+            const output = async (path) => {
+              try {
+                return [path, { sha256: createHash("sha256").update(await readFile(path)).digest("hex") }];
+              } catch (error) {
+                if (error.code === "ENOENT") return [path, { sha256: null }];
+                throw error;
+              }
+            };
+            const command = (file, args) =>
+              execFileSync(file, args, { encoding: "utf8" }).trim();
+            const commands = (process.env.OFF_CI_OUTCOMES ?? "")
+              .split(",")
+              .filter(Boolean)
+              .map((entry) => {
+                const separator = entry.lastIndexOf(":");
+                return {
+                  name: entry.slice(0, separator),
+                  exitCode: Number(entry.slice(separator + 1)),
+                };
+              });
+            const provenance = {
+              contractVersion: "off-ci-provenance/v1",
+              executorImage: "cimg/node:22.13.0@sha256:47504124be519c77780c25843a2dfe37a87e238a2325487af84c61f126dd05d6",
+              revision: {
+                commit: command("git", ["rev-parse", "HEAD"]),
+                circleCommit: process.env.CIRCLE_SHA1 ?? null,
+                tag: process.env.CIRCLE_TAG ?? null,
+                branch: process.env.CIRCLE_BRANCH ?? null,
+              },
+              runtime: {
+                node: process.version,
+                corepack: command("corepack", ["--version"]),
+                pnpm: command("pnpm", ["--version"]),
+              },
+              commands,
+              outputs: Object.fromEntries(
+                await Promise.all(outputFiles.map(output)),
+              ),
+            };
+            await writeFile("artifacts/provenance.json", `${JSON.stringify(provenance, null, 2)}\n`);
+            NODE
+            if printf '%s\n' "${outcomes[@]}" | grep -qv ':0$'; then
+              exit 1
+            fi
+      - store_artifacts:
+          path: artifacts
+          destination: off-v0.1-rc.1-ci-evidence
 
 workflows:
   acceptance:
     jobs:
-      - acceptance
+      - acceptance:
+          filters:
+            tags:
+              only: /^v0\.1-rc\.1$/
