@@ -20,7 +20,8 @@ This directory preserves the product and standards work that led to the current 
 2. `../spec/OFF-Core-0.1.md` — normative Core contract.
 3. `../spec/profiles/public-equity-research-0.1.md` — normative Public Equity contract.
 4. `plans/2026-07-17-001-feat-off-v0-1-layered-conformance-corpus-plan.md` — implementation contract.
-5. The remaining files here — historical product, design, research, and roadmap context.
+5. `PUBLICATION.md` — non-normative procedure for publishing the experimental candidate without weakening its evidence boundary.
+6. The remaining files here — historical product, design, research, and roadmap context.
 
 `handoff.yaml` is the machine-readable index for this package.
 
