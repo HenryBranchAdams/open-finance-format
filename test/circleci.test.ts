@@ -13,6 +13,7 @@ test("CircleCI captures complete acceptance provenance for the rc.1 tag", async 
   assert.match(config, /pnpm@10\.34\.1/u);
   assert.match(config, /run_acceptance\(\)/u);
   assert.match(config, /OFF_CI_OUTCOMES/u);
+  assert.match(config, /does not match checkout/u);
   for (const command of [
     "build",
     "typecheck",

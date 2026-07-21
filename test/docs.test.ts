@@ -105,8 +105,8 @@ test("publication guidance preserves the clean-room and authentication boundary"
   assert.match(publication, /does \*\*not\*\* establish independent interoperability/iu);
   assert.match(publication, /embedded external-evidence fields as `pending`/iu);
   assert.match(publication, /SHA-256 of `release\/v0\.1-rc\.1\/checksums\.json`/u);
-  assert.match(publication, /separate authenticated record is required before inviting clean-room work/iu);
-  assert.match(publication, /Record the returned immutable Gist revision URL in the GitHub release metadata/iu);
+  assert.match(publication, /exact history-revision URL—not the mutable Gist URL/iu);
+  assert.match(publication, /separately controlled authenticated channel/iu);
   assert.match(publication, /declares no context or write credential/iu);
   assert.match(publication, /no injected environment variables or contexts/iu);
   assert.match(publication, /new immutable candidate and restart/iu);

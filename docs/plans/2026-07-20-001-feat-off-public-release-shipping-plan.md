@@ -97,7 +97,7 @@ flowchart TB
 - CircleCI’s project activation may require an interactive CircleCI account connection even though the CircleCI CLI and committed configuration are present locally.
 - The public tag should refer to the post-review candidate commit containing only non-normative shipping support and the CircleCI evidence workflow; this does not convert pending clean-room evidence into a completed result.
 - CircleCI CLI validation requires a CircleCI API token in this environment. If no authenticated token is available, hosted build observation is the authoritative configuration-validation path and local CLI validation remains an explicit residual.
-- A public GitHub Gist revision, created under the authenticated maintainer account, is the separate authenticated digest record. It contains only the repository URL, full commit SHA, tag, publication time, and `checksums.json` SHA-256; its returned immutable revision URL is recorded later in GitHub release metadata. It contains no clean-room evidence.
+- A public GitHub Gist revision, created under the authenticated maintainer account, is a redundant digest record rather than the separate authenticated channel. It contains only the repository URL, full commit SHA, tag, publication time, and `checksums.json` SHA-256; its exact history-revision URL is recorded later in GitHub release metadata. Before clean-room work, maintainers must additionally select and verify a separately controlled authenticated channel. It contains no clean-room evidence.
 
 ### Risks and Dependencies
 
@@ -153,10 +153,10 @@ flowchart TB
 - **Requirements:** R4, R5, R7, AE2, AE4.
 - **Dependencies:** U1, U2, U3 and full local verification.
 - **Files:** Git remotes, GitHub repository settings, GitHub tag metadata, and a public GitHub Gist; no normative candidate files.
-- **Approach:** Create `HenryBranchAdams/open-finance-format` as a public repository with no starter commit, add it as `origin`, and preserve the baseline candidate history. After the shipping candidate commit is publicly reachable, create a GitHub tag ruleset that blocks updates and deletions of `refs/tags/v0.1-rc.1` with no bypass actors; any emergency correction must publish a new candidate. Create an annotated tag at that exact commit. From the tagged tree, calculate the SHA-256 of `release/v0.1-rc.1/checksums.json` and create a public GitHub Gist revision recording only the repository URL, full commit SHA, tag, publication time, and checksum digest. Record the returned immutable Gist revision URL in the later GitHub release metadata. Do not change `checksums.json` or the embedded report.
+- **Approach:** Create `HenryBranchAdams/open-finance-format` as a public repository with no starter commit, add it as `origin`, and preserve the baseline candidate history. After the shipping candidate commit is publicly reachable, create a GitHub tag ruleset that blocks updates and deletions of `refs/tags/v0.1-rc.1` with no bypass actors; any emergency correction must publish a new candidate. Create an annotated tag at that exact commit. From the tagged tree, calculate the SHA-256 of `release/v0.1-rc.1/checksums.json` and create a public GitHub Gist revision recording only the repository URL, full commit SHA, tag, publication time, and checksum digest. Record its exact immutable history-revision URL in later GitHub release metadata. Before inviting clean-room work, also create and verify the separately controlled authenticated record required by R7. Do not change `checksums.json` or the embedded report.
 - **Execution note:** Treat repository creation, remote push, tag ruleset, tag, and Gist creation as external delivery operations; record actual URLs, full SHAs, and ruleset policy only after observing them.
 - **Test scenarios:** Verify the GitHub remote, default branch, tag ruleset, and tag resolve to the intended commit; verify the tag ruleset exposes no bypass actor; verify the public Gist revision matches the exact tag target and checksum digest; verify the candidate keeps all embedded external-evidence fields pending.
-- **Verification:** `gh repo view`, `git ls-remote`, `gh api` ruleset inspection, `gh gist view`, and local SHA-256 calculation agree on the public repository, exact candidate commit, protected tag, and authenticated digest record.
+- **Verification:** `gh repo view`, `git ls-remote`, `gh api` ruleset inspection, `gh gist view`, and local SHA-256 calculation agree on the public repository, exact candidate commit, protected tag, and redundant digest record; the separate authenticated channel is verified using its own documented method before clean-room work.
 
 ### U5. Activate and observe CircleCI for the public repository
 
@@ -198,7 +198,7 @@ flowchart TB
 - The CircleCI job declares no contexts or injected secrets and retains structured provenance for the built ref.
 - All local repository acceptance checks pass on the shipping branch.
 - A public GitHub repository and `origin` remote exist, the intended candidate commit is publicly reachable, and a protected `v0.1-rc.1` tag with no bypass actors records the full commit SHA.
-- A separate authenticated public Gist revision records the candidate tag, full commit SHA, and SHA-256 of `release/v0.1-rc.1/checksums.json`, while the candidate’s embedded evidence fields remain pending.
+- A public Gist history revision records the candidate tag, full commit SHA, and SHA-256 of `release/v0.1-rc.1/checksums.json`; before clean-room work, a separately controlled authenticated channel records and verifies the same digest, while the candidate’s embedded evidence fields remain pending.
 - The GitHub release surface is created only after the public anchor and hosted-CI state are known, and accurately describes its experimental status.
 - CircleCI is activated and green for the protected candidate tag, or its unavailable account-activation/CLI-authentication step is precisely recorded without overstating local verification.
 - No committed artifact claims independent interoperability, v0.1 promotion, adoption, financial correctness, or independently reviewed lineage.

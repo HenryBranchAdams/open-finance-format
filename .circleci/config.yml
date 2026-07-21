@@ -60,6 +60,11 @@ jobs:
             };
             const command = (file, args) =>
               execFileSync(file, args, { encoding: "utf8" }).trim();
+            const headCommit = command("git", ["rev-parse", "HEAD"]);
+            const circleCommit = process.env.CIRCLE_SHA1 ?? null;
+            if (circleCommit !== null && circleCommit !== headCommit) {
+              throw new Error(`CircleCI commit ${circleCommit} does not match checkout ${headCommit}`);
+            }
             const commands = (process.env.OFF_CI_OUTCOMES ?? "")
               .split(",")
               .filter(Boolean)
@@ -74,8 +79,8 @@ jobs:
               contractVersion: "off-ci-provenance/v1",
               executorImage: "cimg/node:22.13.0@sha256:47504124be519c77780c25843a2dfe37a87e238a2325487af84c61f126dd05d6",
               revision: {
-                commit: command("git", ["rev-parse", "HEAD"]),
-                circleCommit: process.env.CIRCLE_SHA1 ?? null,
+                commit: headCommit,
+                circleCommit,
                 tag: process.env.CIRCLE_TAG ?? null,
                 branch: process.env.CIRCLE_BRANCH ?? null,
               },
