@@ -10,7 +10,10 @@ test("CircleCI captures complete acceptance provenance for the rc.1 tag", async 
   const config = await readFile(resolve(repositoryRoot, ".circleci/config.yml"), "utf8");
 
   assert.match(config, /image: cimg\/node:22\.13\.0@sha256:47504124be519c77780c25843a2dfe37a87e238a2325487af84c61f126dd05d6/u);
+  assert.match(config, /corepack@0\.35\.0/u);
+  assert.match(config, /test "\$\(corepack --version\)" = "0\.35\.0"/u);
   assert.match(config, /pnpm@10\.34\.1/u);
+  assert.match(config, /NODE_OPTIONS: "--experimental-strip-types"/u);
   assert.match(config, /run_acceptance\(\)/u);
   assert.match(config, /OFF_CI_OUTCOMES/u);
   assert.match(config, /does not match checkout/u);
