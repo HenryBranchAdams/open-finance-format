@@ -1,0 +1,45 @@
+---
+title: "Get started"
+description: "Orient yourself to OFF, inspect the minimal package, and run the offline validator."
+authority: "guidance"
+sidebar:
+  order: 2
+---
+
+An OFF package is a directory whose sole normative manifest is `off.json`.
+Narrative files, spreadsheets, source notes, and other resources are inventoried
+by that manifest; they do not override it.
+
+## Prerequisites
+
+- Node.js 22.13 or newer within the Node 22 line
+- pnpm 10.34.1
+- a local checkout of the public repository
+
+## Inspect the minimal package
+
+The finance-agnostic reference package lives at
+[`conformance/packages/core-minimal`](https://github.com/HenryBranchAdams/open-finance-format/tree/main/conformance/packages/core-minimal).
+It contains:
+
+- `off.json`, which declares the package and release;
+- `OFF.md`, the local human entrypoint; and
+- one resource record binding the entrypoint's path, byte size, media type,
+  roles, and SHA-256 digest.
+
+## Validate it
+
+```sh
+pnpm install --frozen-lockfile
+pnpm build
+node dist/off.mjs validate conformance/packages/core-minimal \
+  --evaluated-at 2026-07-17T12:00:00Z
+```
+
+Validation is offline. Remote resources may be declared as descriptors, but the
+reference evaluator does not fetch them.
+
+## Continue
+
+Create your own package with [Author a Core package](/docs/guides/author-core-package/),
+or study the normative [OFF Core 0.1](/docs/specification/core/) contract.

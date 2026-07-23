@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="OFF">
+  <rect width="64" height="64" fill="#0a0f14"/>
+  <path d="M4 4h56v56H4z" fill="none" stroke="#394754" stroke-width="2"/>
+  <text x="32" y="39" fill="#f2b84b" font-family="IBM Plex Mono, monospace" font-size="22" font-weight="500" text-anchor="middle">OFF</text>
+</svg>

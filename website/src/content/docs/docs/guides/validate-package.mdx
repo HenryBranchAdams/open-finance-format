@@ -1,0 +1,51 @@
+---
+title: "Validate a package"
+description: "Run the OFF evaluator and interpret package results without overstating the evidence."
+authority: "guidance"
+sidebar:
+  order: 2
+---
+
+## Build the checked-in evaluator
+
+```sh
+pnpm install --frozen-lockfile
+pnpm build
+```
+
+For an already authenticated release checkout, the checked-in
+`dist/off.mjs` bundle supports dependency-free offline evaluation.
+
+## Run validation
+
+```sh
+node dist/off.mjs validate /path/to/package \
+  --evaluated-at 2026-07-17T12:00:00Z
+```
+
+Request an optional supported profile by its exact identifier:
+
+```sh
+node dist/off.mjs validate /path/to/package \
+  --evaluated-at 2026-07-17T12:00:00Z \
+  --profile https://openfinanceformat.org/profiles/public-equity-research/0.1
+```
+
+## Interpret the result
+
+The evaluator separates:
+
+- valid packages;
+- valid packages with warnings;
+- invalid packages; and
+- host or evaluator failures.
+
+Diagnostics are stable OFF records, not raw library errors. Read
+[Diagnostics 0.1](/docs/specification/diagnostics/) for their exact ordering
+and parameter contract.
+
+## Preserve the evidence boundary
+
+A local green result does not prove that another implementation will interpret
+the package identically. Independent interoperability requires the separate
+[clean-room tasks](/docs/conformance/).

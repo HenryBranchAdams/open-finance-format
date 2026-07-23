@@ -1,0 +1,65 @@
+---
+title: "Author a Core package"
+description: "Create the smallest useful OFF package without adding finance-specific semantics."
+authority: "guidance"
+sidebar:
+  order: 1
+---
+
+## 1. Create the package directory
+
+Start with two files:
+
+```text
+my-package/
+├── off.json
+└── OFF.md
+```
+
+Use `OFF.md` as the human entrypoint. The filename is conventional, not
+normative; its resource record is what gives it meaning.
+
+## 2. Write the narrative
+
+```md
+# My research package
+
+This note explains what the package contains and how it should be read.
+```
+
+## 3. Measure and hash the resource
+
+Record the exact UTF-8 byte size and SHA-256 digest of `OFF.md`. Digests bind raw
+bytes, so changing even whitespace requires updating both values.
+
+```sh
+wc -c < OFF.md
+shasum -a 256 OFF.md
+```
+
+## 4. Write `off.json`
+
+Declare:
+
+- `offVersion: "0.1"`;
+- stable absolute identifiers for the package, release, author, entrypoint, and
+  resource;
+- release title, version, publication timestamp, canonical HTTPS URL, and
+  license declaration;
+- an empty `profiles` array for a Core-only package; and
+- the resource's media type, roles, local path, byte size, and digest.
+
+Use the
+[`core-minimal/off.json`](https://github.com/HenryBranchAdams/open-finance-format/blob/main/conformance/packages/core-minimal/off.json)
+fixture as the smallest complete example.
+
+## 5. Validate
+
+```sh
+node dist/off.mjs validate ./my-package \
+  --evaluated-at 2026-07-17T12:00:00Z
+```
+
+A successful result establishes structural conformance for this evaluator. It
+does not authenticate the author, verify the research, or establish independent
+interoperability.

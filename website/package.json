@@ -1,0 +1,49 @@
+{
+  "name": "website",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "materialize:docs": "node scripts/materialize-docs.mjs",
+    "predev": "npm run materialize:docs",
+    "dev": "astro dev",
+    "pretypecheck": "npm run materialize:docs",
+    "typecheck": "astro check",
+    "prelint:docs": "npm run materialize:docs",
+    "lint:docs": "nimbus-docs lint",
+    "prebuild": "npm run materialize:docs",
+    "build": "astro check && astro build && node scripts/prepare-sites-build.mjs",
+    "build:deploy": "node scripts/assert-site-url.mjs && npm run build",
+    "preview": "astro preview",
+    "test:sites": "node --test tests/sites-worker.test.mjs tests/static-output.test.mjs",
+    "verify": "npm run lint:docs && npm run build && npm run test:sites"
+  },
+  "dependencies": {
+    "@astrojs/react": "6.0.1",
+    "@cloudflare/nimbus-docs": "0.7.1",
+    "@fontsource/ibm-plex-mono": "^5.3.0",
+    "@fontsource/ibm-plex-sans": "^5.3.0",
+    "@iconify-json/ph": "1.2.0",
+    "astro": "7.0.0",
+    "astro-icon": "1.1.0",
+    "astro-og-canvas": "0.13.0",
+    "canvaskit-wasm": "0.41.1",
+    "clsx": "2.1.1",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "tailwind-merge": "3.5.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.8",
+    "@tailwindcss/vite": "4.1.4",
+    "@types/react": "19.2.6",
+    "@types/react-dom": "19.2.3",
+    "cheerio": "1.0.0-rc.12",
+    "pagefind": "1.5.2",
+    "tailwindcss": "4.1.4",
+    "typescript": "5.8.3"
+  },
+  "overrides": {
+    "cheerio": "1.0.0-rc.12"
+  }
+}

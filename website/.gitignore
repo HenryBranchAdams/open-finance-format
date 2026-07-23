@@ -1,0 +1,19 @@
+node_modules/
+dist/
+.astro/
+.nimbus/
+
+# Deterministic publishing copies generated from canonical repository files.
+src/content/docs/docs/concepts/index.mdx
+src/content/docs/docs/specification/core.mdx
+src/content/docs/docs/specification/public-equity-research.mdx
+src/content/docs/docs/specification/normalization.mdx
+src/content/docs/docs/specification/diagnostics.mdx
+src/content/docs/docs/specification/conformance.mdx
+src/content/docs/docs/examples/apple-dcf.mdx
+src/content/docs/docs/conformance/publication.mdx
+src/content/docs/docs/conformance/consumer-task.mdx
+src/content/docs/docs/conformance/producer-task.mdx
+src/content/docs/docs/conformance/report-template.mdx
+src/content/docs/docs/status/product-boundary.mdx
+src/content/docs/docs/status/roadmap.mdx
