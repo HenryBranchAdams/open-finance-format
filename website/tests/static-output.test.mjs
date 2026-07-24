@@ -20,6 +20,9 @@ test("emits the human documentation routes and canonical metadata", async () => 
     "docs/examples/apple-dcf/index.html",
     "docs/conformance/publication/index.html",
     "docs/status/index.html",
+    "models/pagaya/index.html",
+    "models/pagaya/embed/index.html",
+    "models/pagaya/pagaya-valuation-model.xlsx",
     "404.html",
   ];
 
@@ -36,6 +39,16 @@ test("emits the human documentation routes and canonical metadata", async () => 
   assert.match(core, /Normative/);
   assert.match(core, /OFF Core 0\.1/);
   assert.match(core, /github\.com\/HenryBranchAdams\/open-finance-format\/edit\/main\/spec\/OFF-Core-0\.1\.md/);
+
+  const pagaya = await read("models/pagaya/index.html");
+  assert.match(pagaya, /Pagaya Technologies/);
+  assert.match(pagaya, /\$16\.29/);
+  assert.match(pagaya, /\$22\.34/);
+  assert.match(pagaya, /Share \/ Embed/);
+
+  const pagayaEmbed = await read("models/pagaya/embed/index.html");
+  assert.match(pagayaEmbed, /Valuation summary/);
+  assert.match(pagayaEmbed, /Inspect full model/);
 });
 
 test("emits agent, discovery, search, and Sites packaging surfaces", async () => {
