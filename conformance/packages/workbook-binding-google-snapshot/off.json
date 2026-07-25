@@ -1,0 +1,101 @@
+{
+  "offVersion": "0.1",
+  "package": {
+    "id": "https://openfinanceformat.org/examples/workbook-binding-google-snapshot",
+    "releaseId": "https://openfinanceformat.org/examples/workbook-binding-google-snapshot/releases/1",
+    "releaseVersion": "1",
+    "title": "Workbook Binding Google snapshot",
+    "authors": [
+      {
+        "id": "https://openfinanceformat.org/authors/reference",
+        "name": "OFF Reference Project"
+      }
+    ],
+    "license": {
+      "id": "Apache-2.0"
+    },
+    "publishedAt": "2026-07-25T12:00:00Z",
+    "canonicalUrl": "https://openfinanceformat.org/examples/workbook-binding-google-snapshot/releases/1",
+    "entrypointResourceId": "https://openfinanceformat.org/examples/workbook-binding-google-snapshot/resources/entrypoint"
+  },
+  "profiles": [
+    "https://openfinanceformat.org/profiles/workbook-binding/0.1"
+  ],
+  "resources": [
+    {
+      "id": "https://docs.google.com/spreadsheets/d/off-workbook-binding-example",
+      "mediaType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "roles": [
+        "live-source"
+      ],
+      "locations": [
+        {
+          "kind": "remote",
+          "url": "https://docs.google.com/spreadsheets/d/off-workbook-binding-example"
+        }
+      ]
+    },
+    {
+      "id": "https://openfinanceformat.org/examples/workbook-binding-google-snapshot/resources/entrypoint",
+      "mediaType": "text/markdown",
+      "roles": [
+        "entrypoint"
+      ],
+      "locations": [
+        {
+          "kind": "local",
+          "path": "OFF.md"
+        }
+      ],
+      "byteSize": 243,
+      "sha256": "38aec17311c7a9e8d408ef22382b067a7eab5af61073e28a9f918f173916d478"
+    },
+    {
+      "id": "https://openfinanceformat.org/examples/workbook-binding-google-snapshot/resources/workbook",
+      "mediaType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "roles": [
+        "workbook-snapshot"
+      ],
+      "locations": [
+        {
+          "kind": "local",
+          "path": "workbook.xlsx"
+        }
+      ],
+      "byteSize": 25094,
+      "sha256": "4c87be84803f83156e1c61872de8edf0253100333c9badacb09de3c975e47748"
+    }
+  ],
+  "profileData": {
+    "https://openfinanceformat.org/profiles/workbook-binding/0.1": {
+      "workbooks": [
+        {
+          "id": "https://openfinanceformat.org/examples/workbook-binding-google-snapshot/workbooks/main",
+          "snapshotResourceId": "https://openfinanceformat.org/examples/workbook-binding-google-snapshot/resources/workbook",
+          "format": "google-sheets-xlsx-export",
+          "capturedAt": "2026-07-25T11:45:00Z",
+          "liveSourceResourceId": "https://docs.google.com/spreadsheets/d/off-workbook-binding-example"
+        }
+      ],
+      "subjects": [
+        {
+          "id": "https://openfinanceformat.org/examples/workbook-binding-google-snapshot/subjects/revenue",
+          "label": "Revenue"
+        }
+      ],
+      "bindings": [
+        {
+          "id": "https://openfinanceformat.org/examples/workbook-binding-google-snapshot/bindings/revenue",
+          "subjectId": "https://openfinanceformat.org/examples/workbook-binding-google-snapshot/subjects/revenue",
+          "workbookId": "https://openfinanceformat.org/examples/workbook-binding-google-snapshot/workbooks/main",
+          "locator": {
+            "sheet": "Model",
+            "range": "$B$12"
+          },
+          "role": "output",
+          "status": "author-declared-not-evaluated"
+        }
+      ]
+    }
+  }
+}

@@ -19,9 +19,10 @@ This directory preserves the product and standards work that led to the current 
 1. `../README.md` — repository status and normative navigation.
 2. `../spec/OFF-Core-0.1.md` — normative Core contract.
 3. `../spec/profiles/public-equity-research-0.1.md` — normative Public Equity contract.
-4. `plans/2026-07-17-001-feat-off-v0-1-layered-conformance-corpus-plan.md` — implementation contract.
-5. `PUBLICATION.md` — non-normative procedure for publishing the experimental candidate without weakening its evidence boundary.
-6. The remaining files here — historical product, design, research, and roadmap context.
+4. `../spec/profiles/workbook-binding-0.1.md` — post-rc.1 Workbook Binding development contract.
+5. `plans/2026-07-17-001-feat-off-v0-1-layered-conformance-corpus-plan.md` — implementation contract.
+6. `PUBLICATION.md` — non-normative procedure for publishing the experimental candidate without weakening its evidence boundary.
+7. The remaining files here — historical product, design, research, and roadmap context.
 
 `handoff.yaml` is the machine-readable index for this package.
 

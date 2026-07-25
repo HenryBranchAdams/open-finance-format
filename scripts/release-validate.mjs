@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { execFile } from "node:child_process";
 import { constants as fsConstants } from "node:fs";
 import {
   lstat,
@@ -11,6 +12,7 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { isDeepStrictEqual } from "node:util";
+import { promisify } from "node:util";
 
 import { buildDistribution } from "./build.mjs";
 import {
@@ -28,6 +30,10 @@ import {
 } from "./checksums.mjs";
 
 const defaultRepositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+export const FROZEN_RC1_GIT_COMMIT =
+  "2570e38998dd735b83da301a5b6f0e95aca47073";
+const FROZEN_RC1_RELEASE_ROOT = "release/v0.1-rc.1";
+const execute = promisify(execFile);
 const expectedPackageVersion = "0.1.0-rc.1";
 const reportPath = "clean-room/INTEROPERABILITY_REPORT.template.md";
 const closedRoots = [
@@ -126,6 +132,17 @@ const pendingInteroperabilityRecord = {
     },
   },
 };
+
+class SnapshotCommitUnavailableError extends Error {
+  constructor(commit) {
+    super(
+      `Pinned rc.1 commit ${commit} is unavailable; fetch full repository history ` +
+        "(for example, git fetch --unshallow) before running release:self-check.",
+    );
+    this.name = "SnapshotCommitUnavailableError";
+    this.code = "OFF-REL-PINNED-COMMIT-MISSING";
+  }
+}
 
 function isPlainObject(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -285,6 +302,64 @@ async function collectClosedTree(repositoryRoot, relativeRoot, diagnostics) {
 
   await walk(relativeRoot, 0);
   return exceededLimit ? [] : collected;
+}
+
+async function frozenReleaseTreeDiagnostics(repositoryRoot, snapshotRoot) {
+  const currentCollection = diagnosticCollector();
+  const snapshotCollection = diagnosticCollector();
+  const currentPaths = await collectClosedTree(
+    repositoryRoot,
+    FROZEN_RC1_RELEASE_ROOT,
+    currentCollection,
+  );
+  const snapshotPaths = await collectClosedTree(
+    snapshotRoot,
+    FROZEN_RC1_RELEASE_ROOT,
+    snapshotCollection,
+  );
+  const drift = diagnosticCollector();
+  for (const diagnostic of [
+    ...currentCollection.sorted(),
+    ...snapshotCollection.sorted(),
+  ]) {
+    drift.add("OFF-REL-FROZEN-DRIFT", diagnostic.path ?? FROZEN_RC1_RELEASE_ROOT);
+  }
+
+  const currentSet = new Set(currentPaths);
+  const snapshotSet = new Set(snapshotPaths);
+  const allPaths = [...new Set([...currentPaths, ...snapshotPaths])].sort(compareText);
+  const currentBudget = {
+    consumed: 0,
+    limit: RELEASE_LIMITS.totalReleaseBytes,
+  };
+  const snapshotBudget = {
+    consumed: 0,
+    limit: RELEASE_LIMITS.totalReleaseBytes,
+  };
+  for (const path of allPaths) {
+    if (!currentSet.has(path) || !snapshotSet.has(path)) {
+      drift.add("OFF-REL-FROZEN-DRIFT", path);
+      continue;
+    }
+    try {
+      const [currentDigest, snapshotDigest] = await Promise.all([
+        sha256ReleaseFile(repositoryRoot, path, currentBudget),
+        sha256ReleaseFile(snapshotRoot, path, snapshotBudget),
+      ]);
+      if (currentDigest !== snapshotDigest) {
+        drift.add("OFF-REL-FROZEN-DRIFT", path);
+      }
+    } catch {
+      drift.add("OFF-REL-FROZEN-DRIFT", path);
+    }
+  }
+
+  return drift.sorted().map((diagnostic) => ({
+    ...diagnostic,
+    message:
+      "Current release/v0.1-rc.1 bytes differ from the pinned rc.1 snapshot; " +
+      "restore the frozen tree before running release:self-check.",
+  }));
 }
 
 function allowedReleaseLocation(path) {
@@ -758,24 +833,120 @@ export async function validateRelease(repositoryRoot = defaultRepositoryRoot) {
 }
 
 function parseArguments(args) {
-  if (args.length === 0) return defaultRepositoryRoot;
+  if (args.length === 0) {
+    return { kind: "gitSnapshot", commit: FROZEN_RC1_GIT_COMMIT };
+  }
   if (args.length === 2 && args[0] === "--root" && args[1].length > 0) {
-    return resolve(args[1]);
+    return { kind: "root", root: resolve(args[1]) };
+  }
+  if (
+    args.length === 2 &&
+    args[0] === "--git-snapshot" &&
+    /^[0-9a-f]{40}$/u.test(args[1])
+  ) {
+    return { kind: "gitSnapshot", commit: args[1] };
   }
   return undefined;
 }
 
+export async function materializeGitSnapshot(
+  repositoryRoot,
+  commit,
+  destination,
+) {
+  if (!/^[0-9a-f]{40}$/u.test(commit)) {
+    throw new TypeError("snapshot commit must be a full lowercase SHA-1");
+  }
+  const temporaryRoot = await mkdtemp(join(tmpdir(), "off-rc1-archive-"));
+  const archivePath = join(temporaryRoot, "snapshot.tar");
+  try {
+    let revision;
+    try {
+      revision = await execute(
+        "git",
+        ["rev-parse", "--verify", `${commit}^{commit}`],
+        {
+          cwd: repositoryRoot,
+          encoding: "utf8",
+          maxBuffer: 1024 * 1024,
+        },
+      );
+    } catch (error) {
+      if (isPlainObject(error) && typeof error.code === "number") {
+        throw new SnapshotCommitUnavailableError(commit);
+      }
+      throw error;
+    }
+    if (revision.stdout.trim() !== commit) {
+      throw new Error("git snapshot did not resolve to the pinned commit");
+    }
+    await execute(
+      "git",
+      ["archive", "--format=tar", "--output", archivePath, commit],
+      { cwd: repositoryRoot, maxBuffer: 1024 * 1024 },
+    );
+    await execute(
+      "tar",
+      ["-xf", archivePath, "-C", destination],
+      { cwd: repositoryRoot, maxBuffer: 1024 * 1024 },
+    );
+  } finally {
+    await rm(temporaryRoot, { recursive: true, force: true });
+  }
+}
+
+export async function validateFrozenRc1(
+  repositoryRoot = defaultRepositoryRoot,
+  commit = FROZEN_RC1_GIT_COMMIT,
+) {
+  const temporaryRoot = await mkdtemp(join(tmpdir(), "off-rc1-snapshot-"));
+  try {
+    try {
+      await materializeGitSnapshot(repositoryRoot, commit, temporaryRoot);
+    } catch (error) {
+      if (error instanceof SnapshotCommitUnavailableError) {
+        return {
+          kind: "releaseValidation",
+          candidate: EXPECTED_CANDIDATE,
+          ok: false,
+          evidence: pendingEvidence,
+          diagnostics: [{ code: error.code, message: error.message }],
+        };
+      }
+      throw error;
+    }
+    const [validation, frozenDiagnostics] = await Promise.all([
+      validateRelease(temporaryRoot),
+      frozenReleaseTreeDiagnostics(repositoryRoot, temporaryRoot),
+    ]);
+    const diagnostics = [...validation.diagnostics, ...frozenDiagnostics].sort(
+      (left, right) =>
+        compareText(left.code, right.code) ||
+        compareText(left.path ?? "", right.path ?? ""),
+    );
+    return {
+      ...validation,
+      ok: validation.ok && diagnostics.length === 0,
+      diagnostics,
+    };
+  } finally {
+    await rm(temporaryRoot, { recursive: true, force: true });
+  }
+}
+
 async function run() {
-  const repositoryRoot = parseArguments(process.argv.slice(2));
-  if (repositoryRoot === undefined) {
+  const target = parseArguments(process.argv.slice(2));
+  if (target === undefined) {
     process.stderr.write(
-      "Usage: node scripts/release-validate.mjs [--root <immutable-checkout>]\n",
+      "Usage: node scripts/release-validate.mjs [--root <immutable-checkout> | --git-snapshot <full-commit>]\n",
     );
     process.exitCode = 64;
     return;
   }
   try {
-    const result = await validateRelease(repositoryRoot);
+    const result = target.kind === "root"
+      ? await validateRelease(target.root)
+      : await validateFrozenRc1(defaultRepositoryRoot, target.commit);
     process.stdout.write(JSON.stringify(result, null, 2) + "\n");
     process.exitCode = result.ok ? 0 : 1;
   } catch {

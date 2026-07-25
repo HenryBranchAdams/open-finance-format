@@ -24,6 +24,14 @@ normative_profiles:
   - OFF Core 0.1
   - OFF Public Equity Research 0.1
 
+post_rc1_development:
+  workbook_binding_profile: spec/profiles/workbook-binding-0.1.md
+  status: implemented_not_released
+  claim: Bound - author-declared workbook locators
+  xlsx_snapshot_bytes: core_verified
+  google_live_source: notEvaluated
+  spreadsheet_execution: not_claimed
+
 conformance:
   evaluation_mode: offline
   network_requests: prohibited

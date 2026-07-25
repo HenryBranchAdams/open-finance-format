@@ -6,21 +6,12 @@ import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
 
-import { evaluateCore } from "../src/core.ts";
-import type { Diagnostic } from "../src/diagnostics.ts";
-import { canonicalizeJsonText } from "../src/json/jcs.ts";
-import { admitJson } from "../src/json/parse.ts";
 import {
-  buildNormalizedResult,
+  evaluatePackage,
   PUBLIC_EQUITY_PROFILE_URI,
-  type NormalizedResource,
-  type NormalizedResult,
-  type PackageIdentity,
-} from "../src/normalize.ts";
-import {
-  coreProfileContextFromNormalized,
-  evaluatePublicEquity,
-} from "../src/public-equity.ts";
+} from "../src/index.ts";
+import { canonicalizeJsonText } from "../src/json/jcs.ts";
+import type { NormalizedResult } from "../src/normalize.ts";
 import { validateNormalizedResultSchema } from "../src/schema.ts";
 
 const corpusUrl = new URL("../conformance/corpus.json", import.meta.url);
@@ -47,91 +38,21 @@ async function readCorpus(): Promise<CorpusDocument> {
   return JSON.parse(await readFile(corpusUrl, "utf8")) as CorpusDocument;
 }
 
-function retainedCore(normalized: NormalizedResult) {
-  return {
-    packageIdentity: normalized.packageIdentity as PackageIdentity,
-    resourceInventory: normalized.resourceInventory as readonly NormalizedResource[],
-    relationshipInventory: normalized.relationshipInventory as readonly Record<string, unknown>[],
-    extensions: normalized.extensions as Readonly<Record<string, unknown>>,
-  };
-}
-
 async function evaluateCase(item: CorpusCase): Promise<NormalizedResult> {
   const packageRoot = resolve(conformanceRoot, item.package);
-  const admission = admitJson(await readFile(join(packageRoot, "off.json")));
-  if (!admission.ok) {
-    return buildNormalizedResult({
-      stage: "admissionFailed",
-      evaluatedAt: item.evaluatedAt,
-      requestedProfiles: item.requestedProfiles,
-      diagnostics: admission.diagnostics as readonly Diagnostic[],
-    });
-  }
-
-  const core = await evaluateCore(admission.value, {
+  const result = await evaluatePackage({
     packageRoot,
     evaluatedAt: item.evaluatedAt,
     requestedProfiles: item.requestedProfiles,
   });
-  assert.equal(core.kind, "packageResult", item.id);
-  if (core.kind !== "packageResult") throw new Error(`${item.id}: evaluator failure`);
-  if (
-    core.normalized.profileResults.core.status !== "passed" ||
-    !item.requestedProfiles.includes(PUBLIC_EQUITY_PROFILE_URI)
-  ) {
-    return core.normalized;
+  assert.equal(result.kind, "packageResult", item.id);
+  if (result.kind !== "packageResult") {
+    throw new Error(`${item.id}: evaluator failure`);
   }
-
-  const profile = evaluatePublicEquity(admission.value, {
-    core: coreProfileContextFromNormalized(core.normalized),
-    evaluatedAt: item.evaluatedAt,
-  });
-  const coreFields = retainedCore(core.normalized);
-  const diagnostics = [
-    ...(core.normalized.diagnostics as readonly Diagnostic[]),
-    ...profile.diagnostics,
-  ];
-  if (profile.stage === "schemaFailed") {
-    return buildNormalizedResult({
-      stage: "corePassed",
-      evaluatedAt: item.evaluatedAt,
-      requestedProfiles: item.requestedProfiles,
-      declaredProfiles: [PUBLIC_EQUITY_PROFILE_URI],
-      diagnostics,
-      ...coreFields,
-      profileResultOverrides: {
-        [PUBLIC_EQUITY_PROFILE_URI]: { status: "failed" },
-      },
-    });
-  }
-  if (!profile.ok) {
-    return buildNormalizedResult({
-      stage: "publicEquitySchemaPassed",
-      evaluatedAt: item.evaluatedAt,
-      requestedProfiles: item.requestedProfiles,
-      declaredProfiles: [PUBLIC_EQUITY_PROFILE_URI],
-      diagnostics,
-      ...coreFields,
-      publicEquityEntities: profile.entities,
-    });
-  }
-  return buildNormalizedResult({
-    stage: "freshnessCompleted",
-    evaluatedAt: item.evaluatedAt,
-    requestedProfiles: item.requestedProfiles,
-    declaredProfiles: [PUBLIC_EQUITY_PROFILE_URI],
-    diagnostics,
-    ...coreFields,
-    publicEquityEntities: profile.entities,
-    resolvedLineage: profile.resolvedLineage.map((edge) => ({ ...edge })),
-    freshness: {
-      leaves: profile.freshness.leaves.map((leaf) => ({ ...leaf })),
-      headlines: profile.freshness.headlines.map((headline) => ({ ...headline })),
-    },
-  });
+  return result.normalized;
 }
 
-test("the layered corpus declares exactly two positive packages and focused boundaries", async () => {
+test("the layered corpus declares three positive packages and focused boundaries", async () => {
   const corpus = await readCorpus();
   assert.equal(corpus.corpusVersion, "0.1");
   assert.equal(corpus.evaluatorFailures, "evaluator-failures.json");
@@ -139,6 +60,7 @@ test("the layered corpus declares exactly two positive packages and focused boun
   assert.deepEqual(corpus.cases.map(({ id }) => id), [
     "core-minimal/valid",
     "public-equity-traceable/current",
+    "workbook-binding-google-snapshot/valid",
     "unsupported-profile/invalid",
     "public-equity-traceable/stale",
     "duplicate-json-name/invalid",
@@ -163,7 +85,11 @@ test("the layered corpus declares exactly two positive packages and focused boun
   assert.deepEqual(
     [...new Set(corpus.cases.filter(({ package: path }) => path.startsWith("packages/"))
       .map(({ package: path }) => path))],
-    ["packages/core-minimal", "packages/public-equity-traceable"],
+    [
+      "packages/core-minimal",
+      "packages/public-equity-traceable",
+      "packages/workbook-binding-google-snapshot",
+    ],
   );
   assert.deepEqual((await readdir(join(conformanceRoot, "fixtures"))).sort(), [
     "attestation-mismatch",
@@ -422,7 +348,7 @@ test("a distinct temporary Traceable producer package is accepted without fixtur
     extensions: { "urn:off:producer:extension": { ordinal: 7 } },
   };
   await writeFile(join(packageRoot, "off.json"), JSON.stringify(manifest));
-  const result = await evaluateCore(manifest, {
+  const result = await evaluatePackage({
     packageRoot,
     evaluatedAt: "2026-07-17T13:00:00Z",
     requestedProfiles: [profile],
@@ -432,37 +358,15 @@ test("a distinct temporary Traceable producer package is accepted without fixtur
     assert.equal(result.normalized.outcome, "valid");
     assert.equal((result.normalized.packageIdentity as any).id, manifest.package.id);
     assert.deepEqual(result.normalized.extensions, manifest.extensions);
-    const publicEquity = evaluatePublicEquity(manifest, {
-      core: coreProfileContextFromNormalized(result.normalized),
-      evaluatedAt: "2026-07-17T13:00:00Z",
-    });
-    assert.equal(publicEquity.ok, true, JSON.stringify(publicEquity.diagnostics));
-    if (publicEquity.ok) {
-      const normalized = buildNormalizedResult({
-        stage: "freshnessCompleted",
-        evaluatedAt: "2026-07-17T13:00:00Z",
-        requestedProfiles: [profile],
-        declaredProfiles: [profile],
-        diagnostics: publicEquity.diagnostics,
-        ...retainedCore(result.normalized),
-        publicEquityEntities: publicEquity.entities,
-        resolvedLineage: publicEquity.resolvedLineage.map((edge) => ({ ...edge })),
-        freshness: {
-          leaves: publicEquity.freshness.leaves.map((leaf) => ({ ...leaf })),
-          headlines: publicEquity.freshness.headlines.map((headline) => ({ ...headline })),
-        },
-      });
-      assert.equal(normalized.outcome, "valid");
-      assert.deepEqual(normalized.profileResults.declared, [
-        {
-          uri: profile,
-          requested: true,
-          status: "passed",
-          claim: "Traceable — author-declared lineage",
-          structuralConformance: "passed",
-          lineageCompleteness: "attested-not-independently-verified",
-        },
-      ]);
-    }
+    assert.deepEqual(result.normalized.profileResults.declared, [
+      {
+        uri: profile,
+        requested: true,
+        status: "passed",
+        claim: "Traceable — author-declared lineage",
+        structuralConformance: "passed",
+        lineageCompleteness: "attested-not-independently-verified",
+      },
+    ]);
   }
 });

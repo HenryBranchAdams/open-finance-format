@@ -15,19 +15,29 @@ import { canonicalizeJson } from "./json/jcs.ts";
 import { AdmissionLimitError, admitJson } from "./json/parse.ts";
 import {
   buildNormalizedResult,
-  PUBLIC_EQUITY_PROFILE_URI,
   type NormalizedResource,
   type NormalizedResult,
   type PackageIdentity,
 } from "./normalize.ts";
+import {
+  PUBLIC_EQUITY_PROFILE_URI,
+  WORKBOOK_BINDING_PROFILE_URI,
+} from "./profiles.ts";
 import {
   coreProfileContextFromNormalized,
   evaluatePublicEquity,
 } from "./public-equity.ts";
 import type { EvaluatorFailure } from "./resources.ts";
 import { isAbsoluteUri } from "./uri.ts";
+import {
+  evaluateWorkbookBinding,
+  workbookBindingCoreContextFromNormalized,
+} from "./workbook-binding.ts";
 
-export { PUBLIC_EQUITY_PROFILE_URI } from "./normalize.ts";
+export {
+  PUBLIC_EQUITY_PROFILE_URI,
+  WORKBOOK_BINDING_PROFILE_URI,
+} from "./profiles.ts";
 
 export const MAX_MANIFEST_BYTES = 16 * 1024 * 1024;
 export const MAX_PACKAGE_ROOT_ENTRIES = 100_000;
@@ -296,61 +306,97 @@ export async function evaluatePackage(
     const core = await evaluateCore(admission.value, evaluationOptions);
     if (core.kind === "evaluatorFailure") return core;
     const identity = core.normalized.packageIdentity as PackageIdentity | undefined;
+    const corePassed = core.normalized.profileResults.core.status === "passed";
     const shouldEvaluatePublicEquity =
-      core.normalized.profileResults.core.status === "passed" &&
+      corePassed &&
       evaluationOptions.requestedProfiles.includes(PUBLIC_EQUITY_PROFILE_URI) &&
       identity?.declaredProfiles.includes(PUBLIC_EQUITY_PROFILE_URI) === true;
-    if (!shouldEvaluatePublicEquity) {
+    const shouldEvaluateWorkbookBinding =
+      corePassed &&
+      evaluationOptions.requestedProfiles.includes(WORKBOOK_BINDING_PROFILE_URI) &&
+      identity?.declaredProfiles.includes(WORKBOOK_BINDING_PROFILE_URI) === true;
+    if (!shouldEvaluatePublicEquity && !shouldEvaluateWorkbookBinding) {
       return canonicalPackageResult(core.normalized);
     }
 
-    const profile = evaluatePublicEquity(admission.value, {
-      core: coreProfileContextFromNormalized(core.normalized),
-      evaluatedAt: evaluationOptions.evaluatedAt,
-    });
+    const publicEquity = shouldEvaluatePublicEquity
+      ? evaluatePublicEquity(admission.value, {
+          core: coreProfileContextFromNormalized(core.normalized),
+          evaluatedAt: evaluationOptions.evaluatedAt,
+        })
+      : undefined;
+    const workbookBinding = shouldEvaluateWorkbookBinding
+      ? evaluateWorkbookBinding(
+          admission.value,
+          workbookBindingCoreContextFromNormalized(core.normalized),
+        )
+      : undefined;
     const coreFields = retainedCore(core.normalized);
     const diagnostics = [
       ...core.normalized.diagnostics,
-      ...profile.diagnostics,
+      ...(publicEquity?.diagnostics ?? []),
+      ...(workbookBinding?.diagnostics ?? []),
     ] as readonly Diagnostic[];
+    const profileResultOverrides = {
+      ...(publicEquity?.stage === "schemaFailed"
+        ? { [PUBLIC_EQUITY_PROFILE_URI]: { status: "failed" as const } }
+        : {}),
+      ...(workbookBinding === undefined
+        ? {}
+        : {
+            [WORKBOOK_BINDING_PROFILE_URI]: {
+              status: workbookBinding.ok ? "passed" as const : "failed" as const,
+              ...(workbookBinding.ok
+                ? {
+                    claim:
+                      "Bound — author-declared workbook locators" as const,
+                  }
+                : {}),
+            },
+          }),
+    };
+    const stage =
+      publicEquity === undefined || publicEquity.stage === "schemaFailed"
+        ? "corePassed" as const
+        : publicEquity.ok
+          ? "freshnessCompleted" as const
+          : "publicEquitySchemaPassed" as const;
     const shared = {
+      stage,
       evaluatedAt: evaluationOptions.evaluatedAt,
       requestedProfiles: evaluationOptions.requestedProfiles,
-      declaredProfiles: identity.declaredProfiles,
+      declaredProfiles: identity?.declaredProfiles ?? [],
       diagnostics,
       ...coreFields,
+      ...(Object.keys(profileResultOverrides).length === 0
+        ? {}
+        : { profileResultOverrides }),
+      ...(workbookBinding?.ok
+        ? { workbookBindingEntities: workbookBinding.entities }
+        : {}),
     } as const;
 
-    if (profile.stage === "schemaFailed") {
-      return canonicalPackageResult(
-        buildNormalizedResult({
-          stage: "corePassed",
-          ...shared,
-          profileResultOverrides: {
-            [PUBLIC_EQUITY_PROFILE_URI]: { status: "failed" },
-          },
-        }),
-      );
-    }
-    if (!profile.ok) {
-      return canonicalPackageResult(
-        buildNormalizedResult({
-          stage: "publicEquitySchemaPassed",
-          ...shared,
-          publicEquityEntities: profile.entities,
-        }),
-      );
-    }
     return canonicalPackageResult(
       buildNormalizedResult({
-        stage: "freshnessCompleted",
         ...shared,
-        publicEquityEntities: profile.entities,
-        resolvedLineage: profile.resolvedLineage.map((edge) => ({ ...edge })),
-        freshness: {
-          leaves: profile.freshness.leaves.map((leaf) => ({ ...leaf })),
-          headlines: profile.freshness.headlines.map((headline) => ({ ...headline })),
-        },
+        ...(publicEquity !== undefined && publicEquity.stage !== "schemaFailed"
+          ? { publicEquityEntities: publicEquity.entities }
+          : {}),
+        ...(publicEquity?.ok
+          ? {
+              resolvedLineage: publicEquity.resolvedLineage.map((edge) => ({
+                ...edge,
+              })),
+              freshness: {
+                leaves: publicEquity.freshness.leaves.map((leaf) => ({
+                  ...leaf,
+                })),
+                headlines: publicEquity.freshness.headlines.map((headline) => ({
+                  ...headline,
+                })),
+              },
+            }
+          : {}),
       }),
     );
   } catch {

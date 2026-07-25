@@ -14,9 +14,8 @@ import { fileURLToPath } from "node:url";
 
 import { build } from "esbuild";
 
-import { readAllowlist } from "./checksums.mjs";
-
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const developmentBuildInputsPath = "config/development-build-inputs.json";
 const trustedRequire = createRequire(resolve(repositoryRoot, "package.json"));
 const trustedPackageNames = new Set([
   "ajv",
@@ -56,6 +55,35 @@ function packageName(specifier) {
 
 function releasePath(root, path) {
   return relative(root, path).split(sep).join("/");
+}
+
+async function readDevelopmentBuildInputs(sourceRoot) {
+  const document = JSON.parse(
+    await readFile(resolve(sourceRoot, developmentBuildInputsPath), "utf8"),
+  );
+  if (
+    typeof document !== "object" ||
+    document === null ||
+    document.formatVersion !== "0.1" ||
+    document.purpose !== "mutable-development-build-inputs" ||
+    !Array.isArray(document.files) ||
+    !document.files.every(
+      (path) =>
+        typeof path === "string" &&
+        path.length > 0 &&
+        !isAbsolute(path) &&
+        path.split("/").every(
+          (segment) =>
+            segment.length > 0 && segment !== "." && segment !== "..",
+        ),
+    ) ||
+    new Set(document.files).size !== document.files.length ||
+    JSON.stringify(document.files) !==
+      JSON.stringify([...document.files].sort())
+  ) {
+    throw new Error("development build input manifest was invalid");
+  }
+  return document.files;
 }
 
 async function assertAllowlistedRegularFile(root, path, allowedInputPaths) {
@@ -188,7 +216,7 @@ export async function buildDistribution({
 } = {}) {
   const absoluteSourceRoot = await realpath(resolve(sourceRoot));
   const releaseInputs = allowedInputPaths ??
-    (await readAllowlist(absoluteSourceRoot)).files;
+    await readDevelopmentBuildInputs(absoluteSourceRoot);
   if (
     !Array.isArray(releaseInputs) ||
     !releaseInputs.every((path) => typeof path === "string")

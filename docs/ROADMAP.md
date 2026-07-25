@@ -13,6 +13,15 @@ The repository includes normative specifications, JSON Schemas, a deterministic 
 
 The local corpus is offline. Structural evaluation makes no network requests, and remote resource descriptors remain not evaluated.
 
+## Post-rc.1 development snapshot — Workbook Binding
+
+The mutable tree implements an optional Workbook Binding 0.1 profile for
+immutable local XLSX snapshots and authored cell locators. Google Sheets are
+represented only by an optional inert HTTPS resource descriptor. The profile
+does not parse workbooks, inspect cells, execute formulas, recalculate, or claim
+live-source equivalence. It is not a new candidate and remains outside the
+frozen rc.1 evidence closure.
+
 ### Local release-candidate acceptance
 
 Before any public candidate is treated as ready for a clean-room attempt:

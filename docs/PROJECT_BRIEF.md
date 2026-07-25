@@ -18,6 +18,12 @@ The current deliverable is the experimental v0.1-rc.1 interoperability candidate
 
 v0.1-rc.1 makes no claim of promotion to v0.1, adoption, financial correctness, independent lineage review, or exact spreadsheet execution.
 
+The mutable post-rc.1 development tree adds an optional Workbook Binding 0.1
+consumer. It binds neutral subjects to authored A1 locators only after Core
+verifies immutable local XLSX bytes. A live Google Sheet is descriptor metadata
+and remains `notEvaluated`. This work does not change rc.1 or create a new
+candidate.
+
 The sole normative package source is off.json. Human-readable narrative, spreadsheet bindings, authoring templates, generators, viewers, and renderer metadata are optional or illustrative and cannot override the manifest.
 
 ## Normative profiles

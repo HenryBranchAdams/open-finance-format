@@ -15,8 +15,13 @@ import {
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { promisify } from "node:util";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import test from "node:test";
+import {
+  FROZEN_RC1_GIT_COMMIT,
+  materializeGitSnapshot,
+  validateFrozenRc1,
+} from "../scripts/release-validate.mjs";
 
 const execute = promisify(execFile);
 const repositoryRoot = dirname(dirname(fileURLToPath(import.meta.url)));
@@ -26,6 +31,7 @@ const candidateDirectory = join(repositoryRoot, "release/v0.1-rc.1");
 interface ReleaseDiagnostic {
   readonly code: string;
   readonly path?: string;
+  readonly message?: string;
 }
 
 interface ReleaseResult {
@@ -48,7 +54,7 @@ interface AllowlistDocument {
   readonly [key: string]: unknown;
 }
 
-async function runReleaseValidation(root = repositoryRoot): Promise<{
+async function runReleaseValidation(root?: string): Promise<{
   readonly exitCode: number;
   readonly stdout: string;
   readonly stderr: string;
@@ -57,7 +63,9 @@ async function runReleaseValidation(root = repositoryRoot): Promise<{
   try {
     const { stdout, stderr } = await execute(
       process.execPath,
-      [releaseValidator, "--root", root],
+      root === undefined
+        ? [releaseValidator]
+        : [releaseValidator, "--root", root],
       { cwd: repositoryRoot, maxBuffer: 16 * 1024 * 1024 },
     );
     return {
@@ -85,14 +93,14 @@ async function runReleaseValidation(root = repositoryRoot): Promise<{
 async function copyReleaseRoot(t: test.TestContext): Promise<string> {
   const temporaryRoot = await mkdtemp(join(tmpdir(), "off-release-test-"));
   t.after(async () => rm(temporaryRoot, { recursive: true, force: true }));
+  await materializeGitSnapshot(
+    repositoryRoot,
+    FROZEN_RC1_GIT_COMMIT,
+    temporaryRoot,
+  );
   const allowlist = JSON.parse(
     await readFile(join(candidateDirectory, "files.json"), "utf8"),
   ) as AllowlistDocument;
-  for (const relativePath of allowlist.files) {
-    const target = join(temporaryRoot, relativePath);
-    await mkdir(dirname(target), { recursive: true });
-    await copyFile(join(repositoryRoot, relativePath), target);
-  }
   await symlink(join(repositoryRoot, "node_modules"), join(temporaryRoot, "node_modules"), "dir");
   return temporaryRoot;
 }
@@ -118,6 +126,21 @@ function diagnosticCodes(result: ReleaseResult): readonly string[] {
   return result.diagnostics.map(({ code }) => code);
 }
 
+async function cloneRepository(
+  t: test.TestContext,
+  name = "repository",
+): Promise<{ readonly parent: string; readonly root: string }> {
+  const parent = await mkdtemp(join(tmpdir(), "off-release-git-test-"));
+  t.after(async () => rm(parent, { recursive: true, force: true }));
+  const root = join(parent, name);
+  await execute(
+    "git",
+    ["clone", "--quiet", "--no-local", repositoryRoot, root],
+    { maxBuffer: 16 * 1024 * 1024 },
+  );
+  return { parent, root };
+}
+
 test("the local rc.1 validates while every external gate remains pending", async () => {
   const validation = await runReleaseValidation();
   assert.equal(validation.exitCode, 0, validation.stdout);
@@ -134,6 +157,68 @@ test("the local rc.1 validates while every external gate remains pending", async
     adoption: "pending",
   });
   assert.deepEqual(validation.result.diagnostics, []);
+});
+
+test("release self-check rejects current-tree drift from the pinned rc.1 snapshot", async (t) => {
+  const { root } = await cloneRepository(t);
+  const readmePath = join(root, "release/v0.1-rc.1/README.md");
+  const readme = await readFile(readmePath, "utf8");
+  await writeFile(readmePath, readme + "\ncurrent-tree tamper\n");
+
+  const validation = await validateFrozenRc1(root) as ReleaseResult;
+  assert.equal(validation.ok, false);
+  assert.deepEqual(validation.diagnostics, [
+    {
+      code: "OFF-REL-FROZEN-DRIFT",
+      path: "release/v0.1-rc.1/README.md",
+      message:
+        "Current release/v0.1-rc.1 bytes differ from the pinned rc.1 snapshot; " +
+        "restore the frozen tree before running release:self-check.",
+    },
+  ]);
+});
+
+test("a depth-1 clone reports the missing pinned commit without fetching", async (t) => {
+  const { parent, root: source } = await cloneRepository(t, "source");
+  await writeFile(join(source, "shallow-clone-marker.txt"), "new descendant\n");
+  await execute("git", ["add", "shallow-clone-marker.txt"], { cwd: source });
+  await execute(
+    "git",
+    [
+      "-c",
+      "user.name=OFF Release Test",
+      "-c",
+      "user.email=release-test@openfinanceformat.invalid",
+      "commit",
+      "--quiet",
+      "-m",
+      "test: create descendant",
+    ],
+    { cwd: source },
+  );
+  const shallowRoot = join(parent, "shallow");
+  await execute(
+    "git",
+    ["clone", "--quiet", "--depth=1", pathToFileURL(source).href, shallowRoot],
+    { maxBuffer: 16 * 1024 * 1024 },
+  );
+  const { stdout: shallow } = await execute(
+    "git",
+    ["rev-parse", "--is-shallow-repository"],
+    { cwd: shallowRoot },
+  );
+  assert.equal(shallow.trim(), "true");
+
+  const validation = await validateFrozenRc1(shallowRoot) as ReleaseResult;
+  assert.equal(validation.ok, false);
+  assert.deepEqual(validation.diagnostics, [
+    {
+      code: "OFF-REL-PINNED-COMMIT-MISSING",
+      message:
+        `Pinned rc.1 commit ${FROZEN_RC1_GIT_COMMIT} is unavailable; fetch full repository history ` +
+        "(for example, git fetch --unshallow) before running release:self-check.",
+    },
+  ]);
 });
 
 test("the allowlist is sorted, safe, complete, and covered by drift checksums", async () => {
@@ -351,12 +436,12 @@ test("public release commands distinguish self-checking from trusted external va
 
   assert.equal(
     packageDocument.scripts?.["release:self-check"],
-    "node scripts/release-validate.mjs --root .",
+    `node scripts/release-validate.mjs --git-snapshot ${FROZEN_RC1_GIT_COMMIT}`,
   );
   assert.equal(packageDocument.scripts?.["release:validate"], undefined);
   for (const document of [readme, releaseReadme]) {
     assert.match(document, /self-check[^.]*not authentication/iu);
-    assert.match(document, /separate verifier checkout/iu);
+    assert.match(document, /separate verifier\s+checkout/iu);
     assert.match(document, /outside the candidate root/iu);
     assert.match(
       document,

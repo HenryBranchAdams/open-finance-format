@@ -2,6 +2,24 @@
 
 All notable public changes to Open Finance Format are recorded here.
 
+## Unreleased development snapshot
+
+### Added
+
+- Optional Workbook Binding 0.1 profile for byte-verified local XLSX snapshots,
+  neutral semantic subjects, authored A1 locators, and inert Google Sheets
+  descriptors.
+- Profile schema, six stable semantic diagnostics, deterministic normalized
+  payload, focused tests, and a Google-snapshot conformance package.
+
+### Release boundary
+
+- `v0.1-rc.1` remains frozen and unchanged. Development builds use a separate
+  explicit input manifest, while `release:self-check` authenticates the pinned
+  rc.1 Git snapshot against the existing rc.1 checksums.
+- This snapshot makes no rc.2, v0.1, spreadsheet-execution, live-source,
+  financial-correctness, or independent-interoperability claim.
+
 ## v0.1-rc.1 — 2026-07-17
 
 Status: experimental interoperability release candidate.

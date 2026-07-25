@@ -2227,8 +2227,8 @@ var require_resolve = __commonJS({
       }
       return count;
     }
-    function getFullPath(resolver, id = "", normalize) {
-      if (normalize !== false)
+    function getFullPath(resolver, id = "", normalize2) {
+      if (normalize2 !== false)
         id = normalizeId(id);
       const p = resolver.parse(id);
       return _getFullPath(resolver, p);
@@ -3624,7 +3624,7 @@ var require_fast_uri = __commonJS({
     "use strict";
     var { normalizeIPv6, removeDotSegments, recomposeAuthority, normalizePercentEncoding, normalizePathEncoding, escapePreservingEscapes, reescapeHostDelimiters, isIPv4, nonSimpleDomain } = require_utils();
     var { SCHEMES, getSchemeHandler } = require_schemes();
-    function normalize(uri, options) {
+    function normalize2(uri, options) {
       if (typeof uri === "string") {
         uri = /** @type {T} */
         normalizeString(uri, options);
@@ -3891,7 +3891,7 @@ var require_fast_uri = __commonJS({
     }
     var fastUri = {
       SCHEMES,
-      normalize,
+      normalize: normalize2,
       resolve: resolve5,
       resolveComponent,
       equal,
@@ -7178,6 +7178,7 @@ var rules_0_1_default = {
     "schema",
     "request",
     "core",
+    "workbookBinding",
     "publicEquity",
     "freshness"
   ],
@@ -7421,6 +7422,54 @@ var rules_0_1_default = {
       prerequisites: ["OFF.SCHEMA.ROOT"],
       diagnostic: { code: "OFF-W5003", severity: "warning" },
       emission: { cardinality: "onePerRemoteLocation", instanceLocationRule: "pointer to the remote location object", entityIdRule: "containing resource id", requiredParameterKeys: ["locationIndex", "url"] }
+    },
+    {
+      id: "OFF.WORKBOOK_BINDING.DUPLICATE_ID",
+      stage: "workbookBinding",
+      authority: "spec/profiles/workbook-binding-0.1.md#4-evaluation",
+      prerequisites: ["OFF.CORE.ENTRYPOINT"],
+      diagnostic: { code: "OFF-E3101", severity: "error" },
+      emission: { cardinality: "onePerInstanceLocation", instanceLocationRule: "pointer to each duplicate workbook-binding record id after its first occurrence", entityIdRule: "omit", requiredParameterKeys: ["id"] }
+    },
+    {
+      id: "OFF.WORKBOOK_BINDING.SNAPSHOT_RESOURCE",
+      stage: "workbookBinding",
+      authority: "spec/profiles/workbook-binding-0.1.md#2-workbooks",
+      prerequisites: ["OFF.WORKBOOK_BINDING.DUPLICATE_ID", "OFF.CORE.RESOURCE_FILE"],
+      diagnostic: { code: "OFF-E3102", severity: "error" },
+      emission: { cardinality: "onePerInstanceLocation", instanceLocationRule: "pointer to the workbook snapshotResourceId member", entityIdRule: "omit", requiredParameterKeys: ["reason", "resourceId"] }
+    },
+    {
+      id: "OFF.WORKBOOK_BINDING.SNAPSHOT_MEDIA_TYPE",
+      stage: "workbookBinding",
+      authority: "spec/profiles/workbook-binding-0.1.md#2-workbooks",
+      prerequisites: ["OFF.WORKBOOK_BINDING.SNAPSHOT_RESOURCE"],
+      diagnostic: { code: "OFF-E3103", severity: "error" },
+      emission: { cardinality: "onePerInstanceLocation", instanceLocationRule: "pointer to the workbook snapshotResourceId member", entityIdRule: "omit", requiredParameterKeys: ["actualMediaType", "resourceId"] }
+    },
+    {
+      id: "OFF.WORKBOOK_BINDING.LIVE_SOURCE",
+      stage: "workbookBinding",
+      authority: "spec/profiles/workbook-binding-0.1.md#2-workbooks",
+      prerequisites: ["OFF.WORKBOOK_BINDING.DUPLICATE_ID"],
+      diagnostic: { code: "OFF-E3104", severity: "error" },
+      emission: { cardinality: "onePerInstanceLocation", instanceLocationRule: "pointer to the workbook liveSourceResourceId member", entityIdRule: "omit", requiredParameterKeys: ["reason", "resourceId"] }
+    },
+    {
+      id: "OFF.WORKBOOK_BINDING.SUBJECT_REFERENCE",
+      stage: "workbookBinding",
+      authority: "spec/profiles/workbook-binding-0.1.md#3-subjects-and-bindings",
+      prerequisites: ["OFF.WORKBOOK_BINDING.DUPLICATE_ID"],
+      diagnostic: { code: "OFF-E3105", severity: "error" },
+      emission: { cardinality: "onePerInstanceLocation", instanceLocationRule: "pointer to the binding subjectId member", entityIdRule: "omit", requiredParameterKeys: ["subjectId"] }
+    },
+    {
+      id: "OFF.WORKBOOK_BINDING.WORKBOOK_REFERENCE",
+      stage: "workbookBinding",
+      authority: "spec/profiles/workbook-binding-0.1.md#3-subjects-and-bindings",
+      prerequisites: ["OFF.WORKBOOK_BINDING.DUPLICATE_ID"],
+      diagnostic: { code: "OFF-E3106", severity: "error" },
+      emission: { cardinality: "onePerInstanceLocation", instanceLocationRule: "pointer to the binding workbookId member", entityIdRule: "omit", requiredParameterKeys: ["workbookId"] }
     }
   ]
 };
@@ -7713,6 +7762,17 @@ var DEFAULT_ADMISSION_LIMITS = {
   maxTokens: 1e6
 };
 
+// src/profiles.ts
+var PUBLIC_EQUITY_PROFILE_URI = "https://openfinanceformat.org/profiles/public-equity-research/0.1";
+var WORKBOOK_BINDING_PROFILE_URI = "https://openfinanceformat.org/profiles/workbook-binding/0.1";
+var SUPPORTED_PROFILE_URIS = Object.freeze([
+  PUBLIC_EQUITY_PROFILE_URI,
+  WORKBOOK_BINDING_PROFILE_URI
+]);
+function isSupportedProfileUri(value) {
+  return SUPPORTED_PROFILE_URIS.includes(value);
+}
+
 // src/uri.ts
 var SCHEME = /^[A-Za-z][A-Za-z0-9+.-]*$/u;
 var HEX_DIGIT = /^[0-9A-Fa-f]$/u;
@@ -7804,7 +7864,6 @@ function isHttpsUrlWithoutUserInfo(value) {
 }
 
 // src/normalize.ts
-var PUBLIC_EQUITY_PROFILE_URI = "https://openfinanceformat.org/profiles/public-equity-research/0.1";
 var stageRank = {
   admissionFailed: 0,
   schemaFailed: 1,
@@ -7815,6 +7874,7 @@ var stageRank = {
   freshnessCompleted: 6
 };
 var MANIFEST_PUBLIC_EQUITY_BASE = "/profileData/https:~1~1openfinanceformat.org~1profiles~1public-equity-research~10.1";
+var MANIFEST_WORKBOOK_BINDING_BASE = "/profileData/https:~1~1openfinanceformat.org~1profiles~1workbook-binding~10.1";
 function diagnosticStage(diagnostic2) {
   try {
     return getRuleDefinition(diagnostic2.ruleId).stage;
@@ -7831,11 +7891,23 @@ function isPublicEquitySchemaError(diagnostic2) {
   }
   return diagnostic2.instanceLocation === MANIFEST_PUBLIC_EQUITY_BASE || diagnostic2.instanceLocation.startsWith(`${MANIFEST_PUBLIC_EQUITY_BASE}/`);
 }
+function isWorkbookBindingSchemaError(diagnostic2) {
+  if (diagnostic2.severity !== "error" || diagnosticStage(diagnostic2) !== "schema") {
+    return false;
+  }
+  if (diagnostic2.instanceLocation === "/profileData" && diagnostic2.ruleId === "OFF.SCHEMA.PROFILE_DECLARATION" && diagnostic2.parameters.reason === "required") {
+    return true;
+  }
+  return diagnostic2.instanceLocation === MANIFEST_WORKBOOK_BINDING_BASE || diagnostic2.instanceLocation.startsWith(`${MANIFEST_WORKBOOK_BINDING_BASE}/`);
+}
 function isApplicableProfileError(diagnostic2, profileUri) {
   if (diagnostic2.severity !== "error") return false;
   const stage = diagnosticStage(diagnostic2);
   if (stage === "request") return diagnostic2.entityId === profileUri;
-  return profileUri === PUBLIC_EQUITY_PROFILE_URI && (stage === "publicEquity" || isPublicEquitySchemaError(diagnostic2));
+  if (profileUri === PUBLIC_EQUITY_PROFILE_URI) {
+    return stage === "publicEquity" || isPublicEquitySchemaError(diagnostic2);
+  }
+  return profileUri === WORKBOOK_BINDING_PROFILE_URI && (stage === "workbookBinding" || isWorkbookBindingSchemaError(diagnostic2));
 }
 function compareUtf162(left, right) {
   return left < right ? -1 : left > right ? 1 : 0;
@@ -7926,7 +7998,7 @@ function createProfileResults(stage, declaredProfiles2, requestedProfiles, overr
     const override = overrides[uri];
     const isRequested = requested.has(uri);
     let inferredStatus = "notEvaluated";
-    if (requestPrerequisitePassed && isRequested && (!declaredSet.has(uri) || uri !== PUBLIC_EQUITY_PROFILE_URI)) {
+    if (requestPrerequisitePassed && isRequested && (!declaredSet.has(uri) || !isSupportedProfileUri(uri))) {
       inferredStatus = "failed";
     } else if (uri === PUBLIC_EQUITY_PROFILE_URI && isRequested) {
       if (stageRank[stage] >= stageRank.publicEquityGraphPassed) {
@@ -7937,6 +8009,7 @@ function createProfileResults(stage, declaredProfiles2, requestedProfiles, overr
     }
     const status = override?.status ?? inferredStatus;
     const passedPublicEquity = uri === PUBLIC_EQUITY_PROFILE_URI && status === "passed";
+    const passedWorkbookBinding = uri === WORKBOOK_BINDING_PROFILE_URI && status === "passed";
     return {
       uri,
       requested: isRequested,
@@ -7945,6 +8018,9 @@ function createProfileResults(stage, declaredProfiles2, requestedProfiles, overr
         claim: override?.claim ?? "Traceable — author-declared lineage",
         structuralConformance: override?.structuralConformance ?? "passed",
         lineageCompleteness: override?.lineageCompleteness ?? "attested-not-independently-verified"
+      } : {},
+      ...passedWorkbookBinding ? {
+        claim: override?.claim ?? "Bound — author-declared workbook locators"
       } : {}
     };
   });
@@ -7957,6 +8033,14 @@ function normalizeProfileEntities(entities) {
   return Object.fromEntries(
     Object.entries(entities).sort(([left], [right]) => compareUtf162(left, right)).map(([collection, values]) => [collection, sortById(values)])
   );
+}
+function normalizeWorkbookBindingEntities(entities) {
+  return {
+    workbooks: sortById(entities.workbooks),
+    subjects: sortById(entities.subjects),
+    bindings: sortById(entities.bindings),
+    unevaluated: { ...entities.unevaluated }
+  };
 }
 function normalizeLineage(edges) {
   return [...edges].sort(
@@ -8017,21 +8101,32 @@ function buildNormalizedResult(input) {
   for (const [uri, override] of Object.entries(
     input.profileResultOverrides ?? {}
   )) {
-    if (uri !== PUBLIC_EQUITY_PROFILE_URI) {
+    if (!isSupportedProfileUri(uri)) {
       throw new TypeError(`profileResultOverrides contains unknown profile: ${uri}`);
     }
-    const graphCompleted = stageRank[input.stage] >= stageRank.publicEquityGraphPassed && requestedProfiles.includes(uri) && declaredProfiles2.includes(uri);
+    const evaluationCompleted = (uri === PUBLIC_EQUITY_PROFILE_URI ? stageRank[input.stage] >= stageRank.publicEquityGraphPassed : input.workbookBindingEntities !== void 0) && requestedProfiles.includes(uri) && declaredProfiles2.includes(uri);
     const hasClaim = override.claim !== void 0 || override.structuralConformance !== void 0 || override.lineageCompleteness !== void 0;
-    if (override.status === "passed" && !graphCompleted) {
+    if (override.status === "passed" && !evaluationCompleted) {
       throw new TypeError(
-        "A profile cannot pass before requested graph completion"
+        uri === PUBLIC_EQUITY_PROFILE_URI ? "A profile cannot pass before requested graph completion" : "A profile cannot pass before its requested evaluation completes"
       );
     }
-    if (hasClaim && (override.status !== "passed" || !graphCompleted)) {
+    if (hasClaim && (override.status !== "passed" || !evaluationCompleted)) {
       throw new TypeError(
-        "Traceable claims require a passed profile after graph completion"
+        uri === PUBLIC_EQUITY_PROFILE_URI ? "Traceable claims require a passed profile after graph completion" : "Profile claims require a passed profile after evaluation completion"
       );
     }
+    if (uri === PUBLIC_EQUITY_PROFILE_URI && override.claim !== void 0 && override.claim !== "Traceable — author-declared lineage") {
+      throw new TypeError("Public Equity requires its exact Traceable claim");
+    }
+    if (uri === WORKBOOK_BINDING_PROFILE_URI && (override.claim !== void 0 && override.claim !== "Bound — author-declared workbook locators" || override.structuralConformance !== void 0 || override.lineageCompleteness !== void 0)) {
+      throw new TypeError("Workbook Binding permits only its exact Bound claim");
+    }
+  }
+  if (input.workbookBindingEntities !== void 0 && input.profileResultOverrides?.[WORKBOOK_BINDING_PROFILE_URI]?.status !== "passed") {
+    throw new TypeError(
+      "Workbook Binding entities require a passed Workbook Binding override"
+    );
   }
   const targetDiagnostics = [];
   const profileTargetPrerequisitePassed = input.rootShapeFailed !== true;
@@ -8047,7 +8142,7 @@ function buildNormalizedResult(input) {
             uri
           )
         );
-      } else if (uri !== PUBLIC_EQUITY_PROFILE_URI) {
+      } else if (!isSupportedProfileUri(uri)) {
         targetDiagnostics.push(
           createDiagnostic(
             "OFF.SCHEMA.PROFILE_TARGET",
@@ -8076,7 +8171,7 @@ function buildNormalizedResult(input) {
     const hasApplicableError = requested && diagnostics.some(
       (diagnostic2) => isApplicableProfileError(diagnostic2, uri)
     );
-    const profileSucceeded = requested && uri === PUBLIC_EQUITY_PROFILE_URI && stageRank[input.stage] >= stageRank.publicEquityGraphPassed;
+    const profileSucceeded = requested && (uri === PUBLIC_EQUITY_PROFILE_URI && stageRank[input.stage] >= stageRank.publicEquityGraphPassed || uri === WORKBOOK_BINDING_PROFILE_URI && input.profileResultOverrides?.[uri]?.status === "passed");
     const expectedStatus = !requested ? "notEvaluated" : hasApplicableError ? "failed" : profileSucceeded ? "passed" : "notEvaluated";
     if (row.status !== expectedStatus) {
       throw new TypeError(
@@ -8121,12 +8216,17 @@ function buildNormalizedResult(input) {
       requireValue(input.relationshipInventory, "relationshipInventory")
     );
   }
+  const profileEntities = {};
   if (stageRank[input.stage] >= stageRank.publicEquitySchemaPassed) {
-    result2.profileEntities = {
-      [PUBLIC_EQUITY_PROFILE_URI]: normalizeProfileEntities(
-        requireValue(input.publicEquityEntities, "publicEquityEntities")
-      )
-    };
+    profileEntities[PUBLIC_EQUITY_PROFILE_URI] = normalizeProfileEntities(
+      requireValue(input.publicEquityEntities, "publicEquityEntities")
+    );
+  }
+  if (input.workbookBindingEntities !== void 0) {
+    profileEntities[WORKBOOK_BINDING_PROFILE_URI] = normalizeWorkbookBindingEntities(input.workbookBindingEntities);
+  }
+  if (Object.keys(profileEntities).length > 0) {
+    result2.profileEntities = profileEntities;
   }
   if (stageRank[input.stage] >= stageRank.publicEquityGraphPassed) {
     result2.resolvedLineage = normalizeLineage(
@@ -8915,7 +9015,12 @@ var normalized_result_0_1_schema_default = {
         uri: { type: "string", minLength: 1 },
         requested: { type: "boolean" },
         status: { $ref: "#/$defs/status" },
-        claim: { const: "Traceable — author-declared lineage" },
+        claim: {
+          enum: [
+            "Traceable — author-declared lineage",
+            "Bound — author-declared workbook locators"
+          ]
+        },
         structuralConformance: { const: "passed" },
         lineageCompleteness: { const: "attested-not-independently-verified" }
       },
@@ -9045,7 +9150,74 @@ var normalized_result_0_1_schema_default = {
             attestations: { type: "array", minItems: 1, items: { $ref: "https://openfinanceformat.org/schemas/profiles/public-equity-research-0.1.schema.json#/$defs/attestation" } }
           },
           additionalProperties: false
+        },
+        "https://openfinanceformat.org/profiles/workbook-binding/0.1": {
+          type: "object",
+          required: ["workbooks", "subjects", "bindings", "unevaluated"],
+          properties: {
+            workbooks: {
+              type: "array",
+              minItems: 1,
+              items: { $ref: "#/$defs/normalizedWorkbook" }
+            },
+            subjects: {
+              type: "array",
+              minItems: 1,
+              items: {
+                $ref: "https://openfinanceformat.org/schemas/profiles/workbook-binding-0.1.schema.json#/$defs/subject"
+              }
+            },
+            bindings: {
+              type: "array",
+              minItems: 1,
+              items: {
+                $ref: "https://openfinanceformat.org/schemas/profiles/workbook-binding-0.1.schema.json#/$defs/binding"
+              }
+            },
+            unevaluated: { $ref: "#/$defs/workbookUnevaluated" }
+          },
+          additionalProperties: false
         }
+      },
+      additionalProperties: false
+    },
+    normalizedWorkbook: {
+      type: "object",
+      required: ["id", "snapshotResourceId", "format", "capturedAt"],
+      properties: {
+        id: { type: "string", minLength: 1 },
+        snapshotResourceId: { type: "string", minLength: 1 },
+        format: {
+          enum: ["xlsx", "google-sheets-xlsx-export"]
+        },
+        capturedAt: {
+          type: "string",
+          pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]Z$"
+        },
+        liveSourceResourceId: { type: "string", minLength: 1 },
+        liveSourceStatus: { const: "notEvaluated" }
+      },
+      dependentRequired: {
+        liveSourceResourceId: ["liveSourceStatus"],
+        liveSourceStatus: ["liveSourceResourceId"]
+      },
+      additionalProperties: false
+    },
+    workbookUnevaluated: {
+      type: "object",
+      required: [
+        "workbookContents",
+        "locatorExistence",
+        "cellValues",
+        "formulas",
+        "recalculation"
+      ],
+      properties: {
+        workbookContents: { const: "notEvaluated" },
+        locatorExistence: { const: "notEvaluated" },
+        cellValues: { const: "notEvaluated" },
+        formulas: { const: "notEvaluated" },
+        recalculation: { const: "notEvaluated" }
       },
       additionalProperties: false
     },
@@ -9353,14 +9525,134 @@ var public_equity_research_0_1_schema_default = {
   }
 };
 
+// schemas/profiles/workbook-binding-0.1.schema.json
+var workbook_binding_0_1_schema_default = {
+  $schema: "https://json-schema.org/draft/2020-12/schema",
+  $id: "https://openfinanceformat.org/schemas/profiles/workbook-binding-0.1.schema.json",
+  title: "OFF Workbook Binding 0.1 manifest",
+  allOf: [
+    { $ref: "https://openfinanceformat.org/schemas/off-core-0.1.schema.json" },
+    {
+      type: "object",
+      required: ["profileData"],
+      properties: {
+        profiles: {
+          type: "array",
+          contains: {
+            const: "https://openfinanceformat.org/profiles/workbook-binding/0.1"
+          }
+        },
+        profileData: {
+          type: "object",
+          required: ["https://openfinanceformat.org/profiles/workbook-binding/0.1"],
+          properties: {
+            "https://openfinanceformat.org/profiles/workbook-binding/0.1": {
+              $ref: "#/$defs/profileData"
+            }
+          }
+        }
+      }
+    }
+  ],
+  $defs: {
+    absoluteUri: { type: "string", minLength: 1 },
+    nonEmptyString: { type: "string", minLength: 1 },
+    timestamp: {
+      type: "string",
+      pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]Z$"
+    },
+    a1Range: {
+      type: "string",
+      pattern: "^\\$?[A-Za-z]{1,3}\\$?[1-9][0-9]*(?::\\$?[A-Za-z]{1,3}\\$?[1-9][0-9]*)?$"
+    },
+    workbook: {
+      type: "object",
+      required: ["id", "snapshotResourceId", "format", "capturedAt"],
+      properties: {
+        id: { $ref: "#/$defs/absoluteUri" },
+        snapshotResourceId: { $ref: "#/$defs/absoluteUri" },
+        format: {
+          enum: ["xlsx", "google-sheets-xlsx-export"]
+        },
+        capturedAt: { $ref: "#/$defs/timestamp" },
+        liveSourceResourceId: { $ref: "#/$defs/absoluteUri" }
+      },
+      additionalProperties: false
+    },
+    subject: {
+      type: "object",
+      required: ["id", "label"],
+      properties: {
+        id: { $ref: "#/$defs/absoluteUri" },
+        label: { $ref: "#/$defs/nonEmptyString" },
+        externalEntityId: { $ref: "#/$defs/absoluteUri" }
+      },
+      additionalProperties: false
+    },
+    locator: {
+      type: "object",
+      required: ["sheet", "range"],
+      properties: {
+        sheet: { $ref: "#/$defs/nonEmptyString" },
+        range: { $ref: "#/$defs/a1Range" }
+      },
+      additionalProperties: false
+    },
+    binding: {
+      type: "object",
+      required: [
+        "id",
+        "subjectId",
+        "workbookId",
+        "locator",
+        "role",
+        "status"
+      ],
+      properties: {
+        id: { $ref: "#/$defs/absoluteUri" },
+        subjectId: { $ref: "#/$defs/absoluteUri" },
+        workbookId: { $ref: "#/$defs/absoluteUri" },
+        locator: { $ref: "#/$defs/locator" },
+        role: {
+          enum: ["source", "assumption", "output", "supporting"]
+        },
+        status: { const: "author-declared-not-evaluated" }
+      },
+      additionalProperties: false
+    },
+    profileData: {
+      type: "object",
+      required: ["workbooks", "subjects", "bindings"],
+      properties: {
+        workbooks: {
+          type: "array",
+          minItems: 1,
+          items: { $ref: "#/$defs/workbook" }
+        },
+        subjects: {
+          type: "array",
+          minItems: 1,
+          items: { $ref: "#/$defs/subject" }
+        },
+        bindings: {
+          type: "array",
+          minItems: 1,
+          items: { $ref: "#/$defs/binding" }
+        }
+      },
+      additionalProperties: false
+    }
+  }
+};
+
 // src/schema.ts
 var OFF_SCHEMA_IDS = {
   core: "https://openfinanceformat.org/schemas/off-core-0.1.schema.json",
   publicEquity: "https://openfinanceformat.org/schemas/profiles/public-equity-research-0.1.schema.json",
+  workbookBinding: "https://openfinanceformat.org/schemas/profiles/workbook-binding-0.1.schema.json",
   normalizedResult: "https://openfinanceformat.org/schemas/normalized-result-0.1.schema.json",
   diagnostic: "https://openfinanceformat.org/schemas/diagnostic-0.1.schema.json"
 };
-var PUBLIC_EQUITY_PROFILE_URI2 = "https://openfinanceformat.org/profiles/public-equity-research/0.1";
 var ajv = new import__.Ajv2020({
   strict: true,
   allErrors: true,
@@ -9374,6 +9666,7 @@ for (const schema of [
   off_core_0_1_schema_default,
   diagnostic_0_1_schema_default,
   public_equity_research_0_1_schema_default,
+  workbook_binding_0_1_schema_default,
   normalized_result_0_1_schema_default
 ]) {
   ajv.addSchema(schema);
@@ -9387,6 +9680,7 @@ function requiredValidator(id) {
 }
 var coreValidator = requiredValidator(OFF_SCHEMA_IDS.core);
 var publicEquityValidator = requiredValidator(OFF_SCHEMA_IDS.publicEquity);
+var workbookBindingValidator = requiredValidator(OFF_SCHEMA_IDS.workbookBinding);
 var normalizedResultValidator = requiredValidator(OFF_SCHEMA_IDS.normalizedResult);
 var diagnosticValidator = requiredValidator(OFF_SCHEMA_IDS.diagnostic);
 function pointerEscape(value) {
@@ -9437,7 +9731,7 @@ var SCHEMA_CONSTRAINT_TOKENS = {
 function schemaConstraintToken(error) {
   return SCHEMA_CONSTRAINT_TOKENS[error.keyword] ?? "schemaConstraint";
 }
-function profileUriForError(error, value) {
+function profileUriForError(error, value, activeProfileUri) {
   const segments = error.instancePath.split("/").slice(1);
   if (segments[0] === "profiles" && segments[1] !== void 0) {
     const profiles = typeof value === "object" && value !== null && Array.isArray(value.profiles) ? value.profiles : [];
@@ -9450,7 +9744,7 @@ function profileUriForError(error, value) {
     return error.params.missingProperty;
   }
   if (segments[0] === "profiles" && (error.keyword === "contains" || error.schemaPath.includes("/contains"))) {
-    return PUBLIC_EQUITY_PROFILE_URI2;
+    return activeProfileUri ?? "";
   }
   return "";
 }
@@ -9470,7 +9764,7 @@ function schemaRuleForError(error) {
   }
   return "OFF.SCHEMA.ROOT";
 }
-function diagnosticFromSchemaError(error, value) {
+function diagnosticFromSchemaError(error, value, activeProfileUri) {
   const ruleId = schemaRuleForError(error);
   const location = keywordLocation(error);
   const token = schemaConstraintToken(error);
@@ -9488,7 +9782,7 @@ function diagnosticFromSchemaError(error, value) {
     }
     case "OFF.SCHEMA.PROFILE_DECLARATION":
       return createDiagnostic(ruleId, location, {
-        profileUri: profileUriForError(error, value),
+        profileUri: profileUriForError(error, value, activeProfileUri),
         reason: token
       });
     case "OFF.SCHEMA.EXTENSION_NAMESPACE": {
@@ -9507,14 +9801,14 @@ function diagnosticFromSchemaError(error, value) {
 function isTrueRootShapeFailure(error, diagnostic2) {
   return error.instancePath === "" && diagnostic2.ruleId === "OFF.SCHEMA.ROOT" && (error.keyword === "type" || error.keyword === "required" || error.keyword === "additionalProperties" || error.keyword === "unevaluatedProperties");
 }
-function schemaDiagnostics(validator, value) {
+function schemaDiagnostics(validator, value, activeProfileUri) {
   const valid = validator(value);
   if (valid) {
     return { diagnostics: [], rootShapeFailed: false };
   }
   const candidates = (validator.errors ?? []).map((error) => ({
     error,
-    diagnostic: diagnosticFromSchemaError(error, value)
+    diagnostic: diagnosticFromSchemaError(error, value, activeProfileUri)
   }));
   const rootFailures = candidates.filter(
     ({ error, diagnostic: diagnostic2 }) => isTrueRootShapeFailure(error, diagnostic2)
@@ -9808,18 +10102,62 @@ function semanticPublicEquityDiagnostics(value) {
   if (!isObject(value) || !isObject(value.profileData)) {
     return [];
   }
-  const profile = value.profileData[PUBLIC_EQUITY_PROFILE_URI2];
+  const profile = value.profileData[PUBLIC_EQUITY_PROFILE_URI];
   if (!isObject(profile)) {
     return [];
   }
   return publicEquityLexicalDiagnostics(
     profile,
-    `/profileData/${pointerEscape(PUBLIC_EQUITY_PROFILE_URI2)}`,
+    `/profileData/${pointerEscape(PUBLIC_EQUITY_PROFILE_URI)}`,
     profile.lineageEdges
   );
 }
-var NORMALIZED_PUBLIC_EQUITY_BASE = `/profileEntities/${pointerEscape(PUBLIC_EQUITY_PROFILE_URI2)}`;
-var MANIFEST_PUBLIC_EQUITY_BASE2 = `/profileData/${pointerEscape(PUBLIC_EQUITY_PROFILE_URI2)}`;
+function semanticWorkbookBindingDiagnostics(value) {
+  if (!isObject(value) || !isObject(value.profileData)) {
+    return [];
+  }
+  const profile = value.profileData[WORKBOOK_BINDING_PROFILE_URI];
+  if (!isObject(profile)) {
+    return [];
+  }
+  const diagnostics = [];
+  const base = `/profileData/${pointerEscape(WORKBOOK_BINDING_PROFILE_URI)}`;
+  for (const collection of ["workbooks", "subjects", "bindings"]) {
+    const records = profile[collection];
+    if (!Array.isArray(records)) continue;
+    records.forEach((record, index) => {
+      if (!isObject(record)) return;
+      const recordBase = `${base}/${collection}/${index}`;
+      for (const field of [
+        "id",
+        "snapshotResourceId",
+        "liveSourceResourceId",
+        "externalEntityId",
+        "subjectId",
+        "workbookId"
+      ]) {
+        if (field in record && !isAbsoluteUri(record[field])) {
+          diagnostics.push(
+            rootConstraint(`${recordBase}/${field}`, "absoluteUri")
+          );
+        }
+      }
+      if (collection === "workbooks" && "capturedAt" in record && !isWholeSecondUtcTimestamp2(record.capturedAt)) {
+        diagnostics.push(
+          rootConstraint(
+            `${recordBase}/capturedAt`,
+            "wholeSecondUtcTimestamp"
+          )
+        );
+      }
+    });
+  }
+  return diagnostics;
+}
+var NORMALIZED_PUBLIC_EQUITY_BASE = `/profileEntities/${pointerEscape(PUBLIC_EQUITY_PROFILE_URI)}`;
+var MANIFEST_PUBLIC_EQUITY_BASE2 = `/profileData/${pointerEscape(PUBLIC_EQUITY_PROFILE_URI)}`;
+var NORMALIZED_WORKBOOK_BINDING_BASE = `/profileEntities/${pointerEscape(WORKBOOK_BINDING_PROFILE_URI)}`;
+var MANIFEST_WORKBOOK_BINDING_BASE2 = `/profileData/${pointerEscape(WORKBOOK_BINDING_PROFILE_URI)}`;
 function result(diagnostics) {
   const finalized = finalizeDiagnostics(diagnostics);
   return { valid: finalized.length === 0, diagnostics: finalized };
@@ -9832,7 +10170,11 @@ function validateCoreSchemaForEvaluation(value) {
   return { ...validation, rootShapeFailed: schema.rootShapeFailed };
 }
 function validatePublicEquitySchema(value) {
-  const schema = schemaDiagnostics(publicEquityValidator, value);
+  const schema = schemaDiagnostics(
+    publicEquityValidator,
+    value,
+    PUBLIC_EQUITY_PROFILE_URI
+  );
   if (schema.rootShapeFailed) {
     return result(schema.diagnostics);
   }
@@ -9840,6 +10182,21 @@ function validatePublicEquitySchema(value) {
     ...schema.diagnostics,
     ...semanticCoreDiagnostics(value),
     ...semanticPublicEquityDiagnostics(value)
+  ]);
+}
+function validateWorkbookBindingSchema(value) {
+  const schema = schemaDiagnostics(
+    workbookBindingValidator,
+    value,
+    WORKBOOK_BINDING_PROFILE_URI
+  );
+  if (schema.rootShapeFailed) {
+    return result(schema.diagnostics);
+  }
+  return result([
+    ...schema.diagnostics,
+    ...semanticCoreDiagnostics(value),
+    ...semanticWorkbookBindingDiagnostics(value)
   ]);
 }
 
@@ -11236,6 +11593,225 @@ function evaluatePublicEquity(value, options) {
   };
 }
 
+// src/workbook-binding.ts
+var XLSX_MEDIA_TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+var collections2 = ["workbooks", "subjects", "bindings"];
+function pointerEscape3(value) {
+  return value.replaceAll("~", "~0").replaceAll("/", "~1");
+}
+var profilePointer2 = `/profileData/${pointerEscape3(WORKBOOK_BINDING_PROFILE_URI)}`;
+function compareUtf167(left, right) {
+  return left < right ? -1 : left > right ? 1 : 0;
+}
+function profileData2(value) {
+  if (typeof value !== "object" || value === null || !("profileData" in value)) {
+    return void 0;
+  }
+  const allProfiles = value.profileData;
+  if (typeof allProfiles !== "object" || allProfiles === null) {
+    return void 0;
+  }
+  const profile = allProfiles[WORKBOOK_BINDING_PROFILE_URI];
+  return typeof profile === "object" && profile !== null ? profile : void 0;
+}
+function idOccurrences(profile) {
+  const occurrences = /* @__PURE__ */ new Map();
+  for (const collection of collections2) {
+    profile[collection].forEach((record, index) => {
+      const id = String(record.id);
+      const current = occurrences.get(id) ?? [];
+      current.push({ collection, index });
+      occurrences.set(id, current);
+    });
+  }
+  return occurrences;
+}
+function duplicateDiagnostics(occurrences) {
+  const diagnostics = [];
+  for (const [id, records] of occurrences) {
+    for (const duplicate of records.slice(1)) {
+      diagnostics.push(
+        createDiagnostic(
+          "OFF.WORKBOOK_BINDING.DUPLICATE_ID",
+          `${profilePointer2}/${duplicate.collection}/${duplicate.index}/id`,
+          { id }
+        )
+      );
+    }
+  }
+  return diagnostics;
+}
+function workbookDiagnostics(profile, occurrences, core) {
+  const diagnostics = [];
+  profile.workbooks.forEach((workbook, index) => {
+    const workbookId = String(workbook.id);
+    if ((occurrences.get(workbookId)?.length ?? 0) > 1) {
+      return;
+    }
+    const snapshotResourceId = String(workbook.snapshotResourceId);
+    const snapshot = core.resources.get(snapshotResourceId);
+    const snapshotPointer = `${profilePointer2}/workbooks/${index}/snapshotResourceId`;
+    if (snapshot === void 0) {
+      diagnostics.push(
+        createDiagnostic(
+          "OFF.WORKBOOK_BINDING.SNAPSHOT_RESOURCE",
+          snapshotPointer,
+          { reason: "missing", resourceId: snapshotResourceId }
+        )
+      );
+    } else if (!core.verifiedLocalResourceIds.has(snapshotResourceId)) {
+      diagnostics.push(
+        createDiagnostic(
+          "OFF.WORKBOOK_BINDING.SNAPSHOT_RESOURCE",
+          snapshotPointer,
+          { reason: "notLocallyVerified", resourceId: snapshotResourceId }
+        )
+      );
+    } else if (snapshot.mediaType !== XLSX_MEDIA_TYPE) {
+      diagnostics.push(
+        createDiagnostic(
+          "OFF.WORKBOOK_BINDING.SNAPSHOT_MEDIA_TYPE",
+          snapshotPointer,
+          {
+            actualMediaType: snapshot.mediaType,
+            resourceId: snapshotResourceId
+          }
+        )
+      );
+    }
+    if (workbook.liveSourceResourceId === void 0) {
+      return;
+    }
+    const liveSourceResourceId = String(workbook.liveSourceResourceId);
+    const livePointer = `${profilePointer2}/workbooks/${index}/liveSourceResourceId`;
+    let reason;
+    if (liveSourceResourceId === snapshotResourceId) {
+      reason = "sameAsSnapshot";
+    } else {
+      const live = core.resources.get(liveSourceResourceId);
+      if (live === void 0) {
+        reason = "missing";
+      } else if (!live.locations.some(
+        (location) => location.kind === "remote" && typeof location.url === "string" && /^https:\/\//iu.test(location.url)
+      )) {
+        reason = "notHttpsRemote";
+      }
+    }
+    if (reason !== void 0) {
+      diagnostics.push(
+        createDiagnostic(
+          "OFF.WORKBOOK_BINDING.LIVE_SOURCE",
+          livePointer,
+          { reason, resourceId: liveSourceResourceId }
+        )
+      );
+    }
+  });
+  return diagnostics;
+}
+function referenceDiagnostics3(profile, occurrences) {
+  const diagnostics = [];
+  const subjectIds = new Set(profile.subjects.map(({ id }) => String(id)));
+  const workbookIds = new Set(profile.workbooks.map(({ id }) => String(id)));
+  profile.bindings.forEach((binding, index) => {
+    const subjectId = String(binding.subjectId);
+    if (!subjectIds.has(subjectId) || (occurrences.get(subjectId)?.length ?? 0) > 1) {
+      diagnostics.push(
+        createDiagnostic(
+          "OFF.WORKBOOK_BINDING.SUBJECT_REFERENCE",
+          `${profilePointer2}/bindings/${index}/subjectId`,
+          { subjectId }
+        )
+      );
+    }
+    const workbookId = String(binding.workbookId);
+    if (!workbookIds.has(workbookId) || (occurrences.get(workbookId)?.length ?? 0) > 1) {
+      diagnostics.push(
+        createDiagnostic(
+          "OFF.WORKBOOK_BINDING.WORKBOOK_REFERENCE",
+          `${profilePointer2}/bindings/${index}/workbookId`,
+          { workbookId }
+        )
+      );
+    }
+  });
+  return diagnostics;
+}
+function normalize(profile) {
+  const sorted = (records) => [...records].sort(
+    (left, right) => compareUtf167(String(left.id), String(right.id))
+  ).map((record) => ({
+    ...record,
+    ...record.liveSourceResourceId === void 0 ? {} : { liveSourceStatus: "notEvaluated" }
+  }));
+  return cloneAndDeepFreezeJson({
+    workbooks: sorted(profile.workbooks),
+    subjects: sorted(profile.subjects),
+    bindings: sorted(profile.bindings),
+    unevaluated: {
+      workbookContents: "notEvaluated",
+      locatorExistence: "notEvaluated",
+      cellValues: "notEvaluated",
+      formulas: "notEvaluated",
+      recalculation: "notEvaluated"
+    }
+  });
+}
+function workbookBindingCoreContextFromNormalized(normalized) {
+  const resources = /* @__PURE__ */ new Map();
+  const verifiedLocalResourceIds = /* @__PURE__ */ new Set();
+  const inventory = Array.isArray(normalized.resourceInventory) ? normalized.resourceInventory : [];
+  for (const candidate of inventory) {
+    if (typeof candidate !== "object" || candidate === null || typeof candidate.id !== "string" || typeof candidate.mediaType !== "string" || !Array.isArray(candidate.locations)) {
+      continue;
+    }
+    const resource = candidate;
+    const locations = resource.locations;
+    const id = resource.id;
+    resources.set(id, {
+      id,
+      mediaType: resource.mediaType,
+      locations
+    });
+    if (locations.filter(
+      (location) => location.kind === "local" && location.availability === "available" && location.integrity === "verified"
+    ).length === 1) {
+      verifiedLocalResourceIds.add(id);
+    }
+  }
+  return { resources, verifiedLocalResourceIds };
+}
+function evaluateWorkbookBinding(value, core) {
+  const schema = validateWorkbookBindingSchema(value);
+  const profile = profileData2(value);
+  if (!schema.valid || profile === void 0) {
+    return {
+      ok: false,
+      stage: "schemaFailed",
+      diagnostics: schema.diagnostics
+    };
+  }
+  const occurrences = idOccurrences(profile);
+  const diagnostics = finalizeDiagnostics([
+    ...duplicateDiagnostics(occurrences),
+    ...workbookDiagnostics(profile, occurrences, core),
+    ...referenceDiagnostics3(profile, occurrences)
+  ]);
+  if (diagnostics.length > 0) {
+    return {
+      ok: false,
+      stage: "semanticFailed",
+      diagnostics
+    };
+  }
+  return {
+    ok: true,
+    stage: "passed",
+    entities: normalize(profile),
+    diagnostics: []
+  };
+}
+
 // src/index.ts
 var MAX_MANIFEST_BYTES = 16 * 1024 * 1024;
 var MAX_PACKAGE_ROOT_ENTRIES = 1e5;
@@ -11429,56 +12005,65 @@ async function evaluatePackage(options) {
     const core = await evaluateCore(admission.value, evaluationOptions);
     if (core.kind === "evaluatorFailure") return core;
     const identity = core.normalized.packageIdentity;
-    const shouldEvaluatePublicEquity = core.normalized.profileResults.core.status === "passed" && evaluationOptions.requestedProfiles.includes(PUBLIC_EQUITY_PROFILE_URI) && identity?.declaredProfiles.includes(PUBLIC_EQUITY_PROFILE_URI) === true;
-    if (!shouldEvaluatePublicEquity) {
+    const corePassed = core.normalized.profileResults.core.status === "passed";
+    const shouldEvaluatePublicEquity = corePassed && evaluationOptions.requestedProfiles.includes(PUBLIC_EQUITY_PROFILE_URI) && identity?.declaredProfiles.includes(PUBLIC_EQUITY_PROFILE_URI) === true;
+    const shouldEvaluateWorkbookBinding = corePassed && evaluationOptions.requestedProfiles.includes(WORKBOOK_BINDING_PROFILE_URI) && identity?.declaredProfiles.includes(WORKBOOK_BINDING_PROFILE_URI) === true;
+    if (!shouldEvaluatePublicEquity && !shouldEvaluateWorkbookBinding) {
       return canonicalPackageResult(core.normalized);
     }
-    const profile = evaluatePublicEquity(admission.value, {
+    const publicEquity = shouldEvaluatePublicEquity ? evaluatePublicEquity(admission.value, {
       core: coreProfileContextFromNormalized(core.normalized),
       evaluatedAt: evaluationOptions.evaluatedAt
-    });
+    }) : void 0;
+    const workbookBinding = shouldEvaluateWorkbookBinding ? evaluateWorkbookBinding(
+      admission.value,
+      workbookBindingCoreContextFromNormalized(core.normalized)
+    ) : void 0;
     const coreFields = retainedCore(core.normalized);
     const diagnostics = [
       ...core.normalized.diagnostics,
-      ...profile.diagnostics
+      ...publicEquity?.diagnostics ?? [],
+      ...workbookBinding?.diagnostics ?? []
     ];
+    const profileResultOverrides = {
+      ...publicEquity?.stage === "schemaFailed" ? { [PUBLIC_EQUITY_PROFILE_URI]: { status: "failed" } } : {},
+      ...workbookBinding === void 0 ? {} : {
+        [WORKBOOK_BINDING_PROFILE_URI]: {
+          status: workbookBinding.ok ? "passed" : "failed",
+          ...workbookBinding.ok ? {
+            claim: "Bound — author-declared workbook locators"
+          } : {}
+        }
+      }
+    };
+    const stage = publicEquity === void 0 || publicEquity.stage === "schemaFailed" ? "corePassed" : publicEquity.ok ? "freshnessCompleted" : "publicEquitySchemaPassed";
     const shared = {
+      stage,
       evaluatedAt: evaluationOptions.evaluatedAt,
       requestedProfiles: evaluationOptions.requestedProfiles,
-      declaredProfiles: identity.declaredProfiles,
+      declaredProfiles: identity?.declaredProfiles ?? [],
       diagnostics,
-      ...coreFields
+      ...coreFields,
+      ...Object.keys(profileResultOverrides).length === 0 ? {} : { profileResultOverrides },
+      ...workbookBinding?.ok ? { workbookBindingEntities: workbookBinding.entities } : {}
     };
-    if (profile.stage === "schemaFailed") {
-      return canonicalPackageResult(
-        buildNormalizedResult({
-          stage: "corePassed",
-          ...shared,
-          profileResultOverrides: {
-            [PUBLIC_EQUITY_PROFILE_URI]: { status: "failed" }
-          }
-        })
-      );
-    }
-    if (!profile.ok) {
-      return canonicalPackageResult(
-        buildNormalizedResult({
-          stage: "publicEquitySchemaPassed",
-          ...shared,
-          publicEquityEntities: profile.entities
-        })
-      );
-    }
     return canonicalPackageResult(
       buildNormalizedResult({
-        stage: "freshnessCompleted",
         ...shared,
-        publicEquityEntities: profile.entities,
-        resolvedLineage: profile.resolvedLineage.map((edge) => ({ ...edge })),
-        freshness: {
-          leaves: profile.freshness.leaves.map((leaf) => ({ ...leaf })),
-          headlines: profile.freshness.headlines.map((headline) => ({ ...headline }))
-        }
+        ...publicEquity !== void 0 && publicEquity.stage !== "schemaFailed" ? { publicEquityEntities: publicEquity.entities } : {},
+        ...publicEquity?.ok ? {
+          resolvedLineage: publicEquity.resolvedLineage.map((edge) => ({
+            ...edge
+          })),
+          freshness: {
+            leaves: publicEquity.freshness.leaves.map((leaf) => ({
+              ...leaf
+            })),
+            headlines: publicEquity.freshness.headlines.map((headline) => ({
+              ...headline
+            }))
+          }
+        } : {}
       })
     );
   } catch {
@@ -12102,6 +12687,7 @@ export {
   MAX_MANIFEST_BYTES,
   MAX_PACKAGE_ROOT_ENTRIES,
   PUBLIC_EQUITY_PROFILE_URI,
+  WORKBOOK_BINDING_PROFILE_URI,
   evaluatePackage,
   runCli,
   verifyCorpus
