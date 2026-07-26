@@ -6,6 +6,7 @@
     "schema",
     "request",
     "core",
+    "workbookBinding",
     "publicEquity",
     "freshness"
   ],
@@ -249,6 +250,54 @@
       "prerequisites": ["OFF.SCHEMA.ROOT"],
       "diagnostic": { "code": "OFF-W5003", "severity": "warning" },
       "emission": { "cardinality": "onePerRemoteLocation", "instanceLocationRule": "pointer to the remote location object", "entityIdRule": "containing resource id", "requiredParameterKeys": ["locationIndex", "url"] }
+    },
+    {
+      "id": "OFF.WORKBOOK_BINDING.DUPLICATE_ID",
+      "stage": "workbookBinding",
+      "authority": "spec/profiles/workbook-binding-0.1.md#4-evaluation",
+      "prerequisites": ["OFF.CORE.ENTRYPOINT"],
+      "diagnostic": { "code": "OFF-E3101", "severity": "error" },
+      "emission": { "cardinality": "onePerInstanceLocation", "instanceLocationRule": "pointer to each duplicate workbook-binding record id after its first occurrence", "entityIdRule": "omit", "requiredParameterKeys": ["id"] }
+    },
+    {
+      "id": "OFF.WORKBOOK_BINDING.SNAPSHOT_RESOURCE",
+      "stage": "workbookBinding",
+      "authority": "spec/profiles/workbook-binding-0.1.md#2-workbooks",
+      "prerequisites": ["OFF.WORKBOOK_BINDING.DUPLICATE_ID", "OFF.CORE.RESOURCE_FILE"],
+      "diagnostic": { "code": "OFF-E3102", "severity": "error" },
+      "emission": { "cardinality": "onePerInstanceLocation", "instanceLocationRule": "pointer to the workbook snapshotResourceId member", "entityIdRule": "omit", "requiredParameterKeys": ["reason", "resourceId"] }
+    },
+    {
+      "id": "OFF.WORKBOOK_BINDING.SNAPSHOT_MEDIA_TYPE",
+      "stage": "workbookBinding",
+      "authority": "spec/profiles/workbook-binding-0.1.md#2-workbooks",
+      "prerequisites": ["OFF.WORKBOOK_BINDING.SNAPSHOT_RESOURCE"],
+      "diagnostic": { "code": "OFF-E3103", "severity": "error" },
+      "emission": { "cardinality": "onePerInstanceLocation", "instanceLocationRule": "pointer to the workbook snapshotResourceId member", "entityIdRule": "omit", "requiredParameterKeys": ["actualMediaType", "resourceId"] }
+    },
+    {
+      "id": "OFF.WORKBOOK_BINDING.LIVE_SOURCE",
+      "stage": "workbookBinding",
+      "authority": "spec/profiles/workbook-binding-0.1.md#2-workbooks",
+      "prerequisites": ["OFF.WORKBOOK_BINDING.DUPLICATE_ID"],
+      "diagnostic": { "code": "OFF-E3104", "severity": "error" },
+      "emission": { "cardinality": "onePerInstanceLocation", "instanceLocationRule": "pointer to the workbook liveSourceResourceId member", "entityIdRule": "omit", "requiredParameterKeys": ["reason", "resourceId"] }
+    },
+    {
+      "id": "OFF.WORKBOOK_BINDING.SUBJECT_REFERENCE",
+      "stage": "workbookBinding",
+      "authority": "spec/profiles/workbook-binding-0.1.md#3-subjects-and-bindings",
+      "prerequisites": ["OFF.WORKBOOK_BINDING.DUPLICATE_ID"],
+      "diagnostic": { "code": "OFF-E3105", "severity": "error" },
+      "emission": { "cardinality": "onePerInstanceLocation", "instanceLocationRule": "pointer to the binding subjectId member", "entityIdRule": "omit", "requiredParameterKeys": ["subjectId"] }
+    },
+    {
+      "id": "OFF.WORKBOOK_BINDING.WORKBOOK_REFERENCE",
+      "stage": "workbookBinding",
+      "authority": "spec/profiles/workbook-binding-0.1.md#3-subjects-and-bindings",
+      "prerequisites": ["OFF.WORKBOOK_BINDING.DUPLICATE_ID"],
+      "diagnostic": { "code": "OFF-E3106", "severity": "error" },
+      "emission": { "cardinality": "onePerInstanceLocation", "instanceLocationRule": "pointer to the binding workbookId member", "entityIdRule": "omit", "requiredParameterKeys": ["workbookId"] }
     }
   ]
 }

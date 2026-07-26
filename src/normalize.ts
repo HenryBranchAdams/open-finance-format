@@ -7,10 +7,14 @@ import {
   type Diagnostic,
 } from "./diagnostics.ts";
 import { cloneAndDeepFreezeJson } from "./immutable.ts";
+import {
+  isSupportedProfileUri,
+  PUBLIC_EQUITY_PROFILE_URI,
+  WORKBOOK_BINDING_PROFILE_URI,
+} from "./profiles.ts";
 import { isAbsoluteUri } from "./uri.ts";
 
-export const PUBLIC_EQUITY_PROFILE_URI =
-  "https://openfinanceformat.org/profiles/public-equity-research/0.1";
+export { PUBLIC_EQUITY_PROFILE_URI, WORKBOOK_BINDING_PROFILE_URI } from "./profiles.ts";
 
 export type RetentionStage =
   | "admissionFailed"
@@ -25,7 +29,9 @@ export type ProfileStatus = "passed" | "failed" | "notEvaluated";
 
 export interface ProfileResultOverride {
   readonly status: ProfileStatus;
-  readonly claim?: "Traceable — author-declared lineage";
+  readonly claim?:
+    | "Traceable — author-declared lineage"
+    | "Bound — author-declared workbook locators";
   readonly structuralConformance?: "passed";
   readonly lineageCompleteness?: "attested-not-independently-verified";
 }
@@ -65,6 +71,12 @@ export interface BuildNormalizedResultInput {
   readonly relationshipInventory?: readonly Record<string, unknown>[];
   readonly extensions?: Readonly<Record<string, unknown>>;
   readonly publicEquityEntities?: Readonly<Record<string, readonly Record<string, unknown>[]>>;
+  readonly workbookBindingEntities?: Readonly<{
+    readonly workbooks: readonly Record<string, unknown>[];
+    readonly subjects: readonly Record<string, unknown>[];
+    readonly bindings: readonly Record<string, unknown>[];
+    readonly unevaluated: Readonly<Record<string, unknown>>;
+  }>;
   readonly resolvedLineage?: readonly Record<string, unknown>[];
   readonly freshness?: {
     readonly leaves: readonly Record<string, unknown>[];
@@ -99,6 +111,8 @@ const stageRank: Readonly<Record<RetentionStage, number>> = {
 
 const MANIFEST_PUBLIC_EQUITY_BASE =
   "/profileData/https:~1~1openfinanceformat.org~1profiles~1public-equity-research~10.1";
+const MANIFEST_WORKBOOK_BINDING_BASE =
+  "/profileData/https:~1~1openfinanceformat.org~1profiles~1workbook-binding~10.1";
 
 function diagnosticStage(diagnostic: Diagnostic): string | undefined {
   try {
@@ -123,6 +137,21 @@ function isPublicEquitySchemaError(diagnostic: Diagnostic): boolean {
     diagnostic.instanceLocation.startsWith(`${MANIFEST_PUBLIC_EQUITY_BASE}/`);
 }
 
+function isWorkbookBindingSchemaError(diagnostic: Diagnostic): boolean {
+  if (diagnostic.severity !== "error" || diagnosticStage(diagnostic) !== "schema") {
+    return false;
+  }
+  if (
+    diagnostic.instanceLocation === "/profileData" &&
+    diagnostic.ruleId === "OFF.SCHEMA.PROFILE_DECLARATION" &&
+    diagnostic.parameters.reason === "required"
+  ) {
+    return true;
+  }
+  return diagnostic.instanceLocation === MANIFEST_WORKBOOK_BINDING_BASE ||
+    diagnostic.instanceLocation.startsWith(`${MANIFEST_WORKBOOK_BINDING_BASE}/`);
+}
+
 function isApplicableProfileError(
   diagnostic: Diagnostic,
   profileUri: string,
@@ -130,8 +159,11 @@ function isApplicableProfileError(
   if (diagnostic.severity !== "error") return false;
   const stage = diagnosticStage(diagnostic);
   if (stage === "request") return diagnostic.entityId === profileUri;
-  return profileUri === PUBLIC_EQUITY_PROFILE_URI &&
-    (stage === "publicEquity" || isPublicEquitySchemaError(diagnostic));
+  if (profileUri === PUBLIC_EQUITY_PROFILE_URI) {
+    return stage === "publicEquity" || isPublicEquitySchemaError(diagnostic);
+  }
+  return profileUri === WORKBOOK_BINDING_PROFILE_URI &&
+    (stage === "workbookBinding" || isWorkbookBindingSchemaError(diagnostic));
 }
 
 function compareUtf16(left: string, right: string): number {
@@ -256,7 +288,7 @@ function createProfileResults(
     if (
       requestPrerequisitePassed &&
       isRequested &&
-      (!declaredSet.has(uri) || uri !== PUBLIC_EQUITY_PROFILE_URI)
+      (!declaredSet.has(uri) || !isSupportedProfileUri(uri))
     ) {
       inferredStatus = "failed";
     } else if (uri === PUBLIC_EQUITY_PROFILE_URI && isRequested) {
@@ -269,6 +301,8 @@ function createProfileResults(
     const status = override?.status ?? inferredStatus;
     const passedPublicEquity =
       uri === PUBLIC_EQUITY_PROFILE_URI && status === "passed";
+    const passedWorkbookBinding =
+      uri === WORKBOOK_BINDING_PROFILE_URI && status === "passed";
     return {
       uri,
       requested: isRequested,
@@ -282,6 +316,12 @@ function createProfileResults(
             lineageCompleteness:
               override?.lineageCompleteness ??
               "attested-not-independently-verified",
+          }
+        : {}),
+      ...(passedWorkbookBinding
+        ? {
+            claim:
+              override?.claim ?? "Bound — author-declared workbook locators",
           }
         : {}),
     };
@@ -300,6 +340,17 @@ function normalizeProfileEntities(
       .sort(([left], [right]) => compareUtf16(left, right))
       .map(([collection, values]) => [collection, sortById(values)]),
   );
+}
+
+function normalizeWorkbookBindingEntities(
+  entities: NonNullable<BuildNormalizedResultInput["workbookBindingEntities"]>,
+): Record<string, unknown> {
+  return {
+    workbooks: sortById(entities.workbooks),
+    subjects: sortById(entities.subjects),
+    bindings: sortById(entities.bindings),
+    unevaluated: { ...entities.unevaluated },
+  };
 }
 
 function normalizeLineage(
@@ -388,27 +439,60 @@ export function buildNormalizedResult(
   for (const [uri, override] of Object.entries(
     input.profileResultOverrides ?? {},
   )) {
-    if (uri !== PUBLIC_EQUITY_PROFILE_URI) {
+    if (!isSupportedProfileUri(uri)) {
       throw new TypeError(`profileResultOverrides contains unknown profile: ${uri}`);
     }
-    const graphCompleted =
-      stageRank[input.stage] >= stageRank.publicEquityGraphPassed &&
+    const evaluationCompleted =
+      (uri === PUBLIC_EQUITY_PROFILE_URI
+        ? stageRank[input.stage] >= stageRank.publicEquityGraphPassed
+        : input.workbookBindingEntities !== undefined) &&
       requestedProfiles.includes(uri) &&
       declaredProfiles.includes(uri);
     const hasClaim =
       override.claim !== undefined ||
       override.structuralConformance !== undefined ||
       override.lineageCompleteness !== undefined;
-    if (override.status === "passed" && !graphCompleted) {
+    if (override.status === "passed" && !evaluationCompleted) {
       throw new TypeError(
-        "A profile cannot pass before requested graph completion",
+        uri === PUBLIC_EQUITY_PROFILE_URI
+          ? "A profile cannot pass before requested graph completion"
+          : "A profile cannot pass before its requested evaluation completes",
       );
     }
-    if (hasClaim && (override.status !== "passed" || !graphCompleted)) {
+    if (hasClaim && (override.status !== "passed" || !evaluationCompleted)) {
       throw new TypeError(
-        "Traceable claims require a passed profile after graph completion",
+        uri === PUBLIC_EQUITY_PROFILE_URI
+          ? "Traceable claims require a passed profile after graph completion"
+          : "Profile claims require a passed profile after evaluation completion",
       );
     }
+    if (
+      uri === PUBLIC_EQUITY_PROFILE_URI &&
+      override.claim !== undefined &&
+      override.claim !== "Traceable — author-declared lineage"
+    ) {
+      throw new TypeError("Public Equity requires its exact Traceable claim");
+    }
+    if (
+      uri === WORKBOOK_BINDING_PROFILE_URI &&
+      (
+        (override.claim !== undefined &&
+          override.claim !== "Bound — author-declared workbook locators") ||
+        override.structuralConformance !== undefined ||
+        override.lineageCompleteness !== undefined
+      )
+    ) {
+      throw new TypeError("Workbook Binding permits only its exact Bound claim");
+    }
+  }
+  if (
+    input.workbookBindingEntities !== undefined &&
+    input.profileResultOverrides?.[WORKBOOK_BINDING_PROFILE_URI]?.status !==
+      "passed"
+  ) {
+    throw new TypeError(
+      "Workbook Binding entities require a passed Workbook Binding override",
+    );
   }
 
   const targetDiagnostics: Diagnostic[] = [];
@@ -425,7 +509,7 @@ export function buildNormalizedResult(
             uri,
           ),
         );
-      } else if (uri !== PUBLIC_EQUITY_PROFILE_URI) {
+      } else if (!isSupportedProfileUri(uri)) {
         targetDiagnostics.push(
           createDiagnostic(
             "OFF.SCHEMA.PROFILE_TARGET",
@@ -454,9 +538,12 @@ export function buildNormalizedResult(
     const hasApplicableError = requested && diagnostics.some((diagnostic) =>
       isApplicableProfileError(diagnostic, uri)
     );
-    const profileSucceeded = requested &&
-      uri === PUBLIC_EQUITY_PROFILE_URI &&
-      stageRank[input.stage] >= stageRank.publicEquityGraphPassed;
+    const profileSucceeded = requested && (
+      (uri === PUBLIC_EQUITY_PROFILE_URI &&
+        stageRank[input.stage] >= stageRank.publicEquityGraphPassed) ||
+      (uri === WORKBOOK_BINDING_PROFILE_URI &&
+        input.profileResultOverrides?.[uri]?.status === "passed")
+    );
     const expectedStatus: ProfileStatus = !requested
       ? "notEvaluated"
       : hasApplicableError
@@ -515,12 +602,19 @@ export function buildNormalizedResult(
       requireValue(input.relationshipInventory, "relationshipInventory"),
     );
   }
+  const profileEntities: Record<string, unknown> = {};
   if (stageRank[input.stage] >= stageRank.publicEquitySchemaPassed) {
-    result.profileEntities = {
-      [PUBLIC_EQUITY_PROFILE_URI]: normalizeProfileEntities(
+    profileEntities[PUBLIC_EQUITY_PROFILE_URI] =
+      normalizeProfileEntities(
         requireValue(input.publicEquityEntities, "publicEquityEntities"),
-      ),
-    };
+      );
+  }
+  if (input.workbookBindingEntities !== undefined) {
+    profileEntities[WORKBOOK_BINDING_PROFILE_URI] =
+      normalizeWorkbookBindingEntities(input.workbookBindingEntities);
+  }
+  if (Object.keys(profileEntities).length > 0) {
+    result.profileEntities = profileEntities;
   }
   if (stageRank[input.stage] >= stageRank.publicEquityGraphPassed) {
     result.resolvedLineage = normalizeLineage(

@@ -8,6 +8,7 @@ import coreSchema from "../schemas/off-core-0.1.schema.json" with { type: "json"
 import diagnosticSchema from "../schemas/diagnostic-0.1.schema.json" with { type: "json" };
 import normalizedResultSchema from "../schemas/normalized-result-0.1.schema.json" with { type: "json" };
 import publicEquitySchema from "../schemas/profiles/public-equity-research-0.1.schema.json" with { type: "json" };
+import workbookBindingSchema from "../schemas/profiles/workbook-binding-0.1.schema.json" with { type: "json" };
 import { OFF_VERSION } from "./constants.ts";
 import {
   createDiagnostic,
@@ -20,6 +21,10 @@ import {
   isHttpsUrlWithoutUserInfo,
 } from "./uri.ts";
 import { validateLocalPath } from "./resources.ts";
+import {
+  PUBLIC_EQUITY_PROFILE_URI,
+  WORKBOOK_BINDING_PROFILE_URI,
+} from "./profiles.ts";
 
 export { isAbsoluteUri, isHttpsUrlWithoutUserInfo } from "./uri.ts";
 
@@ -27,14 +32,13 @@ export const OFF_SCHEMA_IDS = {
   core: "https://openfinanceformat.org/schemas/off-core-0.1.schema.json",
   publicEquity:
     "https://openfinanceformat.org/schemas/profiles/public-equity-research-0.1.schema.json",
+  workbookBinding:
+    "https://openfinanceformat.org/schemas/profiles/workbook-binding-0.1.schema.json",
   normalizedResult:
     "https://openfinanceformat.org/schemas/normalized-result-0.1.schema.json",
   diagnostic:
     "https://openfinanceformat.org/schemas/diagnostic-0.1.schema.json",
 } as const;
-
-const PUBLIC_EQUITY_PROFILE_URI =
-  "https://openfinanceformat.org/profiles/public-equity-research/0.1";
 
 export interface SchemaValidationResult {
   readonly valid: boolean;
@@ -59,6 +63,7 @@ for (const schema of [
   coreSchema,
   diagnosticSchema,
   publicEquitySchema,
+  workbookBindingSchema,
   normalizedResultSchema,
 ]) {
   ajv.addSchema(schema);
@@ -74,6 +79,7 @@ function requiredValidator(id: string): ValidateFunction {
 
 const coreValidator = requiredValidator(OFF_SCHEMA_IDS.core);
 const publicEquityValidator = requiredValidator(OFF_SCHEMA_IDS.publicEquity);
+const workbookBindingValidator = requiredValidator(OFF_SCHEMA_IDS.workbookBinding);
 const normalizedResultValidator = requiredValidator(OFF_SCHEMA_IDS.normalizedResult);
 const diagnosticValidator = requiredValidator(OFF_SCHEMA_IDS.diagnostic);
 
@@ -130,7 +136,11 @@ function schemaConstraintToken(error: ErrorObject): string {
   return SCHEMA_CONSTRAINT_TOKENS[error.keyword] ?? "schemaConstraint";
 }
 
-function profileUriForError(error: ErrorObject, value: unknown): string {
+function profileUriForError(
+  error: ErrorObject,
+  value: unknown,
+  activeProfileUri?: string,
+): string {
   const segments = error.instancePath.split("/").slice(1);
   if (segments[0] === "profiles" && segments[1] !== undefined) {
     const profiles =
@@ -155,7 +165,7 @@ function profileUriForError(error: ErrorObject, value: unknown): string {
     segments[0] === "profiles" &&
     (error.keyword === "contains" || error.schemaPath.includes("/contains"))
   ) {
-    return PUBLIC_EQUITY_PROFILE_URI;
+    return activeProfileUri ?? "";
   }
   return "";
 }
@@ -188,6 +198,7 @@ function schemaRuleForError(error: ErrorObject): string {
 function diagnosticFromSchemaError(
   error: ErrorObject,
   value: unknown,
+  activeProfileUri?: string,
 ): Diagnostic {
   const ruleId = schemaRuleForError(error);
   const location = keywordLocation(error);
@@ -209,7 +220,7 @@ function diagnosticFromSchemaError(
     }
     case "OFF.SCHEMA.PROFILE_DECLARATION":
       return createDiagnostic(ruleId, location, {
-        profileUri: profileUriForError(error, value),
+        profileUri: profileUriForError(error, value, activeProfileUri),
         reason: token,
       });
     case "OFF.SCHEMA.EXTENSION_NAMESPACE": {
@@ -251,6 +262,7 @@ function isTrueRootShapeFailure(
 function schemaDiagnostics(
   validator: ValidateFunction,
   value: unknown,
+  activeProfileUri?: string,
 ): SchemaDiagnosticBatch {
   const valid = validator(value);
   if (valid) {
@@ -258,7 +270,7 @@ function schemaDiagnostics(
   }
   const candidates = (validator.errors ?? []).map((error) => ({
     error,
-    diagnostic: diagnosticFromSchemaError(error, value),
+    diagnostic: diagnosticFromSchemaError(error, value, activeProfileUri),
   }));
   const rootFailures = candidates.filter(({ error, diagnostic }) =>
     isTrueRootShapeFailure(error, diagnostic),
@@ -588,6 +600,53 @@ function semanticPublicEquityDiagnostics(value: unknown): Diagnostic[] {
   );
 }
 
+function semanticWorkbookBindingDiagnostics(value: unknown): Diagnostic[] {
+  if (!isObject(value) || !isObject(value.profileData)) {
+    return [];
+  }
+  const profile = value.profileData[WORKBOOK_BINDING_PROFILE_URI];
+  if (!isObject(profile)) {
+    return [];
+  }
+  const diagnostics: Diagnostic[] = [];
+  const base = `/profileData/${pointerEscape(WORKBOOK_BINDING_PROFILE_URI)}`;
+  for (const collection of ["workbooks", "subjects", "bindings"] as const) {
+    const records = profile[collection];
+    if (!Array.isArray(records)) continue;
+    records.forEach((record, index) => {
+      if (!isObject(record)) return;
+      const recordBase = `${base}/${collection}/${index}`;
+      for (const field of [
+        "id",
+        "snapshotResourceId",
+        "liveSourceResourceId",
+        "externalEntityId",
+        "subjectId",
+        "workbookId",
+      ]) {
+        if (field in record && !isAbsoluteUri(record[field])) {
+          diagnostics.push(
+            rootConstraint(`${recordBase}/${field}`, "absoluteUri"),
+          );
+        }
+      }
+      if (
+        collection === "workbooks" &&
+        "capturedAt" in record &&
+        !isWholeSecondUtcTimestamp(record.capturedAt)
+      ) {
+        diagnostics.push(
+          rootConstraint(
+            `${recordBase}/capturedAt`,
+            "wholeSecondUtcTimestamp",
+          ),
+        );
+      }
+    });
+  }
+  return diagnostics;
+}
+
 function semanticDiagnosticRecord(value: unknown): boolean {
   if (!isObject(value) || typeof value.ruleId !== "string" || !isObject(value.parameters)) {
     return false;
@@ -612,6 +671,10 @@ const NORMALIZED_PUBLIC_EQUITY_BASE =
   `/profileEntities/${pointerEscape(PUBLIC_EQUITY_PROFILE_URI)}`;
 const MANIFEST_PUBLIC_EQUITY_BASE =
   `/profileData/${pointerEscape(PUBLIC_EQUITY_PROFILE_URI)}`;
+const NORMALIZED_WORKBOOK_BINDING_BASE =
+  `/profileEntities/${pointerEscape(WORKBOOK_BINDING_PROFILE_URI)}`;
+const MANIFEST_WORKBOOK_BINDING_BASE =
+  `/profileData/${pointerEscape(WORKBOOK_BINDING_PROFILE_URI)}`;
 
 function compareUtf16(left: string, right: string): number {
   return left < right ? -1 : left > right ? 1 : 0;
@@ -999,6 +1062,61 @@ function semanticNormalizedPublicEquityDiagnostics(
   return diagnostics;
 }
 
+function semanticNormalizedWorkbookBindingDiagnostics(
+  value: Record<string, unknown>,
+): Diagnostic[] {
+  const profileEntities = isObject(value.profileEntities)
+    ? value.profileEntities
+    : undefined;
+  const profile = profileEntities?.[WORKBOOK_BINDING_PROFILE_URI];
+  if (!isObject(profile)) return [];
+
+  const diagnostics: Diagnostic[] = [];
+  const allIds: string[] = [];
+  for (const collection of ["workbooks", "subjects", "bindings"] as const) {
+    const records = profile[collection];
+    diagnostics.push(
+      ...canonicalEntityCollectionDiagnostics(
+        records,
+        `${NORMALIZED_WORKBOOK_BINDING_BASE}/${collection}`,
+      ),
+    );
+    if (!Array.isArray(records)) continue;
+    records.forEach((record, index) => {
+      if (!isObject(record)) return;
+      if (typeof record.id === "string") allIds.push(record.id);
+      const base = `${NORMALIZED_WORKBOOK_BINDING_BASE}/${collection}/${index}`;
+      for (const field of [
+        "id",
+        "snapshotResourceId",
+        "liveSourceResourceId",
+        "externalEntityId",
+        "subjectId",
+        "workbookId",
+      ]) {
+        if (field in record && !isAbsoluteUri(record[field])) {
+          diagnostics.push(rootConstraint(`${base}/${field}`, "absoluteUri"));
+        }
+      }
+      if (
+        collection === "workbooks" &&
+        "capturedAt" in record &&
+        !isWholeSecondUtcTimestamp(record.capturedAt)
+      ) {
+        diagnostics.push(
+          rootConstraint(`${base}/capturedAt`, "wholeSecondUtcTimestamp"),
+        );
+      }
+    });
+  }
+  if (new Set(allIds).size !== allIds.length) {
+    diagnostics.push(
+      rootConstraint(NORMALIZED_WORKBOOK_BINDING_BASE, "uniqueItems"),
+    );
+  }
+  return diagnostics;
+}
+
 function diagnosticStage(value: Record<string, unknown>): string | undefined {
   if (typeof value.ruleId !== "string") return undefined;
   try {
@@ -1025,6 +1143,23 @@ function isPublicEquitySchemaDiagnostic(
     location.startsWith(`${MANIFEST_PUBLIC_EQUITY_BASE}/`);
 }
 
+function isWorkbookBindingSchemaDiagnostic(
+  value: Record<string, unknown>,
+): boolean {
+  if (diagnosticStage(value) !== "schema") return false;
+  const location = value.instanceLocation;
+  if (typeof location !== "string") return false;
+  if (
+    location === "/profileData" &&
+    isObject(value.parameters) &&
+    value.parameters.reason === "required"
+  ) {
+    return true;
+  }
+  return location === MANIFEST_WORKBOOK_BINDING_BASE ||
+    location.startsWith(`${MANIFEST_WORKBOOK_BINDING_BASE}/`);
+}
+
 function isApplicableProfileError(
   value: Record<string, unknown>,
   profileUri: string,
@@ -1032,8 +1167,11 @@ function isApplicableProfileError(
   if (value.severity !== "error") return false;
   const stage = diagnosticStage(value);
   if (stage === "request") return value.entityId === profileUri;
-  return profileUri === PUBLIC_EQUITY_PROFILE_URI &&
-    (stage === "publicEquity" || isPublicEquitySchemaDiagnostic(value));
+  if (profileUri === PUBLIC_EQUITY_PROFILE_URI) {
+    return stage === "publicEquity" || isPublicEquitySchemaDiagnostic(value);
+  }
+  return profileUri === WORKBOOK_BINDING_PROFILE_URI &&
+    (stage === "workbookBinding" || isWorkbookBindingSchemaDiagnostic(value));
 }
 
 function isTrueRootShapeDiagnostic(
@@ -1100,6 +1238,7 @@ function semanticNormalizedResultDiagnostics(value: unknown): Diagnostic[] {
   diagnostics.push(
     ...semanticNormalizedCoreDiagnostics(value),
     ...semanticNormalizedPublicEquityDiagnostics(value),
+    ...semanticNormalizedWorkbookBindingDiagnostics(value),
   );
 
   const packageDiagnostics = Array.isArray(value.diagnostics)
@@ -1141,7 +1280,11 @@ function semanticNormalizedResultDiagnostics(value: unknown): Diagnostic[] {
     const stage = diagnosticStage(diagnostic);
     return stage === "admission" ||
       stage === "core" ||
-      (stage === "schema" && !isPublicEquitySchemaDiagnostic(diagnostic));
+      (
+        stage === "schema" &&
+        !isPublicEquitySchemaDiagnostic(diagnostic) &&
+        !isWorkbookBindingSchemaDiagnostic(diagnostic)
+      );
   });
   if (core?.status === "failed" && !coreBlockingError) {
     diagnostics.push(
@@ -1169,6 +1312,13 @@ function semanticNormalizedResultDiagnostics(value: unknown): Diagnostic[] {
 
   const hasRelationships = Object.hasOwn(value, "relationshipInventory");
   const hasProfileEntities = Object.hasOwn(value, "profileEntities");
+  const retainedProfileEntities = isObject(value.profileEntities)
+    ? value.profileEntities
+    : undefined;
+  const hasPublicEquityEntities =
+    isObject(retainedProfileEntities?.[PUBLIC_EQUITY_PROFILE_URI]);
+  const hasWorkbookBindingEntities =
+    isObject(retainedProfileEntities?.[WORKBOOK_BINDING_PROFILE_URI]);
   const hasResolvedLineage = Object.hasOwn(value, "resolvedLineage");
   const hasFreshness = Object.hasOwn(value, "freshness");
   if (core?.status === "passed" && (!hasRetainedCore || !hasRelationships)) {
@@ -1186,23 +1336,28 @@ function semanticNormalizedResultDiagnostics(value: unknown): Diagnostic[] {
       rootConstraint("/profileEntities", "profileEntityRetention"),
     );
   }
-  if (hasResolvedLineage && !hasProfileEntities) {
+  if (hasResolvedLineage && !hasPublicEquityEntities) {
     diagnostics.push(
       rootConstraint("/resolvedLineage", "lineageRequiresEntities"),
     );
   }
-  if (hasFreshness && (!hasResolvedLineage || !hasProfileEntities)) {
+  if (hasFreshness && (!hasResolvedLineage || !hasPublicEquityEntities)) {
     diagnostics.push(
       rootConstraint("/freshness", "freshnessRequiresLineage"),
     );
   }
 
   let publicEquityRow: Record<string, unknown> | undefined;
+  let workbookBindingRow: Record<string, unknown> | undefined;
   profileRows.forEach((row, index) => {
     const uri = row.uri;
     const isPublicEquity = uri === PUBLIC_EQUITY_PROFILE_URI;
     if (isPublicEquity) {
       publicEquityRow = row;
+    }
+    const isWorkbookBinding = uri === WORKBOOK_BINDING_PROFILE_URI;
+    if (isWorkbookBinding) {
+      workbookBindingRow = row;
     }
     const hasClaim = [
       "claim",
@@ -1210,6 +1365,8 @@ function semanticNormalizedResultDiagnostics(value: unknown): Diagnostic[] {
       "lineageCompleteness",
     ].some((member) => Object.hasOwn(row, member));
     const isPassedPublicEquity = isPublicEquity && row.status === "passed";
+    const isPassedWorkbookBinding =
+      isWorkbookBinding && row.status === "passed";
     const hasApplicableError = typeof uri === "string" && row.requested === true &&
       packageDiagnostics.some((diagnostic) =>
         isApplicableProfileError(diagnostic, uri)
@@ -1239,7 +1396,8 @@ function semanticNormalizedResultDiagnostics(value: unknown): Diagnostic[] {
     }
     if (
       row.requested === true &&
-      !isPublicEquity &&
+      typeof uri === "string" &&
+      ![PUBLIC_EQUITY_PROFILE_URI, WORKBOOK_BINDING_PROFILE_URI].includes(uri) &&
       requestPrerequisitePassed &&
       !hasApplicableError &&
       row.status === "notEvaluated"
@@ -1251,7 +1409,11 @@ function semanticNormalizedResultDiagnostics(value: unknown): Diagnostic[] {
         ),
       );
     }
-    if (row.status === "passed" && !isPublicEquity) {
+    if (
+      row.status === "passed" &&
+      !isPublicEquity &&
+      !isWorkbookBinding
+    ) {
       diagnostics.push(
         rootConstraint(
           `/profileResults/declared/${index}/status`,
@@ -1259,7 +1421,7 @@ function semanticNormalizedResultDiagnostics(value: unknown): Diagnostic[] {
         ),
       );
     }
-    if (hasClaim && !isPassedPublicEquity) {
+    if (hasClaim && !isPassedPublicEquity && !isPassedWorkbookBinding) {
       diagnostics.push(
         rootConstraint(
           `/profileResults/declared/${index}`,
@@ -1280,6 +1442,33 @@ function semanticNormalizedResultDiagnostics(value: unknown): Diagnostic[] {
         ),
       );
     }
+    if (
+      isPassedWorkbookBinding &&
+      (
+        row.claim !== "Bound — author-declared workbook locators" ||
+        Object.hasOwn(row, "structuralConformance") ||
+        Object.hasOwn(row, "lineageCompleteness")
+      )
+    ) {
+      diagnostics.push(
+        rootConstraint(
+          `/profileResults/declared/${index}`,
+          "profileClaimRequired",
+        ),
+      );
+    }
+    if (
+      isPublicEquity &&
+      Object.hasOwn(row, "claim") &&
+      row.claim !== "Traceable — author-declared lineage"
+    ) {
+      diagnostics.push(
+        rootConstraint(
+          `/profileResults/declared/${index}/claim`,
+          "profileClaimStatus",
+        ),
+      );
+    }
   });
   diagnostics.push(
     ...canonicalStringSetDiagnostics(
@@ -1297,7 +1486,7 @@ function semanticNormalizedResultDiagnostics(value: unknown): Diagnostic[] {
   }
   if (
     publicEquityRow?.status === "passed" &&
-    (!hasProfileEntities || !hasResolvedLineage)
+    (!hasPublicEquityEntities || !hasResolvedLineage)
   ) {
     const rowIndex = profileRows.indexOf(publicEquityRow);
     diagnostics.push(
@@ -1308,7 +1497,7 @@ function semanticNormalizedResultDiagnostics(value: unknown): Diagnostic[] {
     );
   }
   if (
-    hasProfileEntities &&
+    hasPublicEquityEntities &&
     !hasResolvedLineage &&
     publicEquityRow?.status !== "failed"
   ) {
@@ -1321,9 +1510,32 @@ function semanticNormalizedResultDiagnostics(value: unknown): Diagnostic[] {
       diagnostic.severity === "error" &&
       diagnosticStage(diagnostic) === "publicEquity",
   );
-  if (hasPublicEquityGraphError && !hasProfileEntities) {
+  if (hasPublicEquityGraphError && !hasPublicEquityEntities) {
     diagnostics.push(
       rootConstraint("/profileEntities", "failedGraphProfileStatus"),
+    );
+  }
+  if (
+    workbookBindingRow?.status === "passed" &&
+    !hasWorkbookBindingEntities
+  ) {
+    const rowIndex = profileRows.indexOf(workbookBindingRow);
+    diagnostics.push(
+      rootConstraint(
+        `/profileResults/declared/${rowIndex}/status`,
+        "profilePassedRetention",
+      ),
+    );
+  }
+  if (
+    hasWorkbookBindingEntities &&
+    workbookBindingRow?.status !== "passed"
+  ) {
+    diagnostics.push(
+      rootConstraint(
+        NORMALIZED_WORKBOOK_BINDING_BASE,
+        "profileEntityRetention",
+      ),
     );
   }
 
@@ -1397,7 +1609,11 @@ export function validateCoreSchema(value: unknown): SchemaValidationResult {
 }
 
 export function validatePublicEquitySchema(value: unknown): SchemaValidationResult {
-  const schema = schemaDiagnostics(publicEquityValidator, value);
+  const schema = schemaDiagnostics(
+    publicEquityValidator,
+    value,
+    PUBLIC_EQUITY_PROFILE_URI,
+  );
   if (schema.rootShapeFailed) {
     return result(schema.diagnostics);
   }
@@ -1405,6 +1621,24 @@ export function validatePublicEquitySchema(value: unknown): SchemaValidationResu
     ...schema.diagnostics,
     ...semanticCoreDiagnostics(value),
     ...semanticPublicEquityDiagnostics(value),
+  ]);
+}
+
+export function validateWorkbookBindingSchema(
+  value: unknown,
+): SchemaValidationResult {
+  const schema = schemaDiagnostics(
+    workbookBindingValidator,
+    value,
+    WORKBOOK_BINDING_PROFILE_URI,
+  );
+  if (schema.rootShapeFailed) {
+    return result(schema.diagnostics);
+  }
+  return result([
+    ...schema.diagnostics,
+    ...semanticCoreDiagnostics(value),
+    ...semanticWorkbookBindingDiagnostics(value),
   ]);
 }
 

@@ -155,6 +155,8 @@ test("the bundled Draft 2020-12 graph validates a closed Core manifest", () => {
     core: "https://openfinanceformat.org/schemas/off-core-0.1.schema.json",
     publicEquity:
       "https://openfinanceformat.org/schemas/profiles/public-equity-research-0.1.schema.json",
+    workbookBinding:
+      "https://openfinanceformat.org/schemas/profiles/workbook-binding-0.1.schema.json",
     normalizedResult:
       "https://openfinanceformat.org/schemas/normalized-result-0.1.schema.json",
     diagnostic:

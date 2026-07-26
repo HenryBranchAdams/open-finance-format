@@ -76,7 +76,7 @@ Every `packageResult` is one JSON object. Members not authorized by the retentio
 | `packageIdentity` | Package identity object defined below. |
 | `resourceInventory` | Array of normalized resource objects defined below. |
 | `relationshipInventory` | Array of `{fromResourceId, relation, toResourceId}` objects. |
-| `profileEntities` | Object keyed by exact supported profile URI. The Public Equity value uses the entity collections below. |
+| `profileEntities` | Object keyed by exact supported profile URI. Public Equity and Workbook Binding use their profile-defined payloads below. |
 | `resolvedLineage` | Array of `{fromId, toId, material}` objects. |
 | `freshness` | Object with `leaves` and `headlines` arrays. |
 | `extensions` | Canonically preserved root extension object. |
@@ -85,6 +85,11 @@ Every `packageResult` is one JSON object. Members not authorized by the retentio
 Each `profileResults.declared` entry is `{uri, requested, status}` plus optional `claim`, `structuralConformance`, and `lineageCompleteness` only when the applicable profile defines them. `requested` is a JSON boolean; `status` is `passed`, `failed`, or `notEvaluated`. Entries sort by `uri`.
 
 A Public Equity row with `status: "passed"` MUST be accompanied by both the Public Equity value in `profileEntities` and `resolvedLineage`. A normalized result that asserts the passed row while omitting either retained member is invalid.
+
+A Workbook Binding row with `status: "passed"` has exactly the claim `Bound —
+author-declared workbook locators` and MUST be accompanied by its value in
+`profileEntities`. It does not carry Public Equity's
+`structuralConformance` or `lineageCompleteness` members.
 
 `profileResults.core.status` is `failed` for package-invalid admission, Core-manifest schema, or Core results and `passed` only after Core succeeds. Core never reports `notEvaluated`. A declared profile is `notEvaluated` until its requested evaluator stage succeeds or fails; it is `passed` on success and `failed` on a requested profile error. A declared but unrequested profile remains `notEvaluated`. A declared profile that the caller explicitly requests but rc.1 does not support is `failed` with `OFF-E2006`; its independently evaluated Core result MAY remain `passed`.
 
@@ -100,6 +105,14 @@ Each `resourceInventory` entry contains `id`, `mediaType`, sorted `roles`, `loca
 
 The Public Equity value in `profileEntities` contains exactly `securities`, `scenarios`, `units`, `sources`, `sourceFacts`, `assumptions`, `outputs`, and `attestations`. Each collection contains the admitted fields defined by the profile, omits absent optional fields, and sorts by entity ID. Lineage is not duplicated there.
 
+The Workbook Binding value contains exactly `workbooks`, `subjects`, `bindings`,
+and `unevaluated`. Each record array sorts by exact `id`. Authored locator
+strings are not rewritten. `unevaluated` contains
+`workbookContents`, `locatorExistence`, `cellValues`, `formulas`, and
+`recalculation`, each exactly `notEvaluated`. A workbook with a declared live
+source retains its exact resource ID and adds
+`liveSourceStatus: "notEvaluated"`; both members are omitted otherwise.
+
 Each freshness leaf is `{entityId, status, threshold}` and each headline entry is `{entityId, status, staleDependencyIds}`. The `leaves` and `headlines` arrays each sort by exact `entityId`. `status` is `current` or `stale`; `threshold` is the leaf's exact `staleAt` or `reviewBy`; `staleDependencyIds` is a sorted unique exact-ID array.
 
 Every retained Core or profile value continues to satisfy the lexical rules of the normative manifest field from which it was derived, including absolute URIs, HTTPS URLs, real dates, whole-second timestamps, ASCII tokens, media types, and safe local paths. Normalized-result validation also enforces the canonical ordering and uniqueness rules above; canonical JSON object-key ordering alone does not repair a non-canonical array.
@@ -112,6 +125,7 @@ Every retained Core or profile value continues to satisfy the lexical rules of t
 | Admission passed, schema failed | If and only if the root `profiles` member independently satisfies its array/URI shape, include those entries in `profileResults.declared`; no other conditional top-level member is present. |
 | Schema passed, Core failed | Include `packageIdentity`, schema-admitted `extensions`, and `resourceInventory` containing remote descriptors plus only those local records whose path, regular-file, size, and digest checks all passed. Included local locations are `available` and `verified`. Omit `relationshipInventory`. |
 | Core passed | Include `packageIdentity`, complete `resourceInventory`, `relationshipInventory`, and `extensions`. `profileResults.core.status` is `passed`. |
+| Workbook Binding passed | Additionally include the Workbook Binding value in `profileEntities`; no lineage or freshness member is implied. |
 | Public Equity schema passed, graph failed | Additionally include the Public Equity value in `profileEntities`; omit `resolvedLineage` and `freshness`. |
 | Public Equity graph passed | Additionally include `resolvedLineage`. |
 | Freshness completed | Additionally include `freshness`. |

@@ -23,6 +23,16 @@
       "expected": "expected/public-equity-current.json"
     },
     {
+      "id": "workbook-binding-google-snapshot/valid",
+      "boundary": "A verified immutable XLSX snapshot passes Workbook Binding while its Google Sheets descriptor remains inert and not evaluated.",
+      "package": "packages/workbook-binding-google-snapshot",
+      "evaluatedAt": "2026-07-25T12:00:00Z",
+      "requestedProfiles": ["https://openfinanceformat.org/profiles/workbook-binding/0.1"],
+      "expectedOutcome": "validWithWarnings",
+      "expectedDiagnosticCodes": ["OFF-W5003"],
+      "expected": "expected/workbook-binding-google-snapshot-valid.json"
+    },
+    {
       "id": "unsupported-profile/invalid",
       "boundary": "A declared profile stays opaque until requested, then fails deterministically when rc.1 has no consumer for it.",
       "package": "fixtures/unsupported-profile",

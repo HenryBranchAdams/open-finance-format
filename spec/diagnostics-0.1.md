@@ -141,6 +141,14 @@ Core diagnostic parameters use these exact portable tokens:
 - `OFF.CORE.ENTRYPOINT` uses `unresolved`, `missingLocal`, or `missingEntrypointRole` for `reason`.
 - `OFF.CORE.RELATIONSHIP` uses `unresolvedFrom`, `unresolvedTo`, or `unresolvedBoth` for `reason`.
 
+Workbook Binding uses `OFF-E3101` through `OFF-E3106`. Their parameters are
+exactly the keys in the rule registry. `OFF-E3102` uses `missing` or
+`notLocallyVerified`; `OFF-E3104` uses `missing`, `sameAsSnapshot`, or
+`notHttpsRemote`. Pointers are rooted at
+`/profileData/https:~1~1openfinanceformat.org~1profiles~1workbook-binding~10.1`.
+Schema failures remain `OFF.SCHEMA.*` and suppress the semantic pass. Core path,
+file, digest, mutation, and remote-not-evaluated diagnostics are not duplicated.
+
 `roles` is sorted and unique. `actualByteSize` is the raw streamed-byte count. SHA-256 parameters are exact lowercase hexadecimal strings. No Core parameter contains a resolved host path or operating-system message.
 
 When a diagnostic or sanitized evaluator failure retains an admitted package-relative path, the portable rendering is deterministic ASCII: printable ASCII characters from U+0020 through U+007E are retained except that each reverse solidus is doubled; every other Unicode scalar value is rendered as `\u{HEX}` with uppercase hexadecimal digits. This rendering does not make an unsafe path valid. Absolute resolved paths, terminal controls, and host-native error strings remain prohibited.

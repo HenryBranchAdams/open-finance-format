@@ -59,6 +59,7 @@ An unexpected host read, stat, open, close, or directory-enumeration failure is 
 | Schema | Admitted JSON | Stop before Core semantic checks. |
 | Requested profile target | Admitted JSON whose true root shape is readable | Evaluate caller-required profile URIs independently of Core. A target error makes the requested package result invalid but does not prevent Core semantic checks or force Core status to fail. |
 | Core | Core schema passed | Stop before optional profile semantics. |
+| Workbook Binding | Core passed and profile requested | Retain its payload only when schema, snapshot-resource, and reference checks pass. |
 | Public Equity | Core passed and profile requested | Omit resolved lineage and freshness if graph checks fail. |
 | Freshness | Coherent profile graph | Emit warnings; never structural errors. |
 | Canonical output | A `packageResult` value | Serialize under Normalization 0.1. Serialization failure is `evaluatorFailure`. |
@@ -71,9 +72,28 @@ Core conformance is independent of optional profile support. Every declared and 
 
 Public Equity `passed` means only `Traceable — author-declared lineage`, with structural conformance and attested completeness reported separately. OFF never certifies investment quality, source truth, legal ownership, exact spreadsheet execution, or complete computational reproduction.
 
+Workbook Binding `passed` means only `Bound — author-declared workbook
+locators`. The evaluator proved that Core verified the referenced local XLSX
+snapshot bytes and that profile shapes and references are coherent. It did not
+inspect workbook contents, prove locator or cell existence, execute formulas,
+recalculate, fetch a live source, or compare a live Google Sheet with the
+snapshot. Workbook Binding and Public Equity rows evaluate independently after
+Core passes.
+
 ## 5. Corpus and release candidates
 
-The rc.1 corpus descriptor MUST contain at least one package case. It contains one finance-agnostic Core package, one synthetic Traceable Public Equity package evaluated at fixed current and stale timestamps, a small boundary-focused diagnostic set, and the separately stored host-independent evaluator-failure vector bound by `corpus.json`. Expected normalized values, diagnostic fields, and evaluator-failure objects are hand-reviewed public artifacts. The complete dependency-free command verifies all ten package cases plus every bound evaluator-failure case from a fresh checkout with no dependency installation or network access.
+The corpus descriptor MUST contain at least one package case. The current
+development corpus contains one finance-agnostic Core package, one synthetic
+Traceable Public Equity package evaluated at fixed current and stale timestamps,
+one Workbook Binding package with a local XLSX snapshot and inert Google
+descriptor, a small boundary-focused diagnostic set, and the separately stored
+host-independent evaluator-failure vector bound by `corpus.json`. Expected
+normalized values, diagnostic fields, and evaluator-failure objects are
+hand-reviewed public artifacts. The complete dependency-free command verifies
+all eleven package cases plus every bound evaluator-failure case from a fresh
+checkout with no dependency installation or network access. The frozen rc.1
+candidate remains the earlier ten-case corpus authenticated by its unchanged
+release checksums.
 
 `corpusResult` is a closed deterministic summary with exactly `kind`, `ok`, `corpusVersion`, `cases`, and `evaluatorFailureCases`. `cases` reports package-case outcomes only. `evaluatorFailureCases` reports exact evaluator-failure matches only and never carries a package outcome. `ok` is true only when every entry in both arrays passed. The offline release check compares this complete nested value against descriptor-derived evidence: the exact corpus version; ordered package IDs, `passed` statuses, and expected outcomes; and ordered evaluator-failure IDs, `passed` statuses, and exact expected failure objects. Extra top-level or nested fields fail the check; matching counts alone are insufficient.
 
