@@ -2976,7 +2976,7 @@ var require_compile = __commonJS({
       const schOrFunc = root.refs[ref];
       if (schOrFunc)
         return schOrFunc;
-      let _sch = resolve5.call(this, root, ref);
+      let _sch = resolve6.call(this, root, ref);
       if (_sch === void 0) {
         const schema = (_a = root.localRefs) === null || _a === void 0 ? void 0 : _a[ref];
         const { schemaId } = this.opts;
@@ -3003,7 +3003,7 @@ var require_compile = __commonJS({
     function sameSchemaEnv(s1, s2) {
       return s1.schema === s2.schema && s1.root === s2.root && s1.baseId === s2.baseId;
     }
-    function resolve5(root, ref) {
+    function resolve6(root, ref) {
       let sch;
       while (typeof (sch = this.refs[ref]) == "string")
         ref = sch;
@@ -3634,7 +3634,7 @@ var require_fast_uri = __commonJS({
       }
       return uri;
     }
-    function resolve5(baseURI, relativeURI, options) {
+    function resolve6(baseURI, relativeURI, options) {
       const schemelessOptions = options ? Object.assign({ scheme: "null" }, options) : { scheme: "null" };
       const resolved = resolveComponent(parse(baseURI, schemelessOptions), parse(relativeURI, schemelessOptions), schemelessOptions, true);
       schemelessOptions.skipEscape = true;
@@ -3892,7 +3892,7 @@ var require_fast_uri = __commonJS({
     var fastUri = {
       SCHEMES,
       normalize: normalize2,
-      resolve: resolve5,
+      resolve: resolve6,
       resolveComponent,
       equal,
       serialize: serialize2,
@@ -7141,14 +7141,14 @@ var require__ = __commonJS({
 
 // src/cli.ts
 import { realpathSync } from "node:fs";
-import { resolve as resolve4 } from "node:path";
+import { resolve as resolve5 } from "node:path";
 import { fileURLToPath } from "node:url";
 
 // src/corpus.ts
 import { constants as fsConstants3 } from "node:fs";
 import {
-  lstat as lstat2,
-  open as open2,
+  lstat as lstat3,
+  open as open3,
   realpath
 } from "node:fs/promises";
 import {
@@ -7156,18 +7156,18 @@ import {
   isAbsolute as isAbsolute2,
   join as join2,
   relative as relative2,
-  resolve as resolve3,
+  resolve as resolve4,
   sep as sep2
 } from "node:path";
 
 // src/index.ts
 import { constants as fsConstants2 } from "node:fs";
 import {
-  lstat,
-  open,
+  lstat as lstat2,
+  open as open2,
   opendir
 } from "node:fs/promises";
-import { join, resolve as resolve2 } from "node:path";
+import { join, resolve as resolve3 } from "node:path";
 
 // spec/rules-0.1.json
 var rules_0_1_default = {
@@ -11812,6 +11812,415 @@ function evaluateWorkbookBinding(value, core) {
   };
 }
 
+// src/initialize.ts
+import { createHash as createHash2 } from "node:crypto";
+import { lstat, mkdir, open, rmdir, unlink } from "node:fs/promises";
+import { resolve as resolve2 } from "node:path";
+var InitializationError = class extends Error {
+  code;
+  reason;
+  constructor(code, reason) {
+    super(`${code}:${reason}`);
+    this.name = "InitializationError";
+    this.code = code;
+    this.reason = reason;
+  }
+};
+function portableSingleLineText(value) {
+  if (typeof value !== "string" || value.trim().length === 0) return false;
+  for (let index = 0; index < value.length; index += 1) {
+    const unit = value.charCodeAt(index);
+    if (unit <= 31 || unit === 127) return false;
+    if (unit >= 55296 && unit <= 56319) {
+      const next = value.charCodeAt(index + 1);
+      if (next < 56320 || next > 57343) return false;
+      index += 1;
+    } else if (unit >= 56320 && unit <= 57343) {
+      return false;
+    }
+  }
+  return true;
+}
+function validOptions(value) {
+  return typeof value === "object" && value !== null && portableSingleLineText(value.target) && isAbsoluteUri(value.packageId) && isAbsoluteUri(value.releaseId) && isAbsoluteUri(value.entrypointId) && portableSingleLineText(value.releaseVersion) && portableSingleLineText(value.title) && isAbsoluteUri(value.authorId) && portableSingleLineText(value.authorName) && portableSingleLineText(value.license) && isWholeSecondUtcTimestamp2(value.publishedAt) && isHttpsUrlWithoutUserInfo(value.canonicalUrl);
+}
+function sha256(bytes) {
+  return createHash2("sha256").update(bytes).digest("hex");
+}
+async function writeExclusive(path, bytes) {
+  const handle = await open(path, "wx", 420);
+  try {
+    await handle.writeFile(bytes);
+    await handle.sync();
+    return await handle.stat({ bigint: true });
+  } finally {
+    await handle.close();
+  }
+}
+async function targetExists(path) {
+  try {
+    await lstat(path);
+    return true;
+  } catch (error) {
+    if (typeof error === "object" && error !== null && "code" in error && error.code === "ENOENT") {
+      return false;
+    }
+    throw new InitializationError("OFF-I1002", "targetUnavailable");
+  }
+}
+function isMissingPath(error) {
+  return typeof error === "object" && error !== null && "code" in error && error.code === "ENOENT";
+}
+function errorCode(error) {
+  return typeof error === "object" && error !== null && "code" in error ? String(error.code) : void 0;
+}
+function sameObject(left, right) {
+  return left.dev === right.dev && left.ino === right.ino;
+}
+function sameUnchangedFile(left, right) {
+  return sameObject(left, right) && left.isFile() && right.isFile() && left.size === right.size && left.mtimeNs === right.mtimeNs && left.ctimeNs === right.ctimeNs;
+}
+async function removeInitializedFiles(packageRoot, directoryIdentity, ownedFiles) {
+  let failed = false;
+  let currentDirectory;
+  try {
+    currentDirectory = await lstat(packageRoot, { bigint: true });
+  } catch (error) {
+    if (isMissingPath(error)) return;
+    throw new InitializationError("OFF-I1002", "writeFailed");
+  }
+  if (!sameObject(directoryIdentity, currentDirectory) || !currentDirectory.isDirectory() || currentDirectory.isSymbolicLink()) {
+    return;
+  }
+  for (const owned of [...ownedFiles].reverse()) {
+    let current;
+    try {
+      current = await lstat(owned.path, { bigint: true });
+    } catch (error) {
+      if (isMissingPath(error)) continue;
+      failed = true;
+      continue;
+    }
+    if (!sameUnchangedFile(owned.identity, current)) continue;
+    try {
+      await unlink(owned.path);
+    } catch (error) {
+      if (!isMissingPath(error)) failed = true;
+    }
+  }
+  try {
+    const after = await lstat(packageRoot, { bigint: true });
+    if (sameObject(directoryIdentity, after) && after.isDirectory()) {
+      await rmdir(packageRoot);
+    }
+  } catch (error) {
+    if (!isMissingPath(error) && errorCode(error) !== "ENOTEMPTY" && errorCode(error) !== "EEXIST") {
+      failed = true;
+    }
+  }
+  if (failed) {
+    throw new InitializationError("OFF-I1002", "writeFailed");
+  }
+}
+async function initializeCorePackageWithOperations(options, operations) {
+  if (!validOptions(options)) {
+    throw new InitializationError("OFF-I1001", "invalidArguments");
+  }
+  const packageRoot = resolve2(options.target);
+  if (await targetExists(packageRoot)) {
+    throw new InitializationError("OFF-I1001", "targetExists");
+  }
+  const narrativeBytes = new TextEncoder().encode(
+    `# ${options.title}
+
+This is an Open Finance Format Core package.
+`
+  );
+  const narrativeSha256 = sha256(narrativeBytes);
+  const manifest = {
+    offVersion: "0.1",
+    package: {
+      id: options.packageId,
+      releaseId: options.releaseId,
+      releaseVersion: options.releaseVersion,
+      title: options.title,
+      authors: [{ id: options.authorId, name: options.authorName }],
+      license: { id: options.license },
+      publishedAt: options.publishedAt,
+      canonicalUrl: options.canonicalUrl,
+      entrypointResourceId: options.entrypointId
+    },
+    profiles: [],
+    resources: [
+      {
+        id: options.entrypointId,
+        mediaType: "text/markdown",
+        roles: ["entrypoint", "narrative"],
+        locations: [{ kind: "local", path: "OFF.md" }],
+        byteSize: narrativeBytes.byteLength,
+        sha256: narrativeSha256
+      }
+    ]
+  };
+  const canonicalManifest = canonicalizeJson(manifest);
+  const manifestBytes = new Uint8Array(canonicalManifest.byteLength + 1);
+  manifestBytes.set(canonicalManifest);
+  manifestBytes[canonicalManifest.byteLength] = 10;
+  let directoryIdentity;
+  const ownedFiles = [];
+  try {
+    try {
+      await operations.makeDirectory(packageRoot);
+      directoryIdentity = await lstat(packageRoot, { bigint: true });
+      if (!directoryIdentity.isDirectory() || directoryIdentity.isSymbolicLink()) {
+        throw new InitializationError("OFF-I1002", "targetUnavailable");
+      }
+    } catch (error) {
+      if (typeof error === "object" && error !== null && "code" in error && error.code === "EEXIST") {
+        throw new InitializationError("OFF-I1001", "targetExists");
+      }
+      throw new InitializationError("OFF-I1002", "targetUnavailable");
+    }
+    try {
+      const narrativePath = resolve2(packageRoot, "OFF.md");
+      const narrativeIdentity = await writeExclusive(narrativePath, narrativeBytes);
+      ownedFiles.push({ path: narrativePath, identity: narrativeIdentity });
+      const manifestPath = resolve2(packageRoot, "off.json");
+      const manifestIdentity = await writeExclusive(manifestPath, manifestBytes);
+      ownedFiles.push({ path: manifestPath, identity: manifestIdentity });
+    } catch {
+      throw new InitializationError("OFF-I1002", "writeFailed");
+    }
+    const evaluated = await evaluatePackage({
+      packageRoot,
+      evaluatedAt: options.publishedAt,
+      requestedProfiles: []
+    });
+    if (evaluated.kind !== "packageResult" || evaluated.normalized.outcome !== "valid") {
+      throw new InitializationError("OFF-I1002", "selfValidationFailed");
+    }
+    return {
+      kind: "initializedCorePackage",
+      files: ["OFF.md", "off.json"],
+      manifestBytes,
+      narrativeBytes
+    };
+  } catch (error) {
+    if (directoryIdentity !== void 0) {
+      await removeInitializedFiles(packageRoot, directoryIdentity, ownedFiles);
+    }
+    throw error;
+  }
+}
+async function initializeCorePackage(options) {
+  return initializeCorePackageWithOperations(options, {
+    async makeDirectory(path) {
+      await mkdir(path, { mode: 493 });
+    }
+  });
+}
+
+// protocol/catalog-0.1.json
+var catalog_0_1_default = {
+  $schema: "https://openfinanceformat.org/schemas/protocol-catalog-0.1.schema.json",
+  catalogVersion: "0.1",
+  offVersion: "0.1",
+  development: {
+    label: "post-v0.1-rc.1",
+    status: "development"
+  },
+  offline: {
+    mode: "self-contained",
+    networkRetrieval: "forbidden",
+    uriSemantics: "identifier-only"
+  },
+  frozenRelease: {
+    label: "v0.1-rc.1",
+    membershipSource: "release/v0.1-rc.1/files.json"
+  },
+  profiles: [
+    {
+      identifier: "public-equity-research",
+      uri: "https://openfinanceformat.org/profiles/public-equity-research/0.1",
+      specification: "spec/profiles/public-equity-research-0.1.md",
+      schema: "schemas/profiles/public-equity-research-0.1.schema.json",
+      status: "frozen",
+      rc1Membership: "frozen-bytes",
+      claim: "Traceable — author-declared lineage"
+    },
+    {
+      identifier: "workbook-binding",
+      uri: "https://openfinanceformat.org/profiles/workbook-binding/0.1",
+      specification: "spec/profiles/workbook-binding-0.1.md",
+      schema: "schemas/profiles/workbook-binding-0.1.schema.json",
+      status: "development",
+      rc1Membership: "added-after-rc.1",
+      claim: "Bound — author-declared workbook locators"
+    }
+  ],
+  resources: [
+    {
+      identifier: "specification-index",
+      kind: "specification-index",
+      path: "spec/INDEX.md",
+      status: "development",
+      rc1Membership: "added-after-rc.1"
+    },
+    {
+      identifier: "off-core",
+      kind: "normative-specification",
+      path: "spec/OFF-Core-0.1.md",
+      status: "frozen",
+      rc1Membership: "frozen-bytes"
+    },
+    {
+      identifier: "normalization",
+      kind: "normative-specification",
+      path: "spec/normalization-0.1.md",
+      status: "development",
+      rc1Membership: "modified-after-rc.1"
+    },
+    {
+      identifier: "diagnostics",
+      kind: "normative-specification",
+      path: "spec/diagnostics-0.1.md",
+      status: "development",
+      rc1Membership: "modified-after-rc.1"
+    },
+    {
+      identifier: "conformance",
+      kind: "normative-specification",
+      path: "spec/conformance-0.1.md",
+      status: "development",
+      rc1Membership: "modified-after-rc.1"
+    },
+    {
+      identifier: "public-equity-research-specification",
+      kind: "normative-specification",
+      path: "spec/profiles/public-equity-research-0.1.md",
+      status: "frozen",
+      rc1Membership: "frozen-bytes"
+    },
+    {
+      identifier: "workbook-binding-specification",
+      kind: "normative-specification",
+      path: "spec/profiles/workbook-binding-0.1.md",
+      status: "development",
+      rc1Membership: "added-after-rc.1"
+    },
+    {
+      identifier: "terminology",
+      kind: "normative-specification",
+      path: "spec/terminology.md",
+      status: "development",
+      rc1Membership: "added-after-rc.1"
+    },
+    {
+      identifier: "versioning",
+      kind: "normative-specification",
+      path: "spec/versioning.md",
+      status: "development",
+      rc1Membership: "added-after-rc.1"
+    },
+    {
+      identifier: "schema-resources",
+      kind: "normative-specification",
+      path: "spec/schema-resources-0.1.md",
+      status: "development",
+      rc1Membership: "added-after-rc.1"
+    },
+    {
+      identifier: "security-privacy-considerations",
+      kind: "normative-specification",
+      path: "spec/security-privacy-considerations.md",
+      status: "development",
+      rc1Membership: "added-after-rc.1"
+    },
+    {
+      identifier: "rule-registry",
+      kind: "rule-registry",
+      path: "spec/rules-0.1.json",
+      status: "development",
+      rc1Membership: "modified-after-rc.1"
+    },
+    {
+      identifier: "conformance-corpus",
+      kind: "conformance-corpus",
+      path: "conformance/corpus.json",
+      status: "development",
+      rc1Membership: "modified-after-rc.1"
+    },
+    {
+      identifier: "schema-catalog",
+      kind: "schema-catalog",
+      path: "schemas/catalog-0.1.json",
+      status: "development",
+      rc1Membership: "added-after-rc.1"
+    }
+  ]
+};
+
+// schemas/catalog-0.1.json
+var catalog_0_1_default2 = {
+  $schema: "https://openfinanceformat.org/schemas/schema-catalog-0.1.schema.json",
+  catalogVersion: "0.1",
+  dialect: "https://json-schema.org/draft/2020-12/schema",
+  resolution: {
+    base: "repository-root",
+    networkRetrieval: "forbidden",
+    uriSemantics: "identifier-only"
+  },
+  schemas: {
+    "https://openfinanceformat.org/schemas/schema-catalog-0.1.schema.json": "schemas/schema-catalog-0.1.schema.json",
+    "https://openfinanceformat.org/schemas/diagnostic-0.1.schema.json": "schemas/diagnostic-0.1.schema.json",
+    "https://openfinanceformat.org/schemas/evaluator-failure-0.1.schema.json": "schemas/evaluator-failure-0.1.schema.json",
+    "https://openfinanceformat.org/schemas/normalized-result-0.1.schema.json": "schemas/normalized-result-0.1.schema.json",
+    "https://openfinanceformat.org/schemas/off-core-0.1.schema.json": "schemas/off-core-0.1.schema.json",
+    "https://openfinanceformat.org/schemas/profiles/public-equity-research-0.1.schema.json": "schemas/profiles/public-equity-research-0.1.schema.json",
+    "https://openfinanceformat.org/schemas/profiles/workbook-binding-0.1.schema.json": "schemas/profiles/workbook-binding-0.1.schema.json",
+    "https://openfinanceformat.org/schemas/protocol-catalog-0.1.schema.json": "schemas/protocol-catalog-0.1.schema.json"
+  }
+};
+
+// src/protocol.ts
+var protocolCatalog = cloneAndDeepFreezeJson(
+  catalog_0_1_default
+);
+var schemaCatalog = cloneAndDeepFreezeJson(
+  catalog_0_1_default2
+);
+function getProtocolCatalog() {
+  return protocolCatalog;
+}
+function listProtocolResources() {
+  return protocolCatalog;
+}
+function getSchemaCatalog() {
+  return schemaCatalog;
+}
+function explainProtocolResource(identifier) {
+  const profile = protocolCatalog.profiles.find(
+    (candidate) => candidate.identifier === identifier || candidate.uri === identifier || candidate.specification === identifier || candidate.schema === identifier
+  );
+  if (profile !== void 0) {
+    return cloneAndDeepFreezeJson({ kind: "profile", profile });
+  }
+  const resource = protocolCatalog.resources.find(
+    (candidate) => candidate.identifier === identifier || candidate.path === identifier
+  );
+  if (resource !== void 0) {
+    return cloneAndDeepFreezeJson({ kind: "resource", resource });
+  }
+  const schema = Object.entries(schemaCatalog.schemas).find(
+    ([schemaIdentifier, path]) => schemaIdentifier === identifier || path === identifier
+  );
+  return schema === void 0 ? void 0 : cloneAndDeepFreezeJson({
+    kind: "json-schema",
+    identifier: schema[0],
+    path: schema[1]
+  });
+}
+
 // src/index.ts
 var MAX_MANIFEST_BYTES = 16 * 1024 * 1024;
 var MAX_PACKAGE_ROOT_ENTRIES = 1e5;
@@ -11835,7 +12244,7 @@ function sameIdentity2(left, right) {
 async function readManifest(packageRoot) {
   let rootBefore;
   try {
-    rootBefore = await lstat(packageRoot, { bigint: true });
+    rootBefore = await lstat2(packageRoot, { bigint: true });
   } catch {
     return evaluatorFailure("OFF-T1002", "rootAccess");
   }
@@ -11873,7 +12282,7 @@ async function readManifest(packageRoot) {
   }
   if (inventoryFailure !== void 0) return inventoryFailure;
   try {
-    rootAfterInventory = await lstat(packageRoot, { bigint: true });
+    rootAfterInventory = await lstat2(packageRoot, { bigint: true });
   } catch {
     return evaluatorFailure("OFF-T1002", "rootAccess");
   }
@@ -11886,7 +12295,7 @@ async function readManifest(packageRoot) {
   const manifestPath = join(packageRoot, "off.json");
   let handle;
   try {
-    handle = await open(
+    handle = await open2(
       manifestPath,
       fsConstants2.O_RDONLY | (fsConstants2.O_NOFOLLOW ?? 0)
     );
@@ -11923,8 +12332,8 @@ async function readManifest(packageRoot) {
         let rootAfterRead;
         let pathFailure;
         try {
-          pathAfter = await lstat(manifestPath, { bigint: true });
-          rootAfterRead = await lstat(packageRoot, { bigint: true });
+          pathAfter = await lstat2(manifestPath, { bigint: true });
+          rootAfterRead = await lstat2(packageRoot, { bigint: true });
         } catch (error) {
           pathFailure = ["ENOENT", "ENOTDIR"].includes(errno2(error) ?? "") ? evaluatorFailure("OFF-T1003", "resourceMutation") : evaluatorFailure("OFF-T1002", "rootAccess");
         }
@@ -11969,7 +12378,7 @@ async function evaluatePackage(options) {
     return evaluatorFailure("OFF-T1004", "configuration");
   }
   const evaluationOptions = {
-    packageRoot: resolve2(options.packageRoot),
+    packageRoot: resolve3(options.packageRoot),
     evaluatedAt: options.evaluatedAt,
     requestedProfiles: [...options.requestedProfiles]
   };
@@ -12134,7 +12543,7 @@ async function boundedStableRead(path, identity, maximumBytes) {
   }
   let handle;
   try {
-    handle = await open2(
+    handle = await open3(
       path,
       fsConstants3.O_RDONLY | (fsConstants3.O_NOFOLLOW ?? 0)
     );
@@ -12176,7 +12585,7 @@ async function boundedStableRead(path, identity, maximumBytes) {
         let pathAfter;
         let statFailure;
         try {
-          pathAfter = await lstat2(path, { bigint: true });
+          pathAfter = await lstat3(path, { bigint: true });
         } catch (error) {
           statFailure = ["ENOENT", "ENOTDIR"].includes(errno3(error) ?? "") ? evaluatorFailure2("OFF-T1003", "resourceMutation") : evaluatorFailure2("OFF-T1002", "resourceStat");
         }
@@ -12299,7 +12708,7 @@ async function checkedReference(root, reference, kind) {
     candidate = join2(candidate, segment);
     let stat;
     try {
-      stat = await lstat2(candidate, { bigint: true });
+      stat = await lstat3(candidate, { bigint: true });
     } catch (error) {
       return isMissingPathError(error) ? "pathType" : evaluatorFailure2("OFF-T1002", "resourceStat");
     }
@@ -12311,7 +12720,7 @@ async function checkedReference(root, reference, kind) {
   let confirmedIdentity;
   let resolved;
   try {
-    confirmedIdentity = await lstat2(candidate, { bigint: true });
+    confirmedIdentity = await lstat3(candidate, { bigint: true });
   } catch (error) {
     return isMissingPathError(error) ? evaluatorFailure2("OFF-T1003", "resourceMutation") : evaluatorFailure2("OFF-T1002", "resourceStat");
   }
@@ -12329,7 +12738,7 @@ async function checkedReference(root, reference, kind) {
   }
   let identityAfter;
   try {
-    identityAfter = await lstat2(candidate, { bigint: true });
+    identityAfter = await lstat3(candidate, { bigint: true });
   } catch (error) {
     return isMissingPathError(error) ? evaluatorFailure2("OFF-T1003", "resourceMutation") : evaluatorFailure2("OFF-T1002", "resourceStat");
   }
@@ -12370,7 +12779,7 @@ function isEvaluatorFailure(result2) {
 async function verifyReferenceIdentity(reference) {
   let current;
   try {
-    current = await lstat2(reference.path, { bigint: true });
+    current = await lstat3(reference.path, { bigint: true });
   } catch (error) {
     return isMissingPathError(error) ? evaluatorFailure2("OFF-T1003", "resourceMutation") : evaluatorFailure2("OFF-T1002", "resourceStat");
   }
@@ -12463,7 +12872,7 @@ async function verifyEvaluatorFailureCase(root, item) {
     packageReference = checked;
     packagePath = checked.path;
   } else {
-    packagePath = resolve3(root, item.package);
+    packagePath = resolve4(root, item.package);
   }
   const evaluate = () => evaluatePackage({
     packageRoot: packagePath,
@@ -12507,11 +12916,11 @@ async function verifyCorpus(corpusPath) {
   let corpusRoot;
   let bytes;
   try {
-    corpusIdentity = await lstat2(corpusPath, { bigint: true });
+    corpusIdentity = await lstat3(corpusPath, { bigint: true });
     if (!corpusIdentity.isFile() || corpusIdentity.isSymbolicLink()) {
       return invalidCorpus("pathEscape");
     }
-    corpusRoot = await realpath(dirname(resolve3(corpusPath)));
+    corpusRoot = await realpath(dirname(resolve4(corpusPath)));
     const resolvedCorpus = await realpath(corpusPath);
     if (!contained(corpusRoot, resolvedCorpus)) return invalidCorpus("pathEscape");
   } catch {
@@ -12586,7 +12995,10 @@ var defaultIo = {
 var usage = [
   "Usage: off validate <package-root> --evaluated-at <timestamp> [--profile <uri> ...]",
   "       off normalize <package-root> --evaluated-at <timestamp> [--profile <uri> ...]",
-  "       off corpus verify --corpus <conformance/corpus.json>"
+  "       off corpus verify --corpus <conformance/corpus.json>",
+  "       off protocol list",
+  "       off protocol explain <identifier>",
+  "       off init core <target> --package-id <absolute-uri> --release-id <absolute-uri> --entrypoint-id <absolute-uri> --release-version <text> --title <text> --author-id <absolute-uri> --author-name <text> --license <text> --published-at <whole-second-Z> --canonical-url <https-no-userinfo>"
 ].join("\n");
 function wholeSecondUtcTimestamp(value) {
   const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})Z$/u.exec(value);
@@ -12619,6 +13031,47 @@ function parsePackageArguments(args) {
   }
   return { packageRoot, evaluatedAt, requestedProfiles };
 }
+var initOptionNames = [
+  "--package-id",
+  "--release-id",
+  "--entrypoint-id",
+  "--release-version",
+  "--title",
+  "--author-id",
+  "--author-name",
+  "--license",
+  "--published-at",
+  "--canonical-url"
+];
+function parseInitArguments(args) {
+  const target = args[0];
+  if (target === void 0 || target.startsWith("--") || args.length !== 1 + initOptionNames.length * 2) {
+    return void 0;
+  }
+  const values = /* @__PURE__ */ new Map();
+  for (let index = 1; index < args.length; index += 2) {
+    const option = args[index];
+    const value = args[index + 1];
+    if (option === void 0 || value === void 0 || !initOptionNames.includes(option) || values.has(option)) {
+      return void 0;
+    }
+    values.set(option, value);
+  }
+  if (!initOptionNames.every((option) => values.has(option))) return void 0;
+  return {
+    target,
+    packageId: values.get("--package-id"),
+    releaseId: values.get("--release-id"),
+    entrypointId: values.get("--entrypoint-id"),
+    releaseVersion: values.get("--release-version"),
+    title: values.get("--title"),
+    authorId: values.get("--author-id"),
+    authorName: values.get("--author-name"),
+    license: values.get("--license"),
+    publishedAt: values.get("--published-at"),
+    canonicalUrl: values.get("--canonical-url")
+  };
+}
 function emitCanonical(io, value) {
   io(`${canonicalizeJsonText(value)}
 `);
@@ -12633,6 +13086,11 @@ function toolFailure() {
 async function runCli(args, io = defaultIo) {
   try {
     const command = args[0];
+    if ((command === "help" || command === "--help") && args.length === 1) {
+      io.stdout(`${usage}
+`);
+      return 0;
+    }
     if (command === "validate" || command === "normalize") {
       const options = parsePackageArguments(args.slice(1));
       if (options === void 0) {
@@ -12663,6 +13121,62 @@ async function runCli(args, io = defaultIo) {
       emitCanonical(io.stdout, result2);
       return result2.ok ? 0 : 1;
     }
+    if (command === "protocol" && args[1] === "list") {
+      if (args.length !== 2) {
+        io.stderr(`${usage}
+`);
+        return 64;
+      }
+      emitCanonical(io.stdout, listProtocolResources());
+      return 0;
+    }
+    if (command === "protocol" && args[1] === "explain") {
+      const identifier = args[2];
+      if (args.length !== 3 || identifier === void 0) {
+        io.stderr(`${usage}
+`);
+        return 64;
+      }
+      const explanation = explainProtocolResource(identifier);
+      if (explanation === void 0) {
+        emitCanonical(io.stderr, {
+          kind: "protocolLookupFailure",
+          code: "OFF-P1001",
+          identifier
+        });
+        return 1;
+      }
+      emitCanonical(io.stdout, explanation);
+      return 0;
+    }
+    if (command === "init" && args[1] === "core") {
+      const options = parseInitArguments(args.slice(2));
+      if (options === void 0) {
+        io.stderr(`${usage}
+`);
+        return 64;
+      }
+      try {
+        const result2 = await initializeCorePackage(options);
+        emitCanonical(io.stdout, { kind: result2.kind, files: result2.files });
+        return 0;
+      } catch (error) {
+        if (error instanceof InitializationError && error.reason === "invalidArguments") {
+          io.stderr(`${usage}
+`);
+          return 64;
+        }
+        if (error instanceof InitializationError) {
+          emitCanonical(io.stderr, {
+            kind: "initializationFailure",
+            code: error.code,
+            reason: error.reason
+          });
+          return error.code === "OFF-I1001" ? 1 : 2;
+        }
+        throw error;
+      }
+    }
     io.stderr(`${usage}
 `);
     return 64;
@@ -12675,7 +13189,7 @@ function isDirectInvocation() {
   const invokedPath = process.argv[1];
   if (invokedPath === void 0) return false;
   try {
-    return realpathSync(fileURLToPath(import.meta.url)) === realpathSync(resolve4(invokedPath));
+    return realpathSync(fileURLToPath(import.meta.url)) === realpathSync(resolve5(invokedPath));
   } catch {
     return false;
   }
@@ -12684,11 +13198,17 @@ if (isDirectInvocation()) {
   process.exitCode = await runCli(process.argv.slice(2));
 }
 export {
+  InitializationError,
   MAX_MANIFEST_BYTES,
   MAX_PACKAGE_ROOT_ENTRIES,
   PUBLIC_EQUITY_PROFILE_URI,
   WORKBOOK_BINDING_PROFILE_URI,
   evaluatePackage,
+  explainProtocolResource,
+  getProtocolCatalog,
+  getSchemaCatalog,
+  initializeCorePackage,
+  listProtocolResources,
   runCli,
   verifyCorpus
 };

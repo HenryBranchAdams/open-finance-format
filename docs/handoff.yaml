@@ -1,28 +1,40 @@
-package: open-finance-format-v0.1-rc.1-handoff
-version: 0.1.0-rc.1
+package: open-finance-format-development-handoff
+version: 0.1.0-dev
 prepared_at: 2026-07-17
-status: experimental-release-candidate
+updated_at: 2026-07-27
+status: mutable-development
+repository_state: mutable-post-v0.1-rc.1-development
 name: Open Finance Format
 acronym: OFF
 implementation_authorized: true
 purpose: >-
-  Transfer the implemented experimental interoperability contract, local
-  conformance corpus, release boundaries, and pending external evidence.
+  Transfer the mutable development snapshot while preserving the exact frozen
+  candidate boundary, local conformance status, and pending external evidence.
 
-authority:
+development_authority:
+  specification_index: spec/INDEX.md
+  protocol_catalog: protocol/catalog-0.1.json
+  schema_catalog: schemas/catalog-0.1.json
   normative_manifest: off.json
   core_specification: spec/OFF-Core-0.1.md
   public_equity_specification: spec/profiles/public-equity-research-0.1.md
+  workbook_binding_specification: spec/profiles/workbook-binding-0.1.md
   normalization: spec/normalization-0.1.md
   diagnostics: spec/diagnostics-0.1.md
   conformance: spec/conformance-0.1.md
   rule_registry: spec/rules-0.1.json
   corpus: conformance/corpus.json
 
-normative_manifest: off.json
-normative_profiles:
-  - OFF Core 0.1
-  - OFF Public Equity Research 0.1
+frozen_candidate:
+  label: v0.1-rc.1
+  version: 0.1.0-rc.1
+  status: experimental-release-candidate
+  artifact_root: release/v0.1-rc.1
+  pinned_git_snapshot: 2570e38998dd735b83da301a5b6f0e95aca47073
+  normative_manifest: off.json
+  normative_profiles:
+    - OFF Core 0.1
+    - OFF Public Equity Research 0.1
 
 post_rc1_development:
   workbook_binding_profile: spec/profiles/workbook-binding-0.1.md
@@ -31,8 +43,21 @@ post_rc1_development:
   xlsx_snapshot_bytes: core_verified
   google_live_source: notEvaluated
   spreadsheet_execution: not_claimed
+  protocol_foundation:
+    specification_index: spec/INDEX.md
+    terminology: spec/terminology.md
+    versioning: spec/versioning.md
+    schema_resources: spec/schema-resources-0.1.md
+    security_privacy: spec/security-privacy-considerations.md
+    governance: GOVERNANCE.md
+    protocol_catalog: protocol/catalog-0.1.json
+    schema_catalog: schemas/catalog-0.1.json
+    core_initializer: implemented_non_normative
+    github_ci: configured_not_live_verified
+    release_status: not_a_candidate
 
 conformance:
+  scope: frozen-v0.1-rc.1
   evaluation_mode: offline
   network_requests: prohibited
   public_equity_claim: Traceable - author-declared lineage
@@ -41,6 +66,7 @@ conformance:
   xbrl_evidence_locator: illustrative_only
 
 implemented_candidate:
+  scope: frozen-v0.1-rc.1
   specification: present
   schemas: present
   rule_registry: present
@@ -60,6 +86,7 @@ implemented_candidate:
   local_release_validation: passing
 
 external_evidence:
+  scope: frozen-v0.1-rc.1
   immutable_public_anchor: pending
   checksum_manifest_digest: pending
   independent_consumer: pending
@@ -69,6 +96,7 @@ external_evidence:
   external_design_partner: pending
 
 claims:
+  scope: frozen-v0.1-rc.1
   promotion_to_v0_1: not_claimed
   independent_interoperability: not_claimed
   automated_promotion_certification: not_provided
@@ -85,7 +113,7 @@ deferred:
   - independently_reviewed_lineage
   - private_permissions_and_enterprise_access
   - brokerage_execution_and_automated_recommendations
-  - monetization_formal_governance_and_platform_brand
+  - monetization_multi_stakeholder_governance_and_platform_brand
   - xbrl_processing_and_validation
 
 files:
@@ -103,6 +131,14 @@ files:
     role: continuation_instructions
   - path: spec/OFF-Core-0.1.md
     role: normative_core_contract
+  - path: spec/INDEX.md
+    role: frozen_and_development_authority_index
+  - path: GOVERNANCE.md
+    role: current_public_change_authority
+  - path: docs/IMPLEMENTERS.md
+    role: implementation_and_clean_room_router
+  - path: protocol/catalog-0.1.json
+    role: development_protocol_discovery_catalog
   - path: spec/profiles/public-equity-research-0.1.md
     role: normative_public_equity_contract
   - path: conformance/corpus.json

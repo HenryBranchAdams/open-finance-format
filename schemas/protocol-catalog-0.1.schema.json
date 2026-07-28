@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openfinanceformat.org/schemas/protocol-catalog-0.1.schema.json",
+  "title": "OFF protocol catalog 0.1",
+  "type": "object",
+  "required": ["$schema", "catalogVersion", "offVersion", "development", "offline", "frozenRelease", "profiles", "resources"],
+  "properties": {
+    "$schema": { "const": "https://openfinanceformat.org/schemas/protocol-catalog-0.1.schema.json" },
+    "catalogVersion": { "const": "0.1" },
+    "offVersion": { "const": "0.1" },
+    "development": { "$ref": "#/$defs/development" },
+    "offline": { "$ref": "#/$defs/offline" },
+    "frozenRelease": { "$ref": "#/$defs/frozenRelease" },
+    "profiles": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/profile" }
+    },
+    "resources": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/resource" }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "path": {
+      "type": "string",
+      "pattern": "^(?!.*(?:^|/)(?:\\.|\\.\\.)(?:/|$))[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*$"
+    },
+    "status": {
+      "enum": ["frozen", "development"]
+    },
+    "rc1Membership": {
+      "enum": ["frozen-bytes", "modified-after-rc.1", "added-after-rc.1"]
+    },
+    "development": {
+      "type": "object",
+      "required": ["label", "status"],
+      "properties": {
+        "label": { "const": "post-v0.1-rc.1" },
+        "status": { "const": "development" }
+      },
+      "additionalProperties": false
+    },
+    "offline": {
+      "type": "object",
+      "required": ["mode", "networkRetrieval", "uriSemantics"],
+      "properties": {
+        "mode": { "const": "self-contained" },
+        "networkRetrieval": { "const": "forbidden" },
+        "uriSemantics": { "const": "identifier-only" }
+      },
+      "additionalProperties": false
+    },
+    "frozenRelease": {
+      "type": "object",
+      "required": ["label", "membershipSource"],
+      "properties": {
+        "label": { "const": "v0.1-rc.1" },
+        "membershipSource": { "const": "release/v0.1-rc.1/files.json" }
+      },
+      "additionalProperties": false
+    },
+    "profile": {
+      "type": "object",
+      "required": ["identifier", "uri", "specification", "schema", "status", "rc1Membership", "claim"],
+      "properties": {
+        "identifier": { "$ref": "#/$defs/identifier" },
+        "uri": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9+.-]*:" },
+        "specification": { "$ref": "#/$defs/path" },
+        "schema": { "$ref": "#/$defs/path" },
+        "status": { "$ref": "#/$defs/status" },
+        "rc1Membership": { "$ref": "#/$defs/rc1Membership" },
+        "claim": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "resource": {
+      "type": "object",
+      "required": ["identifier", "kind", "path", "status", "rc1Membership"],
+      "properties": {
+        "identifier": { "$ref": "#/$defs/identifier" },
+        "kind": {
+          "enum": ["specification-index", "normative-specification", "rule-registry", "conformance-corpus", "schema-catalog"]
+        },
+        "path": { "$ref": "#/$defs/path" },
+        "status": { "$ref": "#/$defs/status" },
+        "rc1Membership": { "$ref": "#/$defs/rc1Membership" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

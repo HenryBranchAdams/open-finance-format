@@ -11,6 +11,17 @@ All notable public changes to Open Finance Format are recorded here.
   descriptors.
 - Profile schema, six stable semantic diagnostics, deterministic normalized
   payload, focused tests, and a Google-snapshot conformance package.
+- Explicit frozen-versus-development specification index, normative
+  terminology, compatibility/versioning policy, offline schema-resource
+  contract, and consolidated security/privacy considerations.
+- Founder-led public governance, OFF Change Proposal and immutable decision
+  record templates, contribution and conduct policies, and honest security
+  intake guidance.
+- Closed machine-readable protocol and schema catalogs with deterministic CLI
+  discovery, plus a Core-only initializer that computes entrypoint integrity
+  metadata and refuses existing targets.
+- Read-only GitHub pull-request CI, pinned third-party actions, dependency
+  update configuration, and structured issue and pull-request intake.
 
 ### Release boundary
 
@@ -19,6 +30,8 @@ All notable public changes to Open Finance Format are recorded here.
   rc.1 Git snapshot against the existing rc.1 checksums.
 - This snapshot makes no rc.2, v0.1, spreadsheet-execution, live-source,
   financial-correctness, or independent-interoperability claim.
+- The mutable reference package is labeled `0.1.0-dev`; the pinned rc.1 Git
+  snapshot retains its original package identity and bytes.
 
 ## v0.1-rc.1 — 2026-07-17
 

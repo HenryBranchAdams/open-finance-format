@@ -1,0 +1,48 @@
+name: OFF Change Proposal intake
+description: Propose a normative protocol, registry, compatibility, or conformance change.
+title: "ofcp: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Read GOVERNANCE.md and proposals/README.md first. Accepted normative changes require a repository proposal document and never patch an immutable release candidate in place.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem statement
+      description: Describe one observable interoperability, safety, or implementer problem without assuming a solution.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Public evidence
+      description: Cite fixtures, implementation reports, usability evidence, or public ambiguity records.
+    validations:
+      required: true
+  - type: dropdown
+    id: class
+    attributes:
+      label: Expected change class
+      options:
+        - Editorial or non-normative
+        - Backward-compatible normative clarification
+        - Backward-compatible additive feature
+        - Breaking normative change
+        - Unsure
+    validations:
+      required: true
+  - type: textarea
+    id: interoperability
+    attributes:
+      label: Compatibility and interoperability impact
+      description: Identify affected versions, profiles, schemas, diagnostics, normalized output, and clean-room evidence.
+    validations:
+      required: true
+  - type: textarea
+    id: security
+    attributes:
+      label: Security and privacy impact
+      description: Describe new trust boundaries, active-content risks, resource costs, or sensitive data handling. Write "none identified" only with a reason.
+    validations:
+      required: true

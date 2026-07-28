@@ -35,6 +35,14 @@ import {
 } from "./workbook-binding.ts";
 
 export {
+  InitializationError,
+  initializeCorePackage,
+  type InitializationFailureReason,
+  type InitializeCoreOptions,
+  type InitializeCoreResult,
+} from "./initialize.ts";
+export * from "./protocol.ts";
+export {
   PUBLIC_EQUITY_PROFILE_URI,
   WORKBOOK_BINDING_PROFILE_URI,
 } from "./profiles.ts";

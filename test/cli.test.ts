@@ -321,6 +321,24 @@ test("the CLI uses exit 1 for invalid packages, 2 for evaluator failure, and 64 
   assert.match(usageCapture.stderr(), /^Usage:/u);
 });
 
+test("help commands emit the complete usage with exit 0 while invalid commands remain usage errors", async () => {
+  const help = captureIo();
+  const longHelp = captureIo();
+  assert.equal(await runCli(["help"], help.io), 0);
+  assert.equal(await runCli(["--help"], longHelp.io), 0);
+  assert.equal(help.stdout(), longHelp.stdout());
+  assert.match(help.stdout(), /^Usage: off validate/u);
+  assert.match(help.stdout(), /off protocol list/u);
+  assert.match(help.stdout(), /off init core/u);
+  assert.equal(help.stderr(), "");
+  assert.equal(longHelp.stderr(), "");
+
+  const invalid = captureIo();
+  assert.equal(await runCli(["not-a-command"], invalid.io), 64);
+  assert.equal(invalid.stdout(), "");
+  assert.equal(invalid.stderr(), help.stdout());
+});
+
 test("corpus verify matches package expectations and evaluator failures twice", async () => {
   const descriptor = JSON.parse(
     await readFile(join(conformanceRoot, "corpus.json"), "utf8"),

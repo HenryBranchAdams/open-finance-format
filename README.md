@@ -4,7 +4,12 @@ Open Finance Format (OFF) is an open standard for publishing financial models as
 
 **Publish the model, not just the spreadsheet.**
 
-This repository contains the experimental v0.1-rc.1 interoperability candidate. It does not claim independent implementation, promotion to v0.1, adoption, or financial correctness.
+## Repository status
+
+This repository preserves the immutable experimental `v0.1-rc.1`
+interoperability candidate and continues development after it. rc.1 does not
+claim independent implementation, promotion to v0.1, adoption, or financial
+correctness.
 
 The mutable development tree also implements the optional
 [Workbook Binding 0.1](spec/profiles/workbook-binding-0.1.md) profile. It binds
@@ -13,7 +18,21 @@ snapshot bytes. Google Sheets may appear only as an inert remote descriptor.
 This post-rc.1 work is not a new release candidate and does not alter the frozen
 `release/v0.1-rc.1/` evidence.
 
-## Normative contract
+New contributors should read the [specification index](spec/INDEX.md),
+[implementer guide](docs/IMPLEMENTERS.md), and
+[contribution guide](CONTRIBUTING.md). Protocol changes follow
+[GOVERNANCE.md](GOVERNANCE.md) and the public
+[OFF Change Proposal process](proposals/README.md); vulnerabilities follow
+[SECURITY.md](SECURITY.md).
+
+## Specification routes
+
+For the exact frozen rc.1 contract, use its pinned Git snapshot,
+[release allowlist](release/v0.1-rc.1/files.json), checksums, and authentication
+procedure. The candidate still records its external authentication anchors as
+pending. The links below point to the current mutable checkout and therefore
+describe post-rc.1 development wherever their bytes differ from the frozen
+commit.
 
 Read the normative documents in this order:
 
@@ -24,6 +43,17 @@ Read the normative documents in this order:
 5. [Diagnostics 0.1](spec/diagnostics-0.1.md) — stable errors, warnings, and ordering.
 6. [Conformance 0.1](spec/conformance-0.1.md) — offline evaluation, stage gates, outcomes, and clean-room promotion.
 7. [Rule registry](spec/rules-0.1.json) — authoritative stage and diagnostic assignment for every rule.
+
+Development-wide terms, compatibility, and trust boundaries are defined by
+[normative terminology](spec/terminology.md),
+[versioning and compatibility](spec/versioning.md), and
+[security and privacy considerations](spec/security-privacy-considerations.md).
+The checked-in [protocol catalog](protocol/catalog-0.1.json) and
+[schema catalog](schemas/catalog-0.1.json) map stable identifiers to offline
+repository artifacts under the
+[schema-resource contract](spec/schema-resources-0.1.md).
+`openfinanceformat.org` URIs are identifiers; live DNS or hosted retrieval is
+not required or currently claimed.
 
 The sole normative package source is off.json. Templates, generators, narrative documents, spreadsheets, and other resources may help authors, but they do not override the manifest or define conformance.
 
@@ -47,7 +77,7 @@ The [XBRL source-locator note](spec/examples/xbrl-source-locator.md) is illustra
 
 ## Repository contents
 
-The candidate currently includes:
+The mutable development snapshot currently includes:
 
 - normative specification text, JSON Schemas, and a stable rule registry;
 - reference evaluator source for Core and the Public Equity Research profile;
@@ -55,6 +85,10 @@ The candidate currently includes:
 - a [host-independent evaluator-failure vector](conformance/evaluator-failures.json) and closed [failure-envelope schema](schemas/evaluator-failure-0.1.schema.json);
 - hand-reviewed canonical normalized results and expected diagnostic codes; and
 - clean-room promotion requirements that keep every external evidence field pending until an unaffiliated implementer completes the public tasks.
+
+The frozen rc.1 candidate remains the earlier allowlisted ten-case corpus. Its
+artifact membership and bytes are determined at the pinned commit, not by the
+current development tree.
 
 The corpus proves the behavior of this reference implementation under local tests. It does not by itself prove that an independent consumer will interpret OFF the same way.
 
@@ -66,15 +100,33 @@ Contributor runtime:
 - pnpm 10.34.1; and
 - ESM modules.
 
-The local acceptance commands are:
+Install the locked dependencies first:
 
     pnpm install --frozen-lockfile
+
+Then run the single development gate:
+
+    pnpm verify
+
+That development gate expands to the following individually runnable checks:
+
+    pnpm build
     pnpm check
     pnpm test
-    pnpm build
     pnpm test:node22
     pnpm test:offline
     pnpm release:self-check
+
+For ordinary development, the CLI can list or explain the checked-in protocol
+catalog and initialize a Core package from explicit metadata. These helpers are
+non-normative and are not part of the frozen rc.1 clean-room materials:
+
+    node dist/off.mjs protocol list
+    node dist/off.mjs protocol explain <identifier>
+    node dist/off.mjs help
+
+See the [implementer guide](docs/IMPLEMENTERS.md) for the Core initializer and
+for the strict separation between ordinary integrations and clean-room work.
 
 The offline development path uses the checked-in dist/off.mjs bundle and local public artifacts. Its corpus command verifies all eleven package cases and every bound evaluator-failure vector case, requires no dependency installation, and must make no network request:
 
@@ -121,8 +173,14 @@ The rc.1 release validator checks local artifact consistency only. It cannot cer
 ## Authority and history
 
 - [STRATEGY.md](STRATEGY.md) defines product identity and strategic boundaries.
-- The documents under spec/ define the current v0.1-rc.1 contract.
+- [spec/INDEX.md](spec/INDEX.md) distinguishes the immutable rc.1 authority from
+  the mutable post-rc.1 specification set.
+- [GOVERNANCE.md](GOVERNANCE.md) states the current founder-led authority and
+  public evolution process.
+- [docs/decisions/](docs/decisions/README.md) preserves immutable dispositions;
+  accepted work still requires a new candidate to gain release authority.
 - [docs/START_HERE.md](docs/START_HERE.md) routes earlier planning material to current authority.
-- [docs/handoff.yaml](docs/handoff.yaml) records the candidate status and pending evidence.
+- [docs/handoff.yaml](docs/handoff.yaml) records current development status,
+  the frozen candidate boundary, and pending external evidence.
 
 The repository is licensed under Apache-2.0. The checked-in bundle's third-party components retain their upstream terms in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). A package's declared license describes that package; validation does not prove identity, ownership, or legal rights.

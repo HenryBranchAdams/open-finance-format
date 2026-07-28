@@ -2,7 +2,7 @@
 
 This roadmap separates local format implementation, external interoperability proof, and later product adoption. Dates are intentionally omitted.
 
-## Current release line — experimental v0.1-rc.1
+## Frozen release line — experimental v0.1-rc.1
 
 The current candidate implements the public contract around off.json, the sole normative manifest. It defines exactly two normative profiles:
 
@@ -21,6 +21,16 @@ represented only by an optional inert HTTPS resource descriptor. The profile
 does not parse workbooks, inspect cells, execute formulas, recalculate, or claim
 live-source equivalence. It is not a new candidate and remains outside the
 frozen rc.1 evidence closure.
+
+## Post-rc.1 development snapshot — protocol operations foundation
+
+The mutable tree now has an explicit specification-status index, normative
+terminology, versioning and compatibility policy, security/privacy boundaries,
+a founder-led public change process, offline protocol and schema catalogs, and
+a safe Core-only initializer. Contributor intake and read-only GitHub CI are
+defined as repository operations. These additions make development easier to
+discover and govern; they do not create a release candidate, external
+authentication, independent interoperability, or adoption evidence.
 
 ### Local release-candidate acceptance
 
@@ -75,13 +85,15 @@ Explore accessible mobile web, native-file inspection, documents, PDFs, embeds, 
 
 ### Specification maintenance
 
-Publish ambiguities, compatibility fixes, and new release candidates through a public change process. Preserve deterministic normalized output and backward-compatible extension handling.
+Publish ambiguities, compatibility fixes, and new release candidates through
+the implemented OFF Change Proposal process. Preserve deterministic normalized
+output and backward-compatible extension handling.
 
 ## Deferred boundaries
 
 - Presentation standardization and renderer metadata are illustrative and deferred.
 - Execution, formula graphs, spreadsheet calculation, and interactive recalculation are deferred.
-- Social networks, feeds, comments, reputation, discovery, and registry behavior are deferred.
+- Social networks, feeds, comments, reputation, hosted discovery, and registry-service behavior are deferred.
 - Adoption claims are pending external real-model use and are not part of rc.1 conformance.
-- Other asset-class profiles, independently reviewed lineage, private permissions, governance, monetization, brokerage connectivity, and automated recommendations are deferred.
+- Other asset-class profiles, independently reviewed lineage, private permissions, multi-stakeholder governance or a foundation, monetization, brokerage connectivity, and automated recommendations are deferred.
 - XBRL processing is deferred; rc.1 includes only an illustrative evidence locator.
