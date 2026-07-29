@@ -1,0 +1,17 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import PagayaResearchViewer from "../../../components/research/PagayaResearchViewer.astro";
+import { getPagayaResearchModel } from "../../../lib/research/pagaya";
+import "../../../styles/pagaya-research.css";
+
+const model = await getPagayaResearchModel();
+---
+
+<BaseLayout
+  title={`Pagaya Technologies valuation · ${model.ticker} · OFF`}
+  description="An inspectable, source-backed Pagaya Technologies valuation published as an Open Finance Format research object."
+  socialImage="/og.png"
+  bodyClass="pagaya-model-body"
+>
+  <PagayaResearchViewer {model} />
+</BaseLayout>

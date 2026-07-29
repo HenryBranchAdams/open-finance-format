@@ -1,0 +1,627 @@
+---
+import { Icon } from "astro-icon/components";
+import type { PagayaResearchModel } from "../../lib/research/pagaya";
+
+type Props = {
+  model: PagayaResearchModel;
+};
+
+const { model } = Astro.props;
+const scenarioByRole = Object.fromEntries(
+  model.scenarios.map((scenario) => [scenario.role, scenario]),
+) as Record<"bear" | "base" | "bull", PagayaResearchModel["scenarios"][number]>;
+
+const formatPrice = (value: number) => `$${value.toFixed(2)}`;
+const formatReturn = (value: number) => `${value >= 0 ? "+" : ""}${value.toFixed(1)}%`;
+const embedBaseUrl = "/models/pagaya/embed/";
+---
+
+<main class="pg-app" id="main-content">
+  <aside class="pg-sidebar" aria-label="Pagaya research navigation">
+    <div class="pg-sidebar__identity">
+      <a class="pg-brand" href="/" aria-label="Open Finance Format home">
+        <strong>OFF</strong>
+        <span>Open Finance<br />Format</span>
+      </a>
+      <div class="pg-issuer">
+        <span>{model.issuerName}</span>
+        <strong>{model.exchange}: {model.ticker}</strong>
+        <small>Public-equity research</small>
+      </div>
+    </div>
+
+    <nav class="pg-nav" aria-label="Model sections">
+      <div class="pg-nav__group">
+        <span class="pg-nav__label">Summary</span>
+        <button class="pg-nav__item is-active" type="button" data-panel-target="overview">
+          <span>Overview</span>
+          <Icon name="ph:caret-right" aria-hidden="true" />
+        </button>
+      </div>
+      <div class="pg-nav__group">
+        <span class="pg-nav__label">Model</span>
+        <button class="pg-nav__item" type="button" data-panel-target="valuation">
+          <span>Valuation</span>
+          <Icon name="ph:caret-right" aria-hidden="true" />
+        </button>
+        <button class="pg-nav__item pg-nav__item--secondary" type="button" data-panel-target="assumptions">
+          <span>Assumptions</span>
+          <Icon name="ph:caret-right" aria-hidden="true" />
+        </button>
+      </div>
+      <div class="pg-nav__group">
+        <span class="pg-nav__label">Evidence</span>
+        <button class="pg-nav__item" type="button" data-panel-target="sources">
+          <span>Sources</span>
+          <Icon name="ph:caret-right" aria-hidden="true" />
+        </button>
+        <button class="pg-nav__item pg-nav__item--secondary" type="button" data-panel-target="lineage">
+          <span>Lineage</span>
+          <Icon name="ph:caret-right" aria-hidden="true" />
+        </button>
+      </div>
+    </nav>
+
+    <dl class="pg-metadata">
+      <div><dt>Release</dt><dd>{model.releaseVersion.replace("-v2", " · v2")}</dd></div>
+      <div><dt>Freshness</dt><dd>{model.marketAsOf} 15:37 EDT</dd></div>
+      <div><dt>Traceability</dt><dd>{model.traceability}</dd></div>
+      <div><dt>Status</dt><dd>Locally verified · screen-grade</dd></div>
+    </dl>
+
+    <div class="pg-sidebar__links">
+      <a href="/models/pagaya/pagaya-valuation-model.xlsx">
+        <span>Open workbook</span>
+        <Icon name="ph:arrow-square-out" aria-hidden="true" />
+      </a>
+      <a href="/docs/specification/public-equity-research/">
+        <span>OFF specification</span>
+        <Icon name="ph:arrow-square-out" aria-hidden="true" />
+      </a>
+    </div>
+  </aside>
+
+  <section class="pg-workspace">
+    <header class="pg-toolbar">
+      <p>
+        Prepared by {model.author}
+        <span aria-hidden="true">·</span>
+        Valuation date 23 July 2026
+        <span aria-hidden="true">·</span>
+        Market snapshot 23 July 2026 15:37 EDT
+      </p>
+      <div class="pg-toolbar__actions">
+        <a href="/models/pagaya/pagaya-valuation-model.xlsx">Open workbook</a>
+        <button class="pg-share-button" type="button" data-open-share>
+          <Icon name="ph:share-network" aria-hidden="true" />
+          <span>Share / Embed</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="pg-mobile-tabs" aria-label="Primary model sections">
+      <button type="button" class="is-active" data-panel-target="overview">Summary</button>
+      <button type="button" data-panel-target="valuation">Model</button>
+      <button type="button" data-panel-target="sources">Evidence</button>
+    </div>
+
+    <section class="pg-panel is-active" data-panel="overview" aria-labelledby="overview-title">
+      <h1 class="sr-only" id="overview-title">{model.packageTitle}</h1>
+
+      <section class="pg-metric-strip" aria-label="Headline valuation metrics">
+        <div>
+          <span>Current intraday price</span>
+          <strong>{formatPrice(model.marketPrice)}</strong>
+          <small>15:37 EDT · Source S4</small>
+        </div>
+        <div>
+          <span>Base value (upside)</span>
+          <strong class="pg-value--base">{formatPrice(scenarioByRole.base.value)}</strong>
+          <small class="pg-value--positive">{formatReturn(scenarioByRole.base.returnPct)}</small>
+        </div>
+        <div>
+          <span>Bear value (downside)</span>
+          <strong class="pg-value--negative">{formatPrice(scenarioByRole.bear.value)}</strong>
+          <small class="pg-value--negative">{formatReturn(scenarioByRole.bear.returnPct)}</small>
+        </div>
+        <div>
+          <span>Bull value (upside)</span>
+          <strong class="pg-value--positive">{formatPrice(scenarioByRole.bull.value)}</strong>
+          <small class="pg-value--positive">{formatReturn(scenarioByRole.bull.returnPct)}</small>
+        </div>
+        <div>
+          <span>Investment posture</span>
+          <strong class="pg-posture">{model.investmentPosture}</strong>
+        </div>
+        <div>
+          <span>Model status</span>
+          <strong class="pg-value--positive">{model.modelStatus}</strong>
+        </div>
+      </section>
+
+      <div class="pg-visual-grid">
+        <section class="pg-surface pg-valuation-visual" aria-labelledby="valuation-range-title">
+          <header class="pg-surface__header">
+            <div>
+              <h2 id="valuation-range-title">Valuation range</h2>
+              <p>Scenario range connects market-implied cost of equity to modeled outcomes.</p>
+            </div>
+          </header>
+          <canvas
+            class="pg-chart pg-chart--valuation"
+            data-valuation-chart
+            data-market={model.marketPrice}
+            data-bear={scenarioByRole.bear.value}
+            data-base={scenarioByRole.base.value}
+            data-bull={scenarioByRole.bull.value}
+            aria-label={`Valuation range: bear ${formatPrice(scenarioByRole.bear.value)}, current price ${formatPrice(model.marketPrice)}, base ${formatPrice(scenarioByRole.base.value)}, bull ${formatPrice(scenarioByRole.bull.value)}`}
+            role="img"
+          ></canvas>
+          <dl class="pg-scenario-key">
+            <div class="pg-scenario-key__bear">
+              <dt>Bear</dt>
+              <dd>{formatPrice(scenarioByRole.bear.value)}</dd>
+              <small>{formatReturn(scenarioByRole.bear.returnPct)}</small>
+            </div>
+            <div class="pg-scenario-key__base">
+              <dt>Base</dt>
+              <dd>{formatPrice(scenarioByRole.base.value)}</dd>
+              <small>{formatReturn(scenarioByRole.base.returnPct)}</small>
+            </div>
+            <div class="pg-scenario-key__bull">
+              <dt>Bull</dt>
+              <dd>{formatPrice(scenarioByRole.bull.value)}</dd>
+              <small>{formatReturn(scenarioByRole.bull.returnPct)}</small>
+            </div>
+          </dl>
+          <dl class="pg-method-strip">
+            <div><dt>Market-implied cost of equity</dt><dd>~{model.marketImpliedCostOfEquity.toFixed(1)}%</dd></div>
+            <div><dt>Base-case hurdle</dt><dd>{model.baseCostOfEquity.toFixed(1)}%</dd></div>
+            <div><dt>Discount rate (base)</dt><dd>{model.baseCostOfEquity.toFixed(1)}%</dd></div>
+            <div><dt>Terminal growth</dt><dd>{model.baseTerminalGrowth.toFixed(1)}%</dd></div>
+          </dl>
+        </section>
+
+        <section class="pg-surface pg-volume-visual" aria-labelledby="volume-chart-title">
+          <header class="pg-surface__header">
+            <div>
+              <h2 id="volume-chart-title">Network Volume base path</h2>
+              <p>Modeled Network Volume under the base case.</p>
+            </div>
+          </header>
+          <canvas
+            class="pg-chart pg-chart--volume"
+            data-volume-chart
+            data-points={JSON.stringify(model.networkVolume)}
+            aria-label={`Base Network Volume grows from $${model.networkVolume[0].value.toFixed(1)} billion in 2026 to $${model.networkVolume.at(-1)?.value.toFixed(1)} billion in 2031`}
+            role="img"
+          ></canvas>
+          <p class="pg-chart-legend">
+            <span aria-hidden="true"></span>
+            Base path: ${model.networkVolume[0].value.toFixed(1)}bn in 2026 rising to
+            ${model.networkVolume.at(-1)?.value.toFixed(1)}bn in 2031
+          </p>
+        </section>
+      </div>
+
+      <div class="pg-ledger-layout">
+        <section class="pg-ledger" aria-labelledby="must-be-true-title">
+          <header><h2 id="must-be-true-title">What must be true</h2></header>
+          <div class="pg-ledger__scroll">
+            <table>
+              <thead>
+                <tr><th>Claim</th><th>Details</th><th>Source</th><th>Freshness</th><th>Status</th></tr>
+              </thead>
+              <tbody>
+                {model.whatMustBeTrue.map((item) => (
+                  <tr>
+                    <th scope="row">{item.claim}</th>
+                    <td>{item.details}</td>
+                    <td>{item.source}</td>
+                    <td>{model.marketAsOf}</td>
+                    <td><span class="pg-status pg-status--current">{item.freshness}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+        <aside class="pg-proof" aria-labelledby="proof-title">
+          <h2 id="proof-title">Key proof points</h2>
+          <ul>{model.proofPoints.map((point) => <li>{point}</li>)}</ul>
+          <p>Source: Pagaya model (S1)<br />Freshness: {model.marketAsOf} · <span>Current</span></p>
+        </aside>
+      </div>
+
+      <div class="pg-ledger-layout">
+        <section class="pg-ledger" aria-labelledby="breaks-title">
+          <header><h2 id="breaks-title">Proof / thesis breaks</h2></header>
+          <div class="pg-ledger__scroll">
+            <table>
+              <thead>
+                <tr><th>Risk</th><th>Details</th><th>Source</th><th>Freshness</th><th>Status</th></tr>
+              </thead>
+              <tbody>
+                {model.thesisBreaks.map((item) => (
+                  <tr>
+                    <th scope="row">{item.claim}</th>
+                    <td>{item.details}</td>
+                    <td>{item.source}</td>
+                    <td>{model.marketAsOf}</td>
+                    <td><span class="pg-status pg-status--risk">{item.freshness}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+        <aside class="pg-conclusion" aria-labelledby="conclusion-title">
+          <h2 id="conclusion-title">Summary conclusion</h2>
+          <p>{model.summary}</p>
+          <dl>
+            <div><dt>Posture</dt><dd>{model.investmentPosture}</dd></div>
+            <div><dt>Model status</dt><dd>{model.modelStatus}</dd></div>
+          </dl>
+          <small>Source: Pagaya model (S1)<br />Freshness: {model.marketAsOf} · Current</small>
+        </aside>
+      </div>
+    </section>
+
+    <section class="pg-panel" data-panel="valuation" aria-labelledby="valuation-panel-title" hidden>
+      <header class="pg-detail-heading">
+        <span>Model</span>
+        <h1 id="valuation-panel-title">Valuation</h1>
+        <p>Six-year risk-retention FCFE with scenario-specific operating paths and costs of equity.</p>
+      </header>
+      <div class="pg-detail-grid">
+        {model.scenarios.map((scenario) => (
+          <article class={`pg-surface pg-scenario-card pg-scenario-card--${scenario.role}`}>
+            <span>{scenario.label}</span>
+            <strong>{formatPrice(scenario.value)}</strong>
+            <small>{formatReturn(scenario.returnPct)} vs. market</small>
+            <p>{scenario.description}</p>
+          </article>
+        ))}
+      </div>
+      <section class="pg-detail-table">
+        <header>
+          <h2>Base-case decision hinges</h2>
+          <button type="button" data-panel-target="assumptions">Inspect assumptions</button>
+        </header>
+        <div class="pg-ledger__scroll">
+          <table>
+            <tbody>
+              <tr><th>Market-implied cost of equity</th><td>~{model.marketImpliedCostOfEquity.toFixed(1)}%</td></tr>
+              <tr><th>Base cost of equity</th><td>{model.baseCostOfEquity.toFixed(1)}%</td></tr>
+              <tr><th>Terminal growth</th><td>{model.baseTerminalGrowth.toFixed(1)}%</td></tr>
+              <tr><th>2031 Network Volume</th><td>${model.networkVolume.at(-1)?.value.toFixed(1)}bn</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+
+    <section class="pg-panel" data-panel="assumptions" aria-labelledby="assumptions-panel-title" hidden>
+      <header class="pg-detail-heading">
+        <span>Model</span>
+        <h1 id="assumptions-panel-title">Assumptions</h1>
+        <p>Analyst judgments declared by the Pagaya OFF package.</p>
+      </header>
+      <section class="pg-detail-table">
+        <div class="pg-ledger__scroll">
+          <table>
+            <thead><tr><th>Assumption</th><th>Value</th><th>Designation</th><th>Effective</th></tr></thead>
+            <tbody>
+              {model.assumptions.map((assumption) => (
+                <tr>
+                  <th scope="row">{assumption.label}</th>
+                  <td>{assumption.value.value}</td>
+                  <td>{assumption.designation}</td>
+                  <td>{assumption.effectiveDate}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+
+    <section class="pg-panel" data-panel="sources" aria-labelledby="sources-panel-title" hidden>
+      <header class="pg-detail-heading">
+        <span>Evidence</span>
+        <h1 id="sources-panel-title">Sources</h1>
+        <p>Issuer, regulatory, and market evidence declared by the package.</p>
+      </header>
+      <div class="pg-source-list">
+        {model.sources.map((source) => (
+          <a class="pg-source-row" href={source.canonicalUrl} target="_blank" rel="noreferrer">
+            <span class="pg-source-row__id">{source.shortId}</span>
+            <span><strong>{source.title}</strong><small>{source.publisher}</small></span>
+            <span class="pg-status pg-status--current">{source.freshness}</span>
+            <Icon name="ph:arrow-square-out" aria-hidden="true" />
+          </a>
+        ))}
+      </div>
+      <button class="pg-inline-action" type="button" data-panel-target="lineage">Inspect lineage</button>
+    </section>
+
+    <section class="pg-panel" data-panel="lineage" aria-labelledby="lineage-panel-title" hidden>
+      <header class="pg-detail-heading">
+        <span>Evidence</span>
+        <h1 id="lineage-panel-title">Lineage</h1>
+        <p>Material source facts and analyst assumptions linked to the three headline outputs.</p>
+      </header>
+      <section class="pg-lineage-summary">
+        <div>
+          <span>Attestation</span>
+          <strong>{model.traceability}</strong>
+          <p>Author-declared lineage is inspectable but not independently verified.</p>
+        </div>
+        <div>
+          <span>Headline outputs</span>
+          <strong>3 / 3 connected</strong>
+          <p>Bear, base, and bull values are bound to the workbook artifact and declared inputs.</p>
+        </div>
+        <div>
+          <span>Release</span>
+          <strong>{model.releaseVersion}</strong>
+          <p>Immutable package identifier for this published research object.</p>
+        </div>
+      </section>
+    </section>
+
+    <footer class="pg-footer">
+      <span>All amounts in USD unless stated. Figures may not sum due to rounding.</span>
+      <span>Sources: S1 Pagaya model workbook · S2 public filings · S4 market data feed</span>
+    </footer>
+  </section>
+
+  <dialog class="pg-share-dialog" data-share-dialog>
+    <form method="dialog">
+      <header>
+        <div>
+          <span>Publish the model</span>
+          <h2>Share or embed this view</h2>
+        </div>
+        <button class="pg-icon-button" value="cancel" aria-label="Close share dialog">
+          <Icon name="ph:x" aria-hidden="true" />
+        </button>
+      </header>
+      <div class="pg-embed-options" role="group" aria-label="Embed view">
+        <button class="is-active" type="button" data-embed-view="summary">Summary</button>
+        <button type="button" data-embed-view="valuation">Valuation</button>
+        <button type="button" data-embed-view="freshness">Freshness</button>
+      </div>
+      <div class="pg-embed-preview">
+        <iframe
+          title="Pagaya OFF embed preview"
+          src={`${embedBaseUrl}?view=summary`}
+          data-embed-preview
+        ></iframe>
+      </div>
+      <label>
+        Embed code
+        <textarea readonly rows="4" data-embed-code>{`<iframe src="${embedBaseUrl}?view=summary" title="Pagaya valuation summary" loading="lazy" style="width:100%;border:0;min-height:420px"></iframe>`}</textarea>
+      </label>
+      <footer>
+        <p data-copy-status aria-live="polite">Immutable release {model.releaseVersion}</p>
+        <button class="pg-copy-button" type="button" data-copy-embed>
+          <Icon name="ph:copy" aria-hidden="true" />
+          <span>Copy embed code</span>
+        </button>
+      </footer>
+    </form>
+  </dialog>
+</main>
+
+<script>
+  const app = document.querySelector(".pg-app");
+  const panels = Array.from(document.querySelectorAll("[data-panel]"));
+  const panelButtons = Array.from(document.querySelectorAll("[data-panel-target]"));
+  const shareDialog = document.querySelector("[data-share-dialog]");
+  const openShareButton = document.querySelector("[data-open-share]");
+  const embedPreview = document.querySelector("[data-embed-preview]");
+  const embedCode = document.querySelector("[data-embed-code]");
+  const embedViewButtons = Array.from(document.querySelectorAll("[data-embed-view]"));
+  const copyButton = document.querySelector("[data-copy-embed]");
+  const copyStatus = document.querySelector("[data-copy-status]");
+
+  function selectPanel(panelName: string) {
+    panels.forEach((panel) => {
+      const selected = panel.getAttribute("data-panel") === panelName;
+      panel.toggleAttribute("hidden", !selected);
+      panel.classList.toggle("is-active", selected);
+    });
+    panelButtons.forEach((button) => {
+      const selected = button.getAttribute("data-panel-target") === panelName;
+      button.classList.toggle("is-active", selected);
+      if (button.closest(".pg-mobile-tabs")) {
+        button.setAttribute("aria-current", selected ? "page" : "false");
+      }
+    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  panelButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const panelName = button.getAttribute("data-panel-target");
+      if (panelName) selectPanel(panelName);
+    });
+  });
+
+  openShareButton?.addEventListener("click", () => {
+    setEmbedView("summary");
+    if (shareDialog instanceof HTMLDialogElement) shareDialog.showModal();
+  });
+
+  function setEmbedView(view: string) {
+    const baseUrl = new URL("/models/pagaya/embed/", window.location.origin);
+    const embedTitles: Record<string, string> = {
+      summary: "Pagaya valuation summary",
+      valuation: "Pagaya valuation range",
+      freshness: "Pagaya valuation freshness",
+    };
+    const embedTitle = embedTitles[view] ?? "Pagaya valuation";
+    baseUrl.searchParams.set("view", view);
+    if (embedPreview instanceof HTMLIFrameElement) {
+      embedPreview.src = baseUrl.toString();
+      embedPreview.title = `Pagaya OFF ${view} embed preview`;
+    }
+    if (embedCode instanceof HTMLTextAreaElement) {
+      embedCode.value = `<iframe src="${baseUrl}" title="${embedTitle}" loading="lazy" style="width:100%;border:0;min-height:420px"></iframe>`;
+    }
+    embedViewButtons.forEach((button) => {
+      button.classList.toggle("is-active", button.getAttribute("data-embed-view") === view);
+    });
+    if (copyStatus) copyStatus.textContent = "Ready to embed";
+  }
+
+  embedViewButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const view = button.getAttribute("data-embed-view");
+      if (view) setEmbedView(view);
+    });
+  });
+
+  copyButton?.addEventListener("click", async () => {
+    if (!(embedCode instanceof HTMLTextAreaElement)) return;
+    try {
+      await navigator.clipboard.writeText(embedCode.value);
+      if (copyStatus) copyStatus.textContent = "Embed code copied";
+    } catch {
+      embedCode.select();
+      if (copyStatus) copyStatus.textContent = "Embed code selected";
+    }
+  });
+
+  function prepareCanvas(canvas: HTMLCanvasElement) {
+    const ratio = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = Math.max(1, Math.round(rect.width * ratio));
+    canvas.height = Math.max(1, Math.round(rect.height * ratio));
+    const context = canvas.getContext("2d");
+    if (!context) return null;
+    context.setTransform(ratio, 0, 0, ratio, 0, 0);
+    return { context, width: rect.width, height: rect.height };
+  }
+
+  function drawValuationChart() {
+    const canvas = document.querySelector("[data-valuation-chart]");
+    if (!(canvas instanceof HTMLCanvasElement)) return;
+    const prepared = prepareCanvas(canvas);
+    if (!prepared) return;
+    const { context, width, height } = prepared;
+    const bear = Number(canvas.dataset.bear);
+    const base = Number(canvas.dataset.base);
+    const bull = Number(canvas.dataset.bull);
+    const market = Number(canvas.dataset.market);
+    const minimum = bear - 1;
+    const maximum = bull + 1;
+    const x = (value: number) => 22 + ((value - minimum) / (maximum - minimum)) * (width - 44);
+    const y = Math.round(height * 0.56);
+
+    context.clearRect(0, 0, width, height);
+    context.lineWidth = 3;
+    context.strokeStyle = "#ff7474";
+    context.beginPath();
+    context.moveTo(x(bear), y);
+    context.lineTo(x(market), y);
+    context.stroke();
+    context.strokeStyle = "#7fdb9b";
+    context.beginPath();
+    context.moveTo(x(market), y);
+    context.lineTo(x(bull), y);
+    context.stroke();
+
+    const markers: Array<[number, string, number]> = [
+      [bear, "#ff7474", 5],
+      [market, "#f2b84b", 4],
+      [base, "#78bfff", 6],
+      [bull, "#7fdb9b", 5],
+    ];
+    markers.forEach(([value, color, radius]) => {
+      context.fillStyle = color;
+      context.beginPath();
+      context.arc(x(Number(value)), y, Number(radius), 0, Math.PI * 2);
+      context.fill();
+    });
+
+    context.setLineDash([4, 4]);
+    context.strokeStyle = "#82909c";
+    context.lineWidth = 1;
+    context.beginPath();
+    context.moveTo(x(market), 18);
+    context.lineTo(x(market), y - 8);
+    context.stroke();
+    context.setLineDash([]);
+    context.fillStyle = "#bac3cc";
+    context.font = '11px "IBM Plex Mono", monospace';
+    context.textAlign = "center";
+    context.fillText("CURRENT PRICE", x(market), 14);
+    context.fillStyle = "#f4ead8";
+    context.font = '15px "IBM Plex Mono", monospace';
+    context.fillText(`$${market.toFixed(2)}`, x(market), 32);
+  }
+
+  function drawVolumeChart() {
+    const canvas = document.querySelector("[data-volume-chart]");
+    if (!(canvas instanceof HTMLCanvasElement)) return;
+    const prepared = prepareCanvas(canvas);
+    if (!prepared) return;
+    const { context, width, height } = prepared;
+    const points: Array<{ year: number; value: number }> = JSON.parse(
+      canvas.dataset.points || "[]",
+    );
+    const padding = { top: 20, right: 20, bottom: 34, left: 40 };
+    const innerWidth = width - padding.left - padding.right;
+    const innerHeight = height - padding.top - padding.bottom;
+    const maximum = 25;
+    const x = (index: number) => padding.left + (index / Math.max(1, points.length - 1)) * innerWidth;
+    const y = (value: number) => padding.top + innerHeight - (value / maximum) * innerHeight;
+
+    context.clearRect(0, 0, width, height);
+    context.strokeStyle = "#32424f";
+    context.lineWidth = 1;
+    context.fillStyle = "#bac3cc";
+    context.font = '10px "IBM Plex Mono", monospace';
+    context.textAlign = "right";
+    [0, 5, 10, 15, 20, 25].forEach((tick) => {
+      context.beginPath();
+      context.moveTo(padding.left, y(tick));
+      context.lineTo(width - padding.right, y(tick));
+      context.stroke();
+      context.fillText(String(tick), padding.left - 8, y(tick) + 4);
+    });
+
+    context.textAlign = "center";
+    points.forEach((point, index) => {
+      context.fillText(String(point.year), x(index), height - 10);
+    });
+
+    context.strokeStyle = "#7fdb9b";
+    context.lineWidth = 2;
+    context.beginPath();
+    points.forEach((point, index) => {
+      if (index === 0) context.moveTo(x(index), y(point.value));
+      else context.lineTo(x(index), y(point.value));
+    });
+    context.stroke();
+    context.fillStyle = "#7fdb9b";
+    points.forEach((point, index) => {
+      context.beginPath();
+      context.arc(x(index), y(point.value), 4, 0, Math.PI * 2);
+      context.fill();
+    });
+  }
+
+  function drawCharts() {
+    drawValuationChart();
+    drawVolumeChart();
+  }
+
+  const resizeObserver = new ResizeObserver(() => requestAnimationFrame(drawCharts));
+  document.querySelectorAll(".pg-chart").forEach((canvas) => resizeObserver.observe(canvas));
+  drawCharts();
+
+  app?.addEventListener("astro:before-swap", () => resizeObserver.disconnect(), { once: true });
+</script>

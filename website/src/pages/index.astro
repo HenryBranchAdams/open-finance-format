@@ -1,0 +1,106 @@
+---
+import { Icon } from "astro-icon/components";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { ResearchWorkspace } from "../components/marketing/ResearchWorkspace.jsx";
+
+const repositoryUrl = "https://github.com/HenryBranchAdams/open-finance-format";
+const capabilities = [
+  {
+    title: "Portable package",
+    description: "A single, complete package that any compatible tool can open.",
+    icon: "ph:cube",
+  },
+  {
+    title: "Stable lineage",
+    description: "Every input and output is linked to its declared source.",
+    icon: "ph:git-branch",
+  },
+  {
+    title: "Freshness state",
+    description: "Up-to-date status and dates for every source.",
+    icon: "ph:clock",
+  },
+  {
+    title: "Open conformance",
+    description: "Public specification with testable implementations.",
+    icon: "ph:check-circle",
+  },
+];
+---
+
+<BaseLayout
+  title="OFF · Open Finance Format"
+  description="An open standard for portable, versioned, source-backed financial research."
+  socialImage="/og.png"
+  bodyClass="marketing-body"
+>
+  <div class="marketing-shell">
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="Open Finance Format home">
+        <strong>OFF</strong>
+        <span>Open Finance Format</span>
+      </a>
+      <nav aria-label="Primary navigation">
+        <a href="/docs/specification/core/">Specification</a>
+        <a href="/docs/examples/">Examples</a>
+        <a href="/docs/conformance/">Conformance</a>
+        <a href={repositoryUrl} target="_blank" rel="noreferrer">GitHub</a>
+      </nav>
+      <span class="release-status">v0.1-rc.1 · Experimental</span>
+    </header>
+
+    <main id="main-content">
+      <section class="hero" id="top">
+        <div class="hero-copy">
+          <p class="eyebrow">Open Finance Format</p>
+          <h1>Publish the model,<br />not just the spreadsheet.</h1>
+          <p class="hero-subtitle">
+            An open standard for portable, versioned,<br class="desktop-only" />
+            source-backed financial research.
+          </p>
+          <div class="hero-actions">
+            <a class="arrow-link arrow-link--primary" href="/docs/get-started/">
+              <span>Read the documentation</span>
+              <Icon name="ph:arrow-right" aria-hidden="true" />
+            </a>
+            <a class="arrow-link" href="/docs/examples/">
+              <span>View examples</span>
+              <Icon name="ph:arrow-right" aria-hidden="true" />
+            </a>
+          </div>
+        </div>
+        <ResearchWorkspace client:load />
+      </section>
+
+      <section class="capability-strip" id="conformance" aria-labelledby="capability-strip-title">
+        <h2 id="capability-strip-title">A model is more than a file.</h2>
+        <ul class="capability-strip__list" role="list">
+          {capabilities.map((capability) => (
+            <li class="capability-strip__item">
+              <Icon class="capability-strip__icon" name={capability.icon} aria-hidden="true" />
+              <div class="capability-strip__copy">
+                <h3>{capability.title}</h3>
+                <p>{capability.description}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section class="manifest" id="manifest" aria-labelledby="manifest-title">
+        <header><h2 id="manifest-title">off.json</h2></header>
+        <pre aria-label="Example Open Finance Format manifest"><code>
+          <span class="line"><i>1</i><b>{"{"}</b></span>
+          <span class="line"><i>2</i><span>  <em>"offVersion"</em>: <strong>"0.1"</strong>,</span></span>
+          <span class="line"><i>3</i><span>  <em>"package"</em>: {"{"}</span></span>
+          <span class="line"><i>4</i><span>    <em>"title"</em>: <strong>"Apple DCF valuation"</strong>,</span></span>
+          <span class="line"><i>5</i><span>    <em>"releaseVersion"</em>: <strong>"2026-07-21"</strong></span></span>
+          <span class="line"><i>6</i><span>  {"}"},</span></span>
+          <span class="line"><i>7</i><span>  <em>"profiles"</em>: [<strong>"public-equity-research/0.1"</strong>],</span></span>
+          <span class="line"><i>8</i><span>  <em>"resources"</em>: [<strong>"OFF.md"</strong>, <strong>"model.xlsx"</strong>, <strong>"SOURCES.md"</strong>]</span></span>
+          <span class="line"><i>9</i><b>{"}"}</b></span>
+        </code></pre>
+      </section>
+    </main>
+  </div>
+</BaseLayout>

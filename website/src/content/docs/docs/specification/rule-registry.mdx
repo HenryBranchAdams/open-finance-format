@@ -1,0 +1,18 @@
+---
+title: "Rule registry"
+description: "The machine-readable source for normative stage and diagnostic assignments."
+authority: "normative"
+banner:
+  type: "caution"
+  content: "Experimental v0.1-rc.1. The JSON registry is normative; this page is a reader-facing index."
+---
+
+[`spec/rules-0.1.json`](https://github.com/HenryBranchAdams/open-finance-format/blob/main/spec/rules-0.1.json)
+is the authoritative machine-readable registry for every rule's stage,
+severity, diagnostic code, and emission cardinality.
+
+Implementations should consume or reproduce that exact contract. They should
+not derive normative rule assignments from this prose summary.
+
+The repository tests check that diagnostics use the registry's exact parameters
+and deterministic ordering.

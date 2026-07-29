@@ -1,0 +1,105 @@
+---
+import BaseLayout from "../../../../layouts/BaseLayout.astro";
+import { getPagayaResearchModel } from "../../../../lib/research/pagaya";
+import "../../../../styles/pagaya-embed.css";
+
+const model = await getPagayaResearchModel();
+const scenarioByRole = Object.fromEntries(
+  model.scenarios.map((scenario) => [scenario.role, scenario]),
+) as Record<"bear" | "base" | "bull", (typeof model.scenarios)[number]>;
+const formatPrice = (value: number) => `$${value.toFixed(2)}`;
+const formatReturn = (value: number) => `${value >= 0 ? "+" : ""}${value.toFixed(1)}%`;
+---
+
+<BaseLayout
+  title={`Pagaya valuation embed · ${model.ticker} · OFF`}
+  description="An embeddable Open Finance Format view of the Pagaya Technologies valuation."
+  noindex
+  bodyClass="pagaya-embed-body"
+>
+  <main class="pge-frame" id="main-content" data-embed-frame>
+    <header class="pge-header">
+      <a href="/models/pagaya/" target="_top" aria-label="Open the full Pagaya model">
+        <strong>OFF</strong>
+        <span>{model.issuerName} · {model.exchange}: {model.ticker}</span>
+      </a>
+      <span>{model.releaseVersion.replace("-v2", " · v2")}</span>
+    </header>
+
+    <section class="pge-view" data-embed-section="summary">
+      <span class="pge-eyebrow">Valuation summary</span>
+      <div class="pge-summary">
+        <div class="pge-summary__hero">
+          <span>Base value</span>
+          <strong>{formatPrice(scenarioByRole.base.value)}</strong>
+          <small>{formatReturn(scenarioByRole.base.returnPct)} vs. market</small>
+        </div>
+        <dl>
+          <div><dt>Current</dt><dd>{formatPrice(model.marketPrice)}</dd></div>
+          <div><dt>Bear</dt><dd>{formatPrice(scenarioByRole.bear.value)}</dd></div>
+          <div><dt>Bull</dt><dd>{formatPrice(scenarioByRole.bull.value)}</dd></div>
+        </dl>
+      </div>
+      <div class="pge-posture">
+        <span>Investment posture</span>
+        <strong>{model.investmentPosture}</strong>
+      </div>
+    </section>
+
+    <section class="pge-view" data-embed-section="valuation" hidden>
+      <span class="pge-eyebrow">Scenario range · USD per share</span>
+      <div class="pge-scenarios">
+        {model.scenarios.map((scenario) => (
+          <div class={`pge-scenario pge-scenario--${scenario.role}`}>
+            <span>{scenario.role}</span>
+            <strong>{formatPrice(scenario.value)}</strong>
+            <small>{formatReturn(scenario.returnPct)}</small>
+          </div>
+        ))}
+      </div>
+      <dl class="pge-hurdles">
+        <div><dt>Market-implied cost of equity</dt><dd>~{model.marketImpliedCostOfEquity.toFixed(1)}%</dd></div>
+        <div><dt>Base hurdle</dt><dd>{model.baseCostOfEquity.toFixed(1)}%</dd></div>
+      </dl>
+    </section>
+
+    <section class="pge-view" data-embed-section="freshness" hidden>
+      <span class="pge-eyebrow">Package evidence</span>
+      <dl class="pge-evidence">
+        <div><dt>Release</dt><dd>{model.releaseVersion}</dd></div>
+        <div><dt>Market snapshot</dt><dd>{model.marketAsOf} · Current</dd></div>
+        <div><dt>Traceability</dt><dd>{model.traceability}</dd></div>
+        <div><dt>Model checks</dt><dd class="pge-positive">{model.modelStatus}</dd></div>
+      </dl>
+    </section>
+
+    <footer class="pge-footer">
+      <span>Portable, versioned research object</span>
+      <a href="/models/pagaya/" target="_top">Inspect full model</a>
+    </footer>
+  </main>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const requestedView = params.get("view");
+    const view = ["summary", "valuation", "freshness"].includes(requestedView ?? "")
+      ? requestedView
+      : "summary";
+
+    document.querySelectorAll("[data-embed-section]").forEach((section) => {
+      section.toggleAttribute("hidden", section.getAttribute("data-embed-section") !== view);
+    });
+
+    const frame = document.querySelector("[data-embed-frame]");
+    if (frame) {
+      const reportHeight = () => {
+        window.parent.postMessage(
+          { type: "off:embed-resize", height: Math.ceil(frame.getBoundingClientRect().height) },
+          "*",
+        );
+      };
+      new ResizeObserver(reportHeight).observe(frame);
+      reportHeight();
+    }
+  </script>
+</BaseLayout>
