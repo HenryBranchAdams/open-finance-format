@@ -1,0 +1,79 @@
+{
+  "manifest_version": "1.0",
+  "generated_at": "2026-07-23T14:40:08Z",
+  "skill": "dcf-model-builder",
+  "status": "completed",
+  "artifact_mode": "banker_formula_workbook",
+  "model_status": "screen-grade",
+  "output_dir": "examples/servicenow-valuation/outputs/019f8a51-b282-7320-9a22-cc1ef608143b",
+  "primary_human_deliverable": "examples/servicenow-valuation/outputs/019f8a51-b282-7320-9a22-cc1ef608143b/banker_formula_workbook.xlsx",
+  "first_read": {
+    "path": "examples/servicenow-valuation/outputs/019f8a51-b282-7320-9a22-cc1ef608143b/banker_formula_workbook.xlsx",
+    "role": "primary_human_deliverable",
+    "why": "Open the formula workbook first; support files are audit/provenance material."
+  },
+  "human_deliverables": [
+    {
+      "path": "examples/servicenow-valuation/outputs/019f8a51-b282-7320-9a22-cc1ef608143b/banker_formula_workbook.xlsx",
+      "role": "human_deliverable",
+      "description": "banker formula workbook",
+      "exists": true
+    }
+  ],
+  "companion_deliverables": [],
+  "support_artifacts": [
+    {
+      "path": "examples/servicenow-valuation/outputs/019f8a51-b282-7320-9a22-cc1ef608143b/banker_formula_workbook_run_log.json",
+      "role": "support_artifact",
+      "artifact_type": "json",
+      "description": "Formula workbook run log.",
+      "user_visible_default": false,
+      "support_reason": "Run log is audit support for workbook generation."
+    },
+    {
+      "path": "examples/servicenow-valuation/outputs/019f8a51-b282-7320-9a22-cc1ef608143b/model_citations.json",
+      "role": "support_artifact",
+      "artifact_type": "json",
+      "description": "Source-to-cell provenance ledger.",
+      "user_visible_default": false,
+      "support_reason": "Citation JSON is renderer/provenance support, not the main deliverable."
+    }
+  ],
+  "support_artifacts_user_visible_default": false,
+  "blocked_or_partial_status": {
+    "status": "complete",
+    "reason": "",
+    "missing_inputs": [
+      "three_year_historical_financials",
+      "working_capital_component_split"
+    ],
+    "hard_failures": []
+  },
+  "final_response_guidance": {
+    "lead_with": "primary_human_deliverable",
+    "mention_support_artifacts": "only_briefly_unless_requested"
+  },
+  "agent_artifacts": [
+    {
+      "path": "examples/servicenow-valuation/outputs/019f8a51-b282-7320-9a22-cc1ef608143b/banker_formula_workbook_run_log.json",
+      "role": "agent_artifact",
+      "description": "formula workbook run log",
+      "exists": true
+    },
+    {
+      "path": "examples/servicenow-valuation/outputs/019f8a51-b282-7320-9a22-cc1ef608143b/model_citations.json",
+      "role": "agent_artifact",
+      "description": "source-to-cell provenance ledger",
+      "exists": true
+    },
+    {
+      "path": "examples/servicenow-valuation/outputs/019f8a51-b282-7320-9a22-cc1ef608143b/manifest.json",
+      "role": "agent_artifact",
+      "description": "agent-facing output manifest",
+      "exists": true
+    }
+  ],
+  "hard_failure_count": 0,
+  "warning_count": 2,
+  "discipline_note": "Use the workbook as the main deliverable; manifest/run_log files are agent-facing support artifacts."
+}
