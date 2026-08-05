@@ -25,6 +25,10 @@ The v0.1-rc.1 semantic boundary is settled. The remaining release questions conc
 
 No v0.1 promotion or independent interoperability claim is available until all required public evidence is complete and reviewed. Automated rc.1 validation checks artifact consistency only and cannot certify promotion.
 
+The local [qualification launchpad](QUALIFICATION_LAUNCHPAD.md) closes the
+repository-preparation gap while leaving the immutable public anchor,
+unaffiliated execution, and named public review explicitly pending.
+
 ## Clean-room ambiguity process
 
 The key operational question is whether a clean-room implementer finds any requirement that cannot be resolved from public specification text, schemas, corpus fixtures, and expected outputs.

@@ -56,6 +56,21 @@ SHA-256 declaration if needed, and validate at an explicit whole-second UTC
 timestamp. Clean-room authors must follow the frozen producer task instead of
 using post-rc.1 initialization features.
 
+## Clean-room qualification launchpad
+
+The local qualification launchpad (docs/QUALIFICATION_LAUNCHPAD.md) prepares a
+non-normative handoff from an authenticated, clean rc.1 checkout. It copies the
+published release metadata and clean-room tasks into a new attempt directory
+outside the candidate repository after checking the supplied commit and
+checksum-manifest digest. It refuses pending anchors and never runs an
+implementation, validator, network operation, publication, or external
+evidence mutation.
+
+Use it only after the immutable public commit and independently authenticated
+checksum digest exist. Local release self-check remains a self-consistency
+check, not publisher authentication. The generated manifest keeps
+independence, public review, and all promotion gates pending.
+
 ## Evaluation checklist
 
 1. Admit and normalize `off.json` before interpreting it.

@@ -17,6 +17,7 @@ const markdownPaths = [
   "spec/security-privacy-considerations.md",
   "spec/schema-resources-0.1.md",
   "docs/IMPLEMENTERS.md",
+  "docs/QUALIFICATION_LAUNCHPAD.md",
   "protocol/README.md",
   "proposals/README.md",
   "proposals/0000-template.md",
@@ -223,6 +224,20 @@ test("implementer guidance keeps clean-room and discovery authority separate", a
   assert.match(implementers, /protocol explain/u);
   assert.match(implementers, /init core/u);
   assert.match(implementers, /not a live retrieval dependency/iu);
+});
+
+test("qualification launchpad guidance stays non-normative and fail-closed", async () => {
+  const launchpad = await readRepositoryFile("docs/QUALIFICATION_LAUNCHPAD.md");
+  assert.match(launchpad, /outside clean-room\/ and/iu);
+  assert.match(launchpad, /refuses pending anchors/iu);
+  assert.match(launchpad, /do not prove public reachability/iu);
+  assert.match(launchpad, /public human reviewer/iu);
+  assert.match(launchpad, /non-qualifying evidence/iu);
+  assert.match(launchpad, /qualification-evidence.mjs/iu);
+  assert.match(launchpad, /local-rehearsal/iu);
+  assert.match(launchpad, /first validator results/iu);
+  assert.match(launchpad, /pinned_git_snapshot/iu);
+  assert.match(launchpad, /every non-self-excluded allowlisted file/iu);
 });
 
 test("security guidance covers the protocol threat and privacy boundaries", async () => {
