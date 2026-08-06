@@ -146,6 +146,12 @@ The offline development path uses the checked-in dist/off.mjs bundle and local p
 
 Running local checks does not satisfy the external consumer, producer, or ten-minute authoring gates.
 
+The repository-local handoff for the next leg is the non-normative
+[clean-room qualification launchpad](docs/QUALIFICATION_LAUNCHPAD.md). It can
+stage an externally authenticated attempt, but it cannot supply public
+authentication, unaffiliated implementation, public review, promotion,
+adoption, or financial correctness.
+
 `pnpm release:self-check` uses the development checkout's verifier code to
 materialize and validate the pinned rc.1 Git source snapshot. It authenticates
 that snapshot against the frozen rc.1 allowlist and checksums, and compares the
