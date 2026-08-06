@@ -2,20 +2,23 @@
 
 You are continuing work on **Open Finance Format (OFF)**, an open standard for publishing financial models as portable, versioned, source-backed research objects.
 
-The active repository state is the experimental v0.1-rc.1 interoperability candidate. Earlier planning files provide history, but they do not override the current normative specifications, schemas, corpus, or executable tests.
+The repository preserves the experimental `v0.1-rc.1` interoperability
+candidate and now contains mutable post-rc.1 development. Do not treat the
+current top-level tree as the frozen candidate when its bytes differ.
 
 ## Read first
 
 Use this authority order:
 
-1. [OFF Core 0.1](../spec/OFF-Core-0.1.md)
-2. [OFF Public Equity Research 0.1](../spec/profiles/public-equity-research-0.1.md)
-3. [Normalization 0.1](../spec/normalization-0.1.md)
-4. [Diagnostics 0.1](../spec/diagnostics-0.1.md)
-5. [Conformance 0.1](../spec/conformance-0.1.md)
-6. [Rule registry](../spec/rules-0.1.json)
-7. [Layered conformance corpus](../conformance/corpus.json)
-8. [Current handoff](handoff.yaml)
+1. [Specification index](../spec/INDEX.md)
+2. [OFF Core 0.1](../spec/OFF-Core-0.1.md)
+3. [OFF Public Equity Research 0.1](../spec/profiles/public-equity-research-0.1.md)
+4. [Normalization 0.1](../spec/normalization-0.1.md)
+5. [Diagnostics 0.1](../spec/diagnostics-0.1.md)
+6. [Conformance 0.1](../spec/conformance-0.1.md)
+7. [Rule registry](../spec/rules-0.1.json) and [protocol catalog](../protocol/catalog-0.1.json)
+8. [Layered conformance corpus](../conformance/corpus.json)
+9. [Current handoff](handoff.yaml)
 
 Use [STRATEGY.md](../STRATEGY.md) for product intent and [PROJECT_BRIEF.md](PROJECT_BRIEF.md) for the standard/platform boundary. Treat DECISIONS.md, SPEC_V0_1_DRAFT.md, DESIGN.md, RESEARCH.md, and the implementation plan as historical context where they conflict with the implemented contract.
 
@@ -52,15 +55,24 @@ Match the requested lane:
 - For clean-room work, use only the public release materials and record gaps instead of asking OFF's authors for private conventions.
 - For adoption or product exploration, keep the result non-normative unless a later scoped profile is explicitly approved.
 
-Presentation conventions remain illustrative and deferred. Execution and recalculation are deferred. Social and registry behavior are deferred. Adoption evidence remains pending.
+Presentation conventions remain illustrative and deferred. Execution and
+recalculation are deferred. Social discovery and hosted-registry behavior are
+deferred; the checked-in offline protocol catalogs are implemented. Adoption
+evidence remains pending.
 
 ## Verification
 
-Run the narrowest relevant check first, then the complete local acceptance sequence when the change can affect the release candidate:
+Run the narrowest relevant check first, then the complete local development
+gate:
 
+    pnpm verify
+
+Its component commands are:
+
+    pnpm build
     pnpm check
     pnpm test
-    pnpm build
+    pnpm test:node22
     pnpm test:offline
     pnpm release:self-check
 

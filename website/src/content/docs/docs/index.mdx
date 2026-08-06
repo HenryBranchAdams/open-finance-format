@@ -1,0 +1,30 @@
+---
+title: "Open Finance Format documentation"
+description: "Read, author, validate, and inspect portable, versioned, source-backed financial research."
+authority: "guidance"
+sidebar:
+  label: "Documentation"
+---
+
+OFF is an open publishing layer for financial models. A conforming package keeps
+the spreadsheet or other native artifact, but adds a stable `off.json` manifest
+that makes the release, resources, sources, outputs, lineage, and freshness
+inspectable by people and software.
+
+## Choose a path
+
+- **New to OFF?** Read [Get started](/docs/get-started/).
+- **Publishing a package?** Follow [Author a Core package](/docs/guides/author-core-package/).
+- **Checking a package?** Follow [Validate a package](/docs/guides/validate-package/).
+- **Implementing OFF?** Begin with [OFF Core 0.1](/docs/specification/core/) and [Normalization 0.1](/docs/specification/normalization/).
+- **Reviewing the evidence bar?** Read [Conformance and release evidence](/docs/conformance/).
+
+## Current status
+
+<Render file="release-status" />
+
+Promotion to v0.1 remains blocked on independently reviewed clean-room
+consumer, producer, and first-time-author evidence.
+
+OFF does not claim adoption, financial correctness, independent lineage review,
+formula execution, or exact spreadsheet reproduction.

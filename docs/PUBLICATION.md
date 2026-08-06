@@ -10,6 +10,10 @@ Publication can establish a public candidate location, a protected immutable tag
 
 The immutable rc.1 candidate must retain all embedded external-evidence fields as `pending`. Do not alter `release/v0.1-rc.1/checksums.json`, the embedded interoperability template, or any normative artifact to record hosted-build, public-anchor, or clean-room results.
 
+The read-only GitHub Actions workflow in the mutable tree is ordinary
+development acceptance. A green branch or pull-request run is not rc.1 tag
+provenance and does not replace the release-specific evidence below.
+
 ## Publication procedure
 
 1. Run the documented local acceptance matrix from a clean shipping commit. This establishes internal consistency only.

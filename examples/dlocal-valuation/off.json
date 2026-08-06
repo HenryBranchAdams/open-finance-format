@@ -1,0 +1,555 @@
+{
+  "offVersion": "0.1",
+  "package": {
+    "id": "https://openfinanceformat.org/examples/dlocal-valuation",
+    "releaseId": "https://openfinanceformat.org/examples/dlocal-valuation/releases/2026-07-24-v1",
+    "releaseVersion": "2026-07-24-v1",
+    "title": "dLocal valuation — TPV and gross-profit-driven FCFF",
+    "authors": [
+      {
+        "id": "https://github.com/HenryBranchAdams",
+        "name": "Henry Adams"
+      }
+    ],
+    "license": {
+      "id": "Apache-2.0",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0"
+    },
+    "publishedAt": "2026-07-24T14:22:54Z",
+    "canonicalUrl": "https://github.com/HenryBranchAdams/open-finance-format/tree/main/examples/dlocal-valuation",
+    "entrypointResourceId": "https://openfinanceformat.org/examples/dlocal-valuation/resources/narrative"
+  },
+  "profiles": [
+    "https://openfinanceformat.org/profiles/public-equity-research/0.1"
+  ],
+  "resources": [
+    {
+      "id": "https://openfinanceformat.org/examples/dlocal-valuation/resources/narrative",
+      "mediaType": "text/markdown",
+      "roles": [
+        "entrypoint",
+        "narrative"
+      ],
+      "locations": [
+        {
+          "kind": "local",
+          "path": "OFF.md"
+        }
+      ],
+      "byteSize": 4669,
+      "sha256": "d25673562ca69a1deb9ac0fa6d7622f2e2fd0c0b3ca0ef8a4640e7598a4f54c3"
+    },
+    {
+      "id": "https://openfinanceformat.org/examples/dlocal-valuation/resources/model",
+      "mediaType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "roles": [
+        "model-artifact"
+      ],
+      "locations": [
+        {
+          "kind": "local",
+          "path": "outputs/019f9470-fab6-7de3-800f-de7b1fd2a8cc/dlocal-valuation-model.xlsx"
+        }
+      ],
+      "byteSize": 40418,
+      "sha256": "00fb69fd8da73365e1e9a340af15cb2c6ed3671ba52fdb223392b1d248272bc6"
+    },
+    {
+      "id": "https://openfinanceformat.org/examples/dlocal-valuation/resources/evidence",
+      "mediaType": "text/markdown",
+      "roles": [
+        "source-evidence"
+      ],
+      "locations": [
+        {
+          "kind": "local",
+          "path": "SOURCES.md"
+        }
+      ],
+      "byteSize": 3198,
+      "sha256": "fac974b046aad585f602e868e421b84dcc283c0ab7da42eddff3cfa6a7d5179a"
+    }
+  ],
+  "relationships": [
+    {
+      "fromResourceId": "https://openfinanceformat.org/examples/dlocal-valuation/resources/narrative",
+      "relation": "describes",
+      "toResourceId": "https://openfinanceformat.org/examples/dlocal-valuation/resources/model"
+    },
+    {
+      "fromResourceId": "https://openfinanceformat.org/examples/dlocal-valuation/resources/evidence",
+      "relation": "supports",
+      "toResourceId": "https://openfinanceformat.org/examples/dlocal-valuation/resources/model"
+    }
+  ],
+  "profileData": {
+    "https://openfinanceformat.org/profiles/public-equity-research/0.1": {
+      "securities": [
+        {
+          "id": "https://openfinanceformat.org/examples/dlocal-valuation/entities/security/dlo",
+          "issuerName": "DLocal Limited",
+          "ticker": "DLO",
+          "exchange": "XNAS",
+          "securityType": "common-stock",
+          "reportingCurrencyUnitId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/unit/usd-mm",
+          "identifiers": {
+            "CIK": "0001846832"
+          }
+        }
+      ],
+      "scenarios": [
+        {
+          "id": "https://openfinanceformat.org/examples/dlocal-valuation/entities/scenario/bear",
+          "label": "Bear operating case",
+          "role": "bear",
+          "description": "TPV growth fades from 50% in 2026 to 8% in 2031, gross profit per TPV compresses to 0.70%, and operating profit reaches 60% of gross profit."
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/dlocal-valuation/entities/scenario/base",
+          "label": "Base operating case",
+          "role": "base",
+          "description": "TPV growth fades from 55% in 2026 to 15% in 2031, gross profit per TPV stabilizes near 0.8%, and operating profit reaches 66% of gross profit."
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/dlocal-valuation/entities/scenario/bull",
+          "label": "Bull operating case",
+          "role": "bull",
+          "description": "TPV growth fades from 60% in 2026 to 20% in 2031, gross profit per TPV rises to 0.86%, and operating profit reaches 71% of gross profit."
+        }
+      ],
+      "units": [
+        {
+          "id": "https://openfinanceformat.org/examples/dlocal-valuation/entities/unit/usd-mm",
+          "label": "US dollars in millions",
+          "symbol": "$mm",
+          "kind": "currency",
+          "currency": "USD"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/dlocal-valuation/entities/unit/usd-bn",
+          "label": "US dollars in billions",
+          "symbol": "$bn",
+          "kind": "custom"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/dlocal-valuation/entities/unit/usd-per-share",
+          "label": "US dollars per share",
+          "symbol": "$/share",
+          "kind": "custom"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/dlocal-valuation/entities/unit/shares-mm",
+          "label": "Shares in millions",
+          "symbol": "mm",
+          "kind": "shares"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/dlocal-valuation/entities/unit/percentage",
+          "label": "Percentage expressed as a decimal",
+          "symbol": "%",
+          "kind": "percentage"
+        }
+      ],
+      "sources": [
+        {
+          "id": "https://openfinanceformat.org/examples/dlocal-valuation/entities/source/fy2025",
+          "title": "dLocal 2025 Form 20-F and FY2025 results",
+          "publisher": "DLocal Limited and U.S. Securities and Exchange Commission",
+          "canonicalUrl": "https://www.sec.gov/Archives/edgar/data/1846832/000207097926000113/dlo-20251231.htm",
+          "evidenceResourceId": "https://openfinanceformat.org/examples/dlocal-valuation/resources/evidence"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/dlocal-valuation/entities/source/q1-2026",
+          "title": "dLocal Q1 2026 earnings release and financial statements",
+          "publisher": "DLocal Limited",
+          "canonicalUrl": "https://www.sec.gov/Archives/edgar/data/1846832/000184683226000019/ex993dlocal1q26er.htm",
+          "evidenceResourceId": "https://openfinanceformat.org/examples/dlocal-valuation/resources/evidence"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/dlocal-valuation/entities/source/rates",
+          "title": "H.15 Selected Interest Rates",
+          "publisher": "Federal Reserve Board",
+          "canonicalUrl": "https://www.federalreserve.gov/releases/h15/",
+          "evidenceResourceId": "https://openfinanceformat.org/examples/dlocal-valuation/resources/evidence"
+        }
+      ],
+      "sourceFacts": [
+        {
+          "id": "https://openfinanceformat.org/examples/dlocal-valuation/entities/fact/tpv-2025",
+          "label": "FY2025 total payment volume",
+          "value": {
+            "type": "decimal",
+            "value": "40.816"
+          },
+          "unitId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/unit/usd-bn",
+          "effectiveDate": "2025-12-31",
+          "sourceId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/source/fy2025",
+          "staleAt": "2027-03-18T00:00:00Z"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/dlocal-valuation/entities/fact/gross-profit-2025",
+          "label": "FY2025 gross profit",
+          "value": {
+            "type": "decimal",
+            "value": "402.756"
+          },
+          "unitId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/unit/usd-mm",
+          "effectiveDate": "2025-12-31",
+          "sourceId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/source/fy2025",
+          "staleAt": "2027-03-18T00:00:00Z"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/dlocal-valuation/entities/fact/corporate-cash",
+          "label": "Corporate cash at 31 March 2026",
+          "value": {
+            "type": "decimal",
+            "value": "451.8"
+          },
+          "unitId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/unit/usd-mm",
+          "effectiveDate": "2026-03-31",
+          "sourceId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/source/q1-2026",
+          "staleAt": "2026-08-14T00:00:00Z"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/dlocal-valuation/entities/fact/dividend",
+          "label": "Declared dividend paid 10 June 2026",
+          "value": {
+            "type": "decimal",
+            "value": "57.2"
+          },
+          "unitId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/unit/usd-mm",
+          "effectiveDate": "2026-06-10",
+          "sourceId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/source/fy2025",
+          "staleAt": "2027-03-18T00:00:00Z"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/dlocal-valuation/entities/fact/financial-and-lease-liabilities",
+          "label": "Financial and lease liabilities at 31 March 2026",
+          "value": {
+            "type": "decimal",
+            "value": "109.708"
+          },
+          "unitId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/unit/usd-mm",
+          "effectiveDate": "2026-03-31",
+          "sourceId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/source/q1-2026",
+          "staleAt": "2026-08-14T00:00:00Z"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/dlocal-valuation/entities/fact/diluted-shares",
+          "label": "Q1 2026 diluted weighted-average shares",
+          "value": {
+            "type": "decimal",
+            "value": "301.106"
+          },
+          "unitId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/unit/shares-mm",
+          "effectiveDate": "2026-03-31",
+          "sourceId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/source/q1-2026",
+          "staleAt": "2026-08-14T00:00:00Z"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/dlocal-valuation/entities/fact/risk-free-rate",
+          "label": "US 10-year Treasury constant-maturity rate",
+          "value": {
+            "type": "decimal",
+            "value": "0.0467"
+          },
+          "unitId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/unit/percentage",
+          "effectiveDate": "2026-07-23",
+          "sourceId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/source/rates",
+          "staleAt": "2026-07-25T00:00:00Z"
+        }
+      ],
+      "assumptions": [
+        {
+          "id": "https://openfinanceformat.org/examples/dlocal-valuation/entities/assumption/common-fcff",
+          "label": "Common FCFF and capital-bridge policy",
+          "value": {
+            "type": "string",
+            "value": "D&A equals 6.5% of gross profit; capex equals 8.0% of gross profit; merchant settlement working capital and merchant cash are excluded; future buybacks are not assumed."
+          },
+          "effectiveDate": "2026-07-23",
+          "designation": "analystJudgment",
+          "reviewBy": "2026-10-31T00:00:00Z"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/dlocal-valuation/entities/assumption/wacc",
+          "label": "FCFF discount-rate policy",
+          "value": {
+            "type": "string",
+            "value": "Beta 1.05; mature-market ERP 4.5%; emerging-market and company premium 2.5%; target debt weight 3%; pre-tax debt cost 7%; tax shield 16%; resulting WACC 11.71455%; terminal growth 3.0%."
+          },
+          "effectiveDate": "2026-07-23",
+          "designation": "analystJudgment",
+          "reviewBy": "2026-10-31T00:00:00Z"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/dlocal-valuation/entities/assumption/bear-path",
+          "label": "Bear operating path",
+          "value": {
+            "type": "string",
+            "value": "2026-2031 TPV growth 50%,25%,20%,15%,10%,8%; gross profit per TPV 0.77%,0.72%,0.70%,0.69%,0.69%,0.70%; operating profit per gross profit 52%,54%,56%,58%,59%,60%; cash tax 18%; normalized working capital 5% of incremental gross profit."
+          },
+          "effectiveDate": "2026-07-23",
+          "designation": "analystJudgment",
+          "reviewBy": "2026-10-31T00:00:00Z",
+          "scenarioIds": [
+            "https://openfinanceformat.org/examples/dlocal-valuation/entities/scenario/bear"
+          ]
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/dlocal-valuation/entities/assumption/base-path",
+          "label": "Base operating path",
+          "value": {
+            "type": "string",
+            "value": "2026-2031 TPV growth 55%,35%,28%,22%,18%,15%; gross profit per TPV 0.796%,0.78%,0.77%,0.77%,0.78%,0.79%; operating profit per gross profit 56.8%,60%,62%,64%,65%,66%; cash tax 16%; normalized working capital 2% of incremental gross profit."
+          },
+          "effectiveDate": "2026-07-23",
+          "designation": "analystJudgment",
+          "reviewBy": "2026-10-31T00:00:00Z",
+          "scenarioIds": [
+            "https://openfinanceformat.org/examples/dlocal-valuation/entities/scenario/base"
+          ]
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/dlocal-valuation/entities/assumption/bull-path",
+          "label": "Bull operating path",
+          "value": {
+            "type": "string",
+            "value": "2026-2031 TPV growth 60%,45%,35%,28%,23%,20%; gross profit per TPV 0.82%,0.82%,0.83%,0.84%,0.85%,0.86%; operating profit per gross profit 60%,64%,67%,69%,70%,71%; cash tax 15%; no normalized working-capital deduction."
+          },
+          "effectiveDate": "2026-07-23",
+          "designation": "analystJudgment",
+          "reviewBy": "2026-10-31T00:00:00Z",
+          "scenarioIds": [
+            "https://openfinanceformat.org/examples/dlocal-valuation/entities/scenario/bull"
+          ]
+        }
+      ],
+      "outputs": [
+        {
+          "id": "https://openfinanceformat.org/examples/dlocal-valuation/entities/output/bear-value-per-share",
+          "label": "Bear implied value per share",
+          "value": {
+            "type": "decimal",
+            "value": "13.306860370573155"
+          },
+          "unitId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/unit/usd-per-share",
+          "asOfDate": "2026-07-23",
+          "scenarioId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/scenario/bear",
+          "headline": true,
+          "artifactResourceId": "https://openfinanceformat.org/examples/dlocal-valuation/resources/model",
+          "methodology": "Six-year FCFF DCF driven by TPV, gross profit per TPV, operating profit per gross profit, cash tax, D&A, capex, normalized corporate working capital, year-end discounting, and a Gordon-growth terminal value.",
+          "attestationId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/attestation/valuation"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/dlocal-valuation/entities/output/base-value-per-share",
+          "label": "Base implied value per share",
+          "value": {
+            "type": "decimal",
+            "value": "22.672019379331285"
+          },
+          "unitId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/unit/usd-per-share",
+          "asOfDate": "2026-07-23",
+          "scenarioId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/scenario/base",
+          "headline": true,
+          "artifactResourceId": "https://openfinanceformat.org/examples/dlocal-valuation/resources/model",
+          "methodology": "Six-year FCFF DCF driven by TPV, gross profit per TPV, operating profit per gross profit, cash tax, D&A, capex, normalized corporate working capital, year-end discounting, and a Gordon-growth terminal value.",
+          "attestationId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/attestation/valuation"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/dlocal-valuation/entities/output/bull-value-per-share",
+          "label": "Bull implied value per share",
+          "value": {
+            "type": "decimal",
+            "value": "34.56948268861088"
+          },
+          "unitId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/unit/usd-per-share",
+          "asOfDate": "2026-07-23",
+          "scenarioId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/scenario/bull",
+          "headline": true,
+          "artifactResourceId": "https://openfinanceformat.org/examples/dlocal-valuation/resources/model",
+          "methodology": "Six-year FCFF DCF driven by TPV, gross profit per TPV, operating profit per gross profit, cash tax, D&A, capex, normalized corporate working capital, year-end discounting, and a Gordon-growth terminal value.",
+          "attestationId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/attestation/valuation"
+        }
+      ],
+      "lineageEdges": [
+        {
+          "fromId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/output/bear-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/fact/tpv-2025",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/output/bear-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/fact/gross-profit-2025",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/output/bear-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/fact/corporate-cash",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/output/bear-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/fact/dividend",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/output/bear-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/fact/financial-and-lease-liabilities",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/output/bear-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/fact/diluted-shares",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/output/bear-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/fact/risk-free-rate",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/output/bear-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/assumption/common-fcff",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/output/bear-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/assumption/wacc",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/output/bear-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/assumption/bear-path",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/output/base-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/fact/tpv-2025",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/output/base-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/fact/gross-profit-2025",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/output/base-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/fact/corporate-cash",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/output/base-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/fact/dividend",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/output/base-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/fact/financial-and-lease-liabilities",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/output/base-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/fact/diluted-shares",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/output/base-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/fact/risk-free-rate",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/output/base-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/assumption/common-fcff",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/output/base-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/assumption/wacc",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/output/base-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/assumption/base-path",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/output/bull-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/fact/tpv-2025",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/output/bull-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/fact/gross-profit-2025",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/output/bull-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/fact/corporate-cash",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/output/bull-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/fact/dividend",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/output/bull-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/fact/financial-and-lease-liabilities",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/output/bull-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/fact/diluted-shares",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/output/bull-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/fact/risk-free-rate",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/output/bull-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/assumption/common-fcff",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/output/bull-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/assumption/wacc",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/output/bull-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/dlocal-valuation/entities/assumption/bull-path",
+          "material": true
+        }
+      ],
+      "attestations": [
+        {
+          "id": "https://openfinanceformat.org/examples/dlocal-valuation/entities/attestation/valuation",
+          "outputIds": [
+            "https://openfinanceformat.org/examples/dlocal-valuation/entities/output/bear-value-per-share",
+            "https://openfinanceformat.org/examples/dlocal-valuation/entities/output/base-value-per-share",
+            "https://openfinanceformat.org/examples/dlocal-valuation/entities/output/bull-value-per-share"
+          ],
+          "authorId": "https://github.com/HenryBranchAdams",
+          "attestedAt": "2026-07-24T14:22:54Z",
+          "artifactResourceId": "https://openfinanceformat.org/examples/dlocal-valuation/resources/model",
+          "artifactSha256": "00fb69fd8da73365e1e9a340af15cb2c6ed3671ba52fdb223392b1d248272bc6",
+          "lineageBasis": "author-declared",
+          "materialityPolicy": "All sourced opening operating inputs, corporate net-cash bridge facts, diluted shares, Treasury reference, common FCFF policies, discount-rate policy, and scenario operating paths that materially drive the three headline outputs are declared.",
+          "scope": "The three headline implied values per share produced by the dLocal valuation workbook as of 2026-07-23.",
+          "knownExclusions": [
+            "No licensed consensus estimates are used.",
+            "Public peer data are screening-grade and not independently normalized.",
+            "Merchant settlement cash and working capital are excluded from the equity bridge and normalized FCFF.",
+            "The March 2026 corporate-cash balance is adjusted for the known June dividend but not for unavailable Q2 cash generation or capital returns.",
+            "Lineage is author-declared and has not been independently verified.",
+            "The package does not claim native Excel or LibreOffice recalculation or clean-room interoperability."
+          ],
+          "lineageCompleteness": "attested-not-independently-verified"
+        }
+      ]
+    }
+  }
+}

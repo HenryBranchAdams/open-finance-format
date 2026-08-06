@@ -1,0 +1,146 @@
+{
+  "offVersion": "0.1",
+  "package": {
+    "id": "https://openfinanceformat.org/examples/grandstand-valuation",
+    "releaseId": "https://openfinanceformat.org/examples/grandstand-valuation/releases/2026-07-28-multimethod",
+    "releaseVersion": "2026-07-28-multimethod",
+    "title": "Grandstand valuation — multi-method equity model",
+    "authors": [{ "id": "https://github.com/HenryBranchAdams", "name": "Henry Adams" }],
+    "license": { "id": "Apache-2.0", "url": "https://www.apache.org/licenses/LICENSE-2.0" },
+    "publishedAt": "2026-07-28T18:00:00Z",
+    "canonicalUrl": "https://github.com/HenryBranchAdams/open-finance-format/tree/main/examples/grandstand-valuation",
+    "entrypointResourceId": "https://openfinanceformat.org/examples/grandstand-valuation/resources/narrative"
+  },
+  "profiles": ["https://openfinanceformat.org/profiles/public-equity-research/0.1"],
+  "resources": [
+    {
+      "id": "https://openfinanceformat.org/examples/grandstand-valuation/resources/narrative",
+      "mediaType": "text/markdown",
+      "roles": ["entrypoint", "narrative"],
+      "locations": [{ "kind": "local", "path": "OFF.md" }],
+      "byteSize": 5450,
+      "sha256": "fcb5e374f4d46576063d2703daac224fa3de394efb142fd0fe537de8d4f814be"
+    },
+    {
+      "id": "https://openfinanceformat.org/examples/grandstand-valuation/resources/model",
+      "mediaType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "roles": ["model-artifact"],
+      "locations": [{ "kind": "local", "path": "outputs/20260728-grsd-multimethod/grandstand-multi-method-valuation-model.xlsx" }],
+      "byteSize": 86550,
+      "sha256": "4fd9b10cdd6565980ef736f0497a3194c5d9101ee02a60475bde37fa52e3b796"
+    },
+    {
+      "id": "https://openfinanceformat.org/examples/grandstand-valuation/resources/evidence",
+      "mediaType": "text/markdown",
+      "roles": ["source-evidence"],
+      "locations": [{ "kind": "local", "path": "SOURCES.md" }],
+      "byteSize": 3296,
+      "sha256": "dba100161c0adfe7061447b87779773d1271140ebf6ef31209fafbc4a0419865"
+    }
+  ],
+  "relationships": [
+    { "fromResourceId": "https://openfinanceformat.org/examples/grandstand-valuation/resources/narrative", "relation": "describes", "toResourceId": "https://openfinanceformat.org/examples/grandstand-valuation/resources/model" },
+    { "fromResourceId": "https://openfinanceformat.org/examples/grandstand-valuation/resources/evidence", "relation": "supports", "toResourceId": "https://openfinanceformat.org/examples/grandstand-valuation/resources/model" }
+  ],
+  "profileData": {
+    "https://openfinanceformat.org/profiles/public-equity-research/0.1": {
+      "securities": [{
+        "id": "https://openfinanceformat.org/examples/grandstand-valuation/entities/security/grsd",
+        "issuerName": "Grandstand Limited",
+        "ticker": "GRSD",
+        "exchange": "XNAS",
+        "securityType": "common-stock",
+        "reportingCurrencyUnitId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/unit/usd-mm",
+        "identifiers": { "CIK": "0001839799" }
+      }],
+      "scenarios": [
+        { "id": "https://openfinanceformat.org/examples/grandstand-valuation/entities/scenario/bear", "label": "Bear operating case", "role": "bear", "description": "Search and regulatory headwinds persist; 2031 normalized EBITDA margin reaches 29.0% and the DCF uses a 14.5% WACC." },
+        { "id": "https://openfinanceformat.org/examples/grandstand-valuation/entities/scenario/base", "label": "Base operating case", "role": "base", "description": "FY2026 guidance midpoint is achieved; cost savings and sports-data mix lift normalized EBITDA margin to 32.5% by FY2031." },
+        { "id": "https://openfinanceformat.org/examples/grandstand-valuation/entities/scenario/bull", "label": "Bull operating case", "role": "bull", "description": "Data-services growth and restructuring execution lift normalized EBITDA margin to 37.0% by FY2031 with an 11.5% WACC." }
+      ],
+      "units": [
+        { "id": "https://openfinanceformat.org/examples/grandstand-valuation/entities/unit/usd-mm", "label": "US dollars in millions", "symbol": "$mm", "kind": "currency", "currency": "USD" },
+        { "id": "https://openfinanceformat.org/examples/grandstand-valuation/entities/unit/usd-per-share", "label": "US dollars per share", "symbol": "$/share", "kind": "custom" },
+        { "id": "https://openfinanceformat.org/examples/grandstand-valuation/entities/unit/shares-mm", "label": "Shares in millions", "symbol": "mm", "kind": "shares" },
+        { "id": "https://openfinanceformat.org/examples/grandstand-valuation/entities/unit/percentage", "label": "Percentage expressed as a decimal", "symbol": "%", "kind": "percentage" }
+      ],
+      "sources": [
+        { "id": "https://openfinanceformat.org/examples/grandstand-valuation/entities/source/fy2025", "title": "Grandstand (then Gambling.com Group) 2025 Form 20-F", "publisher": "Grandstand Limited and U.S. Securities and Exchange Commission", "canonicalUrl": "https://www.sec.gov/Archives/edgar/data/1839799/000183979926000048/gamb-20251231.htm", "evidenceResourceId": "https://openfinanceformat.org/examples/grandstand-valuation/resources/evidence" },
+        { "id": "https://openfinanceformat.org/examples/grandstand-valuation/entities/source/q1-2026", "title": "Grandstand Q1 2026 Form 6-K and interim financial statements", "publisher": "Grandstand Limited and U.S. Securities and Exchange Commission", "canonicalUrl": "https://www.sec.gov/Archives/edgar/data/1839799/000183979926000101/q12026quarterlyfinancials.htm", "evidenceResourceId": "https://openfinanceformat.org/examples/grandstand-valuation/resources/evidence" },
+        { "id": "https://openfinanceformat.org/examples/grandstand-valuation/entities/source/guidance", "title": "Grandstand Q1 2026 earnings release", "publisher": "Grandstand Limited", "canonicalUrl": "https://www.sec.gov/Archives/edgar/data/1839799/000183979926000099/gamb-q12026xpressrelease.htm", "evidenceResourceId": "https://openfinanceformat.org/examples/grandstand-valuation/resources/evidence" },
+        { "id": "https://openfinanceformat.org/examples/grandstand-valuation/entities/source/market", "title": "GRSD quote snapshot — 27 July 2026 close", "publisher": "StockAnalysis", "canonicalUrl": "https://stockanalysis.com/stocks/grsd/", "evidenceResourceId": "https://openfinanceformat.org/examples/grandstand-valuation/resources/evidence" },
+        { "id": "https://openfinanceformat.org/examples/grandstand-valuation/entities/source/rates", "title": "H.15 Selected Interest Rates", "publisher": "Federal Reserve Board", "canonicalUrl": "https://www.federalreserve.gov/releases/h15/", "evidenceResourceId": "https://openfinanceformat.org/examples/grandstand-valuation/resources/evidence" }
+      ],
+      "sourceFacts": [
+        { "id": "https://openfinanceformat.org/examples/grandstand-valuation/entities/fact/revenue-2025", "label": "FY2025 revenue", "value": { "type": "decimal", "value": "165.447" }, "unitId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/unit/usd-mm", "effectiveDate": "2025-12-31", "sourceId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/source/fy2025", "staleAt": "2027-03-19T00:00:00Z" },
+        { "id": "https://openfinanceformat.org/examples/grandstand-valuation/entities/fact/cash-2026-q1", "label": "Cash at 31 March 2026", "value": { "type": "decimal", "value": "8.412" }, "unitId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/unit/usd-mm", "effectiveDate": "2026-03-31", "sourceId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/source/q1-2026", "staleAt": "2026-08-14T00:00:00Z" },
+        { "id": "https://openfinanceformat.org/examples/grandstand-valuation/entities/fact/borrowings-2026-q1", "label": "Borrowings and accrued interest at 31 March 2026", "value": { "type": "decimal", "value": "116.504" }, "unitId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/unit/usd-mm", "effectiveDate": "2026-03-31", "sourceId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/source/q1-2026", "staleAt": "2026-08-14T00:00:00Z" },
+        { "id": "https://openfinanceformat.org/examples/grandstand-valuation/entities/fact/deferred-consideration-2026-q1", "label": "Deferred consideration at 31 March 2026", "value": { "type": "decimal", "value": "36.684" }, "unitId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/unit/usd-mm", "effectiveDate": "2026-03-31", "sourceId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/source/q1-2026", "staleAt": "2026-08-14T00:00:00Z" },
+        { "id": "https://openfinanceformat.org/examples/grandstand-valuation/entities/fact/lease-liabilities-2026-q1", "label": "Lease liabilities at 31 March 2026", "value": { "type": "decimal", "value": "4.402" }, "unitId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/unit/usd-mm", "effectiveDate": "2026-03-31", "sourceId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/source/q1-2026", "staleAt": "2026-08-14T00:00:00Z" },
+        { "id": "https://openfinanceformat.org/examples/grandstand-valuation/entities/fact/diluted-shares-2026-q1", "label": "Q1 2026 diluted weighted-average shares", "value": { "type": "decimal", "value": "42.426533" }, "unitId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/unit/shares-mm", "effectiveDate": "2026-03-31", "sourceId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/source/q1-2026", "staleAt": "2026-08-14T00:00:00Z" },
+        { "id": "https://openfinanceformat.org/examples/grandstand-valuation/entities/fact/guidance-revenue-midpoint", "label": "FY2026 revenue guidance midpoint", "value": { "type": "decimal", "value": "167.5" }, "unitId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/unit/usd-mm", "effectiveDate": "2026-05-14", "sourceId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/source/guidance", "staleAt": "2026-08-14T00:00:00Z" },
+        { "id": "https://openfinanceformat.org/examples/grandstand-valuation/entities/fact/risk-free-rate", "label": "US 10-year Treasury constant-maturity rate", "value": { "type": "decimal", "value": "0.0455" }, "unitId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/unit/percentage", "effectiveDate": "2026-07-22", "sourceId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/source/rates", "staleAt": "2026-07-25T00:00:00Z" },
+        { "id": "https://openfinanceformat.org/examples/grandstand-valuation/entities/fact/market-price-2026-07-27", "label": "GRSD closing price on 27 July 2026", "value": { "type": "decimal", "value": "1.95" }, "unitId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/unit/usd-per-share", "effectiveDate": "2026-07-27", "sourceId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/source/market", "staleAt": "2026-07-30T00:00:00Z" }
+      ],
+      "assumptions": [
+        { "id": "https://openfinanceformat.org/examples/grandstand-valuation/entities/assumption/common-fcff", "label": "Common FCFF policy", "value": { "type": "string", "value": "Revenue begins at the FY2026 guidance midpoint; normalized EBITDA margins rise from 27.5% in 2026 to 32.5% in 2031; D&A falls from 8.5% to 7.0% of revenue; capex falls from 4.0% to 3.0% of revenue; operating working-capital investment is explicitly deducted." }, "effectiveDate": "2026-07-28", "designation": "analystJudgment", "reviewBy": "2026-10-31T00:00:00Z" },
+        { "id": "https://openfinanceformat.org/examples/grandstand-valuation/entities/assumption/wacc", "label": "FCFF discount-rate policy", "value": { "type": "string", "value": "Risk-free rate 4.55%; ERP 4.18%; beta 1.50; company-specific premium 4.80%; pre-tax debt cost 9.0%; cash-tax rate 25.0%; target debt weight 30.0%; resulting WACC 12.959%; terminal growth 2.5%." }, "effectiveDate": "2026-07-28", "designation": "analystJudgment", "reviewBy": "2026-10-31T00:00:00Z" },
+        { "id": "https://openfinanceformat.org/examples/grandstand-valuation/entities/assumption/bear", "label": "Bear operating case", "value": { "type": "string", "value": "FY2026 revenue $165.0m, 2026 normalized EBITDA margin 26.0%, 2031 margin 29.0%, and 14.5% WACC; the full FCFF chain recalculates independently." }, "effectiveDate": "2026-07-28", "designation": "analystJudgment", "reviewBy": "2026-10-31T00:00:00Z", "scenarioIds": ["https://openfinanceformat.org/examples/grandstand-valuation/entities/scenario/bear"] },
+        { "id": "https://openfinanceformat.org/examples/grandstand-valuation/entities/assumption/base", "label": "Base operating case", "value": { "type": "string", "value": "FY2026 revenue $167.5m, 2026 normalized EBITDA margin 27.5%, 2031 margin 32.5%, 12.959% WACC and 2.5% terminal growth." }, "effectiveDate": "2026-07-28", "designation": "analystJudgment", "reviewBy": "2026-10-31T00:00:00Z", "scenarioIds": ["https://openfinanceformat.org/examples/grandstand-valuation/entities/scenario/base"] },
+        { "id": "https://openfinanceformat.org/examples/grandstand-valuation/entities/assumption/bull", "label": "Bull operating case", "value": { "type": "string", "value": "FY2026 revenue $170.0m, 2026 normalized EBITDA margin 29.0%, 2031 margin 37.0%, and 11.5% WACC; the full FCFF chain recalculates independently." }, "effectiveDate": "2026-07-28", "designation": "analystJudgment", "reviewBy": "2026-10-31T00:00:00Z", "scenarioIds": ["https://openfinanceformat.org/examples/grandstand-valuation/entities/scenario/bull"] },
+        { "id": "https://openfinanceformat.org/examples/grandstand-valuation/entities/assumption/method-roles", "label": "Valuation method roles", "value": { "type": "string", "value": "Perpetuity-growth DCF is primary; 5x-7x exit DCF and APV are corroborative; 1x-2x EV/revenue and 4x-6x EV/normalized EBITDA are analyst stresses; SOTP, precedents, dividend, residual-income and NAV methods are inapplicable with the current evidence." }, "effectiveDate": "2026-07-28", "designation": "analystJudgment", "reviewBy": "2026-10-31T00:00:00Z" }
+      ],
+      "outputs": [
+        { "id": "https://openfinanceformat.org/examples/grandstand-valuation/entities/output/bear-value-per-share", "label": "Bear implied value per share", "value": { "type": "decimal", "value": "4.294751848953047" }, "unitId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/unit/usd-per-share", "asOfDate": "2026-07-28", "scenarioId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/scenario/bear", "headline": true, "artifactResourceId": "https://openfinanceformat.org/examples/grandstand-valuation/resources/model", "methodology": "Independently recalculated six-year perpetuity-growth FCFF DCF using the declared bear operating case and debt-like equity bridge.", "attestationId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/attestation/valuation" },
+        { "id": "https://openfinanceformat.org/examples/grandstand-valuation/entities/output/base-value-per-share", "label": "Base implied value per share", "value": { "type": "decimal", "value": "6.698801095343368" }, "unitId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/unit/usd-per-share", "asOfDate": "2026-07-28", "scenarioId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/scenario/base", "headline": true, "artifactResourceId": "https://openfinanceformat.org/examples/grandstand-valuation/resources/model", "methodology": "Six-year FCFF DCF using revenue, normalized EBITDA margin, D&A, cash taxes, capex, operating working capital, a Gordon-growth terminal value and explicit debt-like claims.", "attestationId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/attestation/valuation" },
+        { "id": "https://openfinanceformat.org/examples/grandstand-valuation/entities/output/bull-value-per-share", "label": "Bull implied value per share", "value": { "type": "decimal", "value": "10.23464332856023" }, "unitId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/unit/usd-per-share", "asOfDate": "2026-07-28", "scenarioId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/scenario/bull", "headline": true, "artifactResourceId": "https://openfinanceformat.org/examples/grandstand-valuation/resources/model", "methodology": "Independently recalculated six-year perpetuity-growth FCFF DCF using the declared bull operating case and debt-like equity bridge.", "attestationId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/attestation/valuation" }
+      ],
+      "lineageEdges": [
+        { "fromId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/output/base-value-per-share", "toId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/fact/revenue-2025", "material": true },
+        { "fromId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/output/base-value-per-share", "toId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/fact/cash-2026-q1", "material": true },
+        { "fromId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/output/base-value-per-share", "toId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/fact/borrowings-2026-q1", "material": true },
+        { "fromId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/output/base-value-per-share", "toId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/fact/deferred-consideration-2026-q1", "material": true },
+        { "fromId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/output/base-value-per-share", "toId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/fact/lease-liabilities-2026-q1", "material": true },
+        { "fromId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/output/base-value-per-share", "toId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/fact/diluted-shares-2026-q1", "material": true },
+        { "fromId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/output/base-value-per-share", "toId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/fact/guidance-revenue-midpoint", "material": true },
+        { "fromId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/output/base-value-per-share", "toId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/fact/risk-free-rate", "material": true },
+        { "fromId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/output/base-value-per-share", "toId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/assumption/common-fcff", "material": true },
+        { "fromId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/output/base-value-per-share", "toId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/assumption/wacc", "material": true },
+        { "fromId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/output/base-value-per-share", "toId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/assumption/base", "material": true },
+        { "fromId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/output/bear-value-per-share", "toId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/fact/cash-2026-q1", "material": true },
+        { "fromId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/output/bear-value-per-share", "toId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/fact/borrowings-2026-q1", "material": true },
+        { "fromId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/output/bear-value-per-share", "toId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/fact/deferred-consideration-2026-q1", "material": true },
+        { "fromId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/output/bear-value-per-share", "toId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/fact/lease-liabilities-2026-q1", "material": true },
+        { "fromId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/output/bear-value-per-share", "toId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/fact/diluted-shares-2026-q1", "material": true },
+        { "fromId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/output/bear-value-per-share", "toId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/assumption/common-fcff", "material": true },
+        { "fromId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/output/bear-value-per-share", "toId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/assumption/wacc", "material": true },
+        { "fromId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/output/bear-value-per-share", "toId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/assumption/bear", "material": true },
+        { "fromId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/output/bull-value-per-share", "toId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/fact/cash-2026-q1", "material": true },
+        { "fromId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/output/bull-value-per-share", "toId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/fact/borrowings-2026-q1", "material": true },
+        { "fromId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/output/bull-value-per-share", "toId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/fact/deferred-consideration-2026-q1", "material": true },
+        { "fromId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/output/bull-value-per-share", "toId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/fact/lease-liabilities-2026-q1", "material": true },
+        { "fromId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/output/bull-value-per-share", "toId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/fact/diluted-shares-2026-q1", "material": true },
+        { "fromId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/output/bull-value-per-share", "toId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/assumption/common-fcff", "material": true },
+        { "fromId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/output/bull-value-per-share", "toId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/assumption/wacc", "material": true },
+        { "fromId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/output/bull-value-per-share", "toId": "https://openfinanceformat.org/examples/grandstand-valuation/entities/assumption/bull", "material": true }
+      ],
+      "attestations": [{
+        "id": "https://openfinanceformat.org/examples/grandstand-valuation/entities/attestation/valuation",
+        "outputIds": [
+          "https://openfinanceformat.org/examples/grandstand-valuation/entities/output/bear-value-per-share",
+          "https://openfinanceformat.org/examples/grandstand-valuation/entities/output/base-value-per-share",
+          "https://openfinanceformat.org/examples/grandstand-valuation/entities/output/bull-value-per-share"
+        ],
+        "authorId": "https://github.com/HenryBranchAdams",
+        "attestedAt": "2026-07-28T18:00:00Z",
+        "artifactResourceId": "https://openfinanceformat.org/examples/grandstand-valuation/resources/model",
+        "artifactSha256": "4fd9b10cdd6565980ef736f0497a3194c5d9101ee02a60475bde37fa52e3b796",
+        "lineageBasis": "author-declared",
+        "materialityPolicy": "Each headline scenario declares the common FCFF policy, WACC framework, cash, borrowings, deferred consideration, lease liabilities, diluted shares and its own independently recalculated operating case. The base case also declares opening revenue, FY2026 revenue guidance and the sourced risk-free rate.",
+        "scope": "The three headline Grandstand FCFF DCF outputs in the delivered workbook.",
+        "knownExclusions": ["Licensed consensus estimates", "Independently normalized peer multiples", "Contractual APV debt schedule", "Post-Q1 2026 cash and debt changes", "Native Excel or LibreOffice recalculation", "External investment-committee review"],
+        "lineageCompleteness": "attested-not-independently-verified"
+      }]
+    }
+  }
+}

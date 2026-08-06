@@ -14,7 +14,11 @@ Readers and agents are secondary users. They should be able to inventory a packa
 
 ## Current product boundary
 
-The current deliverable is the experimental v0.1-rc.1 interoperability candidate. Its purpose is to test whether public specification text, schemas, fixtures, and an offline conformance corpus are sufficient for independent consumption and production.
+The repository preserves the experimental v0.1-rc.1 interoperability candidate
+and develops the next contract in a separate mutable layer. The candidate tests
+whether public specification text, schemas, fixtures, and an offline corpus are
+sufficient for independent consumption and production; development must not
+retroactively change that test.
 
 v0.1-rc.1 makes no claim of promotion to v0.1, adoption, financial correctness, independent lineage review, or exact spreadsheet execution.
 
@@ -70,7 +74,7 @@ An XBRL processor, taxonomy resolver, fact verifier, calculation checker, or XBR
 
 - Presentation conventions and renderer metadata remain illustrative and deferred from normative conformance.
 - Execution, formula graphs, interactive recalculation, and editable models are deferred.
-- Social feeds, comments, reputation, discovery, registries, and challenge workflows are deferred.
+- Social feeds, comments, reputation, hosted discovery/registry services, and challenge workflows are deferred. The checked-in offline protocol and schema catalogs are development infrastructure, not a social registry.
 - Adoption and multi-renderer publishing evidence are pending a post-v0.1 external design-partner milestone.
 - Other asset classes, independently reviewed lineage, private permissions, brokerage connectivity, and investment recommendations are deferred.
 

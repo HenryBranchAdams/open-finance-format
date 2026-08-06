@@ -9,8 +9,8 @@ The v0.1-rc.1 semantic boundary is settled. The remaining release questions conc
 - The highest Public Equity claim is **Traceable — author-declared lineage**; completeness is attested and not independently verified.
 - Structural conformance makes no network requests. Remote resources are descriptors whose availability and integrity are not evaluated.
 - The normalized representation, diagnostic ordering, lineage resolution, and freshness results are deterministic at fixed timestamps.
-- Narrative conventions, spreadsheet bindings, presentation metadata, renderers, and authoring tools are illustrative.
-- Execution, interactive recalculation, independently reviewed lineage, other asset classes, registry and social behavior, and adoption requirements are deferred.
+- Narrative conventions, presentation metadata, renderers, and authoring tools are non-normative. Workbook Binding is a post-rc.1 development profile.
+- Execution, interactive recalculation, independently reviewed lineage, other asset classes, hosted registry and social behavior, and adoption requirements are deferred.
 - XBRL may be referenced as opaque evidence through an illustrative locator, but XBRL processing is outside rc.1.
 
 ## Promotion evidence
@@ -76,10 +76,14 @@ Freshness policy and propagation are already normative. Monitoring, notification
 - What review procedure would justify an independently reviewed lineage claim?
 - How would those levels bind to immutable artifacts without weakening the rc.1 author-attestation boundary?
 
-### Governance and licensing
+### Governance evolution and licensing
 
-- Who edits the specification after the founder-led experimental phase?
-- What public proposal and compatibility process should govern normative changes?
-- When, if ever, should governance, monetization, or platform branding be formalized?
+- Which sustained independent implementers should gain maintainer or proposal
+  authority after the founder-led phase?
+- What evidence should trigger an independent steering group or foundation?
+- When, if ever, should monetization or platform branding be formalized?
 
-These questions remain deferred until independent interoperability and early adoption provide evidence that broader governance is warranted.
+The initial founder-led authority, public proposal lifecycle, compatibility
+policy, and immutable decision records are now defined. Broader governance
+remains deferred until independent interoperability and early adoption provide
+evidence that it is warranted.

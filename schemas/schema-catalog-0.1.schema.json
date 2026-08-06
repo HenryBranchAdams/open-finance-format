@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openfinanceformat.org/schemas/schema-catalog-0.1.schema.json",
+  "title": "OFF offline schema catalog 0.1",
+  "type": "object",
+  "required": ["$schema", "catalogVersion", "dialect", "resolution", "schemas"],
+  "properties": {
+    "$schema": { "const": "https://openfinanceformat.org/schemas/schema-catalog-0.1.schema.json" },
+    "catalogVersion": { "const": "0.1" },
+    "dialect": { "const": "https://json-schema.org/draft/2020-12/schema" },
+    "resolution": {
+      "type": "object",
+      "required": ["base", "networkRetrieval", "uriSemantics"],
+      "properties": {
+        "base": { "const": "repository-root" },
+        "networkRetrieval": { "const": "forbidden" },
+        "uriSemantics": { "const": "identifier-only" }
+      },
+      "additionalProperties": false
+    },
+    "schemas": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {
+        "pattern": "^[A-Za-z][A-Za-z0-9+.-]*:"
+      },
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^(?!.*(?:^|/)(?:\\.|\\.\\.)(?:/|$))schemas/[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*\\.json$"
+      }
+    }
+  },
+  "additionalProperties": false
+}

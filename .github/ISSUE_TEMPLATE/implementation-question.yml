@@ -1,0 +1,50 @@
+name: Public implementation question
+description: Ask a question that should be answerable from public OFF materials.
+title: "implementation: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Public questions help expose ambiguity. Do not use this form during a clean-room attempt if the task forbids clarification; follow that task's ambiguity procedure instead.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Core manifest and resources
+        - Normalization and canonical bytes
+        - Diagnostics and rules
+        - Public Equity Research profile
+        - Workbook Binding development profile
+        - Conformance corpus or evaluator failures
+        - Versioning, extensions, or governance
+    validations:
+      required: true
+  - type: input
+    id: revision
+    attributes:
+      label: Revision
+      description: Full commit SHA, tag, or release candidate being implemented.
+    validations:
+      required: true
+  - type: textarea
+    id: sources
+    attributes:
+      label: Public materials checked
+      description: Link the exact specification sections, schema IDs, rules, fixtures, and expected outputs already consulted.
+    validations:
+      required: true
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+      description: State the smallest observable ambiguity and the competing interpretations.
+    validations:
+      required: true
+  - type: checkboxes
+    id: clean_room
+    attributes:
+      label: Clean-room status
+      options:
+        - label: I have stated whether this question is part of a clean-room attempt and will follow its restart rules.
+          required: true

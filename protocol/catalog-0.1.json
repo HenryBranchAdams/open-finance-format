@@ -1,0 +1,138 @@
+{
+  "$schema": "https://openfinanceformat.org/schemas/protocol-catalog-0.1.schema.json",
+  "catalogVersion": "0.1",
+  "offVersion": "0.1",
+  "development": {
+    "label": "post-v0.1-rc.1",
+    "status": "development"
+  },
+  "offline": {
+    "mode": "self-contained",
+    "networkRetrieval": "forbidden",
+    "uriSemantics": "identifier-only"
+  },
+  "frozenRelease": {
+    "label": "v0.1-rc.1",
+    "membershipSource": "release/v0.1-rc.1/files.json"
+  },
+  "profiles": [
+    {
+      "identifier": "public-equity-research",
+      "uri": "https://openfinanceformat.org/profiles/public-equity-research/0.1",
+      "specification": "spec/profiles/public-equity-research-0.1.md",
+      "schema": "schemas/profiles/public-equity-research-0.1.schema.json",
+      "status": "frozen",
+      "rc1Membership": "frozen-bytes",
+      "claim": "Traceable — author-declared lineage"
+    },
+    {
+      "identifier": "workbook-binding",
+      "uri": "https://openfinanceformat.org/profiles/workbook-binding/0.1",
+      "specification": "spec/profiles/workbook-binding-0.1.md",
+      "schema": "schemas/profiles/workbook-binding-0.1.schema.json",
+      "status": "development",
+      "rc1Membership": "added-after-rc.1",
+      "claim": "Bound — author-declared workbook locators"
+    }
+  ],
+  "resources": [
+    {
+      "identifier": "specification-index",
+      "kind": "specification-index",
+      "path": "spec/INDEX.md",
+      "status": "development",
+      "rc1Membership": "added-after-rc.1"
+    },
+    {
+      "identifier": "off-core",
+      "kind": "normative-specification",
+      "path": "spec/OFF-Core-0.1.md",
+      "status": "frozen",
+      "rc1Membership": "frozen-bytes"
+    },
+    {
+      "identifier": "normalization",
+      "kind": "normative-specification",
+      "path": "spec/normalization-0.1.md",
+      "status": "development",
+      "rc1Membership": "modified-after-rc.1"
+    },
+    {
+      "identifier": "diagnostics",
+      "kind": "normative-specification",
+      "path": "spec/diagnostics-0.1.md",
+      "status": "development",
+      "rc1Membership": "modified-after-rc.1"
+    },
+    {
+      "identifier": "conformance",
+      "kind": "normative-specification",
+      "path": "spec/conformance-0.1.md",
+      "status": "development",
+      "rc1Membership": "modified-after-rc.1"
+    },
+    {
+      "identifier": "public-equity-research-specification",
+      "kind": "normative-specification",
+      "path": "spec/profiles/public-equity-research-0.1.md",
+      "status": "frozen",
+      "rc1Membership": "frozen-bytes"
+    },
+    {
+      "identifier": "workbook-binding-specification",
+      "kind": "normative-specification",
+      "path": "spec/profiles/workbook-binding-0.1.md",
+      "status": "development",
+      "rc1Membership": "added-after-rc.1"
+    },
+    {
+      "identifier": "terminology",
+      "kind": "normative-specification",
+      "path": "spec/terminology.md",
+      "status": "development",
+      "rc1Membership": "added-after-rc.1"
+    },
+    {
+      "identifier": "versioning",
+      "kind": "normative-specification",
+      "path": "spec/versioning.md",
+      "status": "development",
+      "rc1Membership": "added-after-rc.1"
+    },
+    {
+      "identifier": "schema-resources",
+      "kind": "normative-specification",
+      "path": "spec/schema-resources-0.1.md",
+      "status": "development",
+      "rc1Membership": "added-after-rc.1"
+    },
+    {
+      "identifier": "security-privacy-considerations",
+      "kind": "normative-specification",
+      "path": "spec/security-privacy-considerations.md",
+      "status": "development",
+      "rc1Membership": "added-after-rc.1"
+    },
+    {
+      "identifier": "rule-registry",
+      "kind": "rule-registry",
+      "path": "spec/rules-0.1.json",
+      "status": "development",
+      "rc1Membership": "modified-after-rc.1"
+    },
+    {
+      "identifier": "conformance-corpus",
+      "kind": "conformance-corpus",
+      "path": "conformance/corpus.json",
+      "status": "development",
+      "rc1Membership": "modified-after-rc.1"
+    },
+    {
+      "identifier": "schema-catalog",
+      "kind": "schema-catalog",
+      "path": "schemas/catalog-0.1.json",
+      "status": "development",
+      "rc1Membership": "added-after-rc.1"
+    }
+  ]
+}

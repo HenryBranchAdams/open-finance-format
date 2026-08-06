@@ -1,0 +1,46 @@
+name: Reference implementation bug
+description: Report deterministic behavior that differs from the published OFF contract.
+title: "bug: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for public, non-sensitive defects. Report security issues through SECURITY.md, without public exploit details.
+  - type: input
+    id: revision
+    attributes:
+      label: Revision
+      description: Full commit SHA, tag, or release candidate used.
+      placeholder: 40-character commit SHA
+    validations:
+      required: true
+  - type: textarea
+    id: observed
+    attributes:
+      label: Observed behavior
+      description: Include the command, exit code, and sanitized canonical output or diagnostic codes.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: Cite the public specification, schema, registry entry, or corpus case that defines the expectation.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal offline reproduction
+      description: Provide the smallest package or steps that reproduce the issue without credentials or private data.
+    validations:
+      required: true
+  - type: checkboxes
+    id: boundaries
+    attributes:
+      label: Evidence boundary
+      options:
+        - label: This report does not contain secrets, private financial data, or vulnerability details.
+          required: true
+        - label: I understand that a reference-implementation bug is not by itself an interoperability or financial-correctness finding.
+          required: true

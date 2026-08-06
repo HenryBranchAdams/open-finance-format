@@ -1,6 +1,8 @@
 # OFF Conformance 0.1
 
-Status: experimental normative contract for `v0.1-rc.1`
+Status: experimental normative development contract after `v0.1-rc.1`. The
+frozen candidate is determined by its pinned Git snapshot; this mutable copy
+also includes post-rc.1 Workbook Binding stages and claims.
 
 ## 1. Evaluation primitive
 

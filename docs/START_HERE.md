@@ -1,10 +1,14 @@
 # Open Finance Format project guide
 
-Status: v0.1-rc.1 implementation authorized
-Prepared: 2026-07-17
+Status: mutable post-v0.1-rc.1 development; frozen candidate preserved
+Prepared: 2026-07-17; updated: 2026-07-27
 Name: **Open Finance Format (OFF)**
 
-> Current authority: [`../STRATEGY.md`](../STRATEGY.md), the [implementation-ready plan](plans/2026-07-17-001-feat-off-v0-1-layered-conformance-corpus-plan.md), and the normative contracts under [`../spec/`](../spec/). Earlier planning files remain as history and are superseded wherever they conflict.
+> Current authority: [`../STRATEGY.md`](../STRATEGY.md), the
+> [specification index](../spec/INDEX.md), and the public
+> [governance process](../GOVERNANCE.md). The pinned Git snapshot and release
+> manifest govern frozen rc.1; the top-level specifications govern only the
+> mutable development snapshot. Earlier planning files remain history.
 
 ## One-sentence concept
 
@@ -16,13 +20,12 @@ This directory preserves the product and standards work that led to the current 
 
 ## Read in this order
 
-1. `../README.md` — repository status and normative navigation.
-2. `../spec/OFF-Core-0.1.md` — normative Core contract.
-3. `../spec/profiles/public-equity-research-0.1.md` — normative Public Equity contract.
-4. `../spec/profiles/workbook-binding-0.1.md` — post-rc.1 Workbook Binding development contract.
-5. `plans/2026-07-17-001-feat-off-v0-1-layered-conformance-corpus-plan.md` — implementation contract.
-6. `PUBLICATION.md` — non-normative procedure for publishing the experimental candidate without weakening its evidence boundary.
-7. The remaining files here — historical product, design, research, and roadmap context.
+1. `../README.md` — repository status and navigation.
+2. `../spec/INDEX.md` — frozen-versus-development authority map.
+3. `IMPLEMENTERS.md` — offline implementation and clean-room boundaries.
+4. `../GOVERNANCE.md` — founder-led proposal and release authority.
+5. `PUBLICATION.md` — non-normative rc.1 publication procedure.
+6. The remaining files here — product, design, research, roadmap, and history.
 
 `handoff.yaml` is the machine-readable index for this package.
 
@@ -34,7 +37,10 @@ The standard should describe the publishing wrapper around a model without attem
 
 ## Immediate objective
 
-Implement and verify the experimental v0.1-rc.1 specification, schemas, two-package layered conformance corpus, reference validator, and offline clean-room harness. Rendering and adoption validation remain later milestones.
+Preserve the frozen rc.1 evidence boundary while making the mutable protocol
+independently discoverable, safer to implement, publicly governable, and easier
+to author. The next release claim still depends on authenticated publication
+and unaffiliated clean-room evidence; rendering and adoption remain later work.
 
 ## Important boundary
 

@@ -1,0 +1,385 @@
+{
+  "offVersion": "0.1",
+  "package": {
+    "id": "https://openfinanceformat.org/examples/servicenow-valuation",
+    "releaseId": "https://openfinanceformat.org/examples/servicenow-valuation/releases/2026-07-23",
+    "releaseVersion": "2026-07-23",
+    "title": "ServiceNow valuation — owner-FCFF DCF",
+    "authors": [
+      {
+        "id": "https://github.com/HenryBranchAdams",
+        "name": "Henry Adams"
+      }
+    ],
+    "license": {
+      "id": "Apache-2.0",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0"
+    },
+    "publishedAt": "2026-07-23T14:46:02Z",
+    "canonicalUrl": "https://github.com/HenryBranchAdams/open-finance-format/tree/main/examples/servicenow-valuation",
+    "entrypointResourceId": "https://openfinanceformat.org/examples/servicenow-valuation/resources/narrative"
+  },
+  "profiles": [
+    "https://openfinanceformat.org/profiles/public-equity-research/0.1"
+  ],
+  "resources": [
+    {
+      "id": "https://openfinanceformat.org/examples/servicenow-valuation/resources/narrative",
+      "mediaType": "text/markdown",
+      "roles": ["entrypoint", "narrative"],
+      "locations": [{"kind": "local", "path": "OFF.md"}],
+      "byteSize": 2897,
+      "sha256": "cedbbb8b60db46638461e4d086cb6b9f2065cc9b68744f29366aea411ea6b2c2"
+    },
+    {
+      "id": "https://openfinanceformat.org/examples/servicenow-valuation/resources/model",
+      "mediaType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "roles": ["model-artifact"],
+      "locations": [
+        {
+          "kind": "local",
+          "path": "outputs/019f8a51-b282-7320-9a22-cc1ef608143b/servicenow-valuation-model.xlsx"
+        }
+      ],
+      "byteSize": 57856,
+      "sha256": "ec7f1bd855dade12f43e9c3bedebd7567fab7e2b4700c4232b8e9ace56520aef"
+    },
+    {
+      "id": "https://openfinanceformat.org/examples/servicenow-valuation/resources/evidence",
+      "mediaType": "text/markdown",
+      "roles": ["source-evidence"],
+      "locations": [{"kind": "local", "path": "SOURCES.md"}],
+      "byteSize": 3240,
+      "sha256": "6eba8de39d85b67d748c04bc790a868f94a94359924065782d56365303c18ad1"
+    }
+  ],
+  "relationships": [
+    {
+      "fromResourceId": "https://openfinanceformat.org/examples/servicenow-valuation/resources/narrative",
+      "relation": "describes",
+      "toResourceId": "https://openfinanceformat.org/examples/servicenow-valuation/resources/model"
+    },
+    {
+      "fromResourceId": "https://openfinanceformat.org/examples/servicenow-valuation/resources/evidence",
+      "relation": "supports",
+      "toResourceId": "https://openfinanceformat.org/examples/servicenow-valuation/resources/model"
+    }
+  ],
+  "profileData": {
+    "https://openfinanceformat.org/profiles/public-equity-research/0.1": {
+      "securities": [
+        {
+          "id": "https://openfinanceformat.org/examples/servicenow-valuation/entities/security/now",
+          "issuerName": "ServiceNow, Inc.",
+          "ticker": "NOW",
+          "exchange": "XNYS",
+          "securityType": "common-stock",
+          "reportingCurrencyUnitId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/unit/usd-mm",
+          "identifiers": {"CIK": "0001373715"}
+        }
+      ],
+      "scenarios": [
+        {
+          "id": "https://openfinanceformat.org/examples/servicenow-valuation/entities/scenario/bear",
+          "label": "Downside case",
+          "role": "bear",
+          "description": "Revenue growth fades to 6 percent and owner-EBIT margin reaches 20 percent."
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/servicenow-valuation/entities/scenario/base",
+          "label": "Base case",
+          "role": "base",
+          "description": "Revenue growth fades to 12 percent and owner-EBIT margin reaches 26 percent."
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/servicenow-valuation/entities/scenario/bull",
+          "label": "Upside case",
+          "role": "bull",
+          "description": "Revenue growth fades to 15 percent and owner-EBIT margin reaches 31 percent."
+        }
+      ],
+      "units": [
+        {
+          "id": "https://openfinanceformat.org/examples/servicenow-valuation/entities/unit/usd-mm",
+          "label": "US dollars in millions",
+          "kind": "currency",
+          "symbol": "$mm",
+          "currency": "USD"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/servicenow-valuation/entities/unit/usd-per-share",
+          "label": "US dollars per share",
+          "kind": "custom",
+          "symbol": "$/share"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/servicenow-valuation/entities/unit/shares-mm",
+          "label": "Shares in millions",
+          "kind": "shares",
+          "symbol": "mm"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/servicenow-valuation/entities/unit/percentage",
+          "label": "Percentage expressed as decimal",
+          "kind": "percentage",
+          "symbol": "%"
+        }
+      ],
+      "sources": [
+        {
+          "id": "https://openfinanceformat.org/examples/servicenow-valuation/entities/source/sec",
+          "title": "ServiceNow FY2025 Form 10-K",
+          "publisher": "U.S. Securities and Exchange Commission",
+          "canonicalUrl": "https://www.sec.gov/Archives/edgar/data/1373715/000137371526000007/now-20251231.htm",
+          "evidenceResourceId": "https://openfinanceformat.org/examples/servicenow-valuation/resources/evidence"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/servicenow-valuation/entities/source/q2-2026",
+          "title": "ServiceNow Q2 2026 financial results",
+          "publisher": "ServiceNow, Inc.",
+          "canonicalUrl": "https://investor.servicenow.com/news/news-details/2026/ServiceNow-Reports-Second-Quarter-2026-Financial-Results/default.aspx",
+          "evidenceResourceId": "https://openfinanceformat.org/examples/servicenow-valuation/resources/evidence"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/servicenow-valuation/entities/source/market",
+          "title": "NOW public market-data snapshot",
+          "publisher": "Stock Analysis",
+          "canonicalUrl": "https://stockanalysis.com/stocks/now/",
+          "evidenceResourceId": "https://openfinanceformat.org/examples/servicenow-valuation/resources/evidence"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/servicenow-valuation/entities/source/treasury",
+          "title": "Daily Treasury par yield curve rates",
+          "publisher": "U.S. Department of the Treasury",
+          "canonicalUrl": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?field_tdr_date_value=2026&type=daily_treasury_yield_curve",
+          "evidenceResourceId": "https://openfinanceformat.org/examples/servicenow-valuation/resources/evidence"
+        }
+      ],
+      "sourceFacts": [
+        {
+          "id": "https://openfinanceformat.org/examples/servicenow-valuation/entities/fact/revenue-2025",
+          "label": "FY2025 revenue",
+          "value": {"type": "decimal", "value": "13278"},
+          "unitId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/unit/usd-mm",
+          "effectiveDate": "2025-12-31",
+          "sourceId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/source/sec",
+          "staleAt": "2027-02-01T00:00:00Z"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/servicenow-valuation/entities/fact/owner-ebit-2025",
+          "label": "FY2025 owner EBIT after stock-based compensation",
+          "value": {"type": "decimal", "value": "2194"},
+          "unitId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/unit/usd-mm",
+          "effectiveDate": "2025-12-31",
+          "sourceId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/source/sec",
+          "staleAt": "2027-02-01T00:00:00Z"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/servicenow-valuation/entities/fact/operating-nwc-2025",
+          "label": "FY2025 operating net working capital proxy",
+          "value": {"type": "decimal", "value": "-5150"},
+          "unitId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/unit/usd-mm",
+          "effectiveDate": "2025-12-31",
+          "sourceId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/source/sec",
+          "staleAt": "2027-02-01T00:00:00Z"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/servicenow-valuation/entities/fact/net-debt",
+          "label": "Derived net debt",
+          "value": {"type": "decimal", "value": "810"},
+          "unitId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/unit/usd-mm",
+          "effectiveDate": "2026-06-30",
+          "sourceId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/source/q2-2026",
+          "staleAt": "2026-10-31T00:00:00Z"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/servicenow-valuation/entities/fact/shares",
+          "label": "Diluted shares",
+          "value": {"type": "decimal", "value": "1034"},
+          "unitId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/unit/shares-mm",
+          "effectiveDate": "2026-06-30",
+          "sourceId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/source/q2-2026",
+          "staleAt": "2026-10-31T00:00:00Z"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/servicenow-valuation/entities/fact/share-price",
+          "label": "NOW share-price snapshot",
+          "value": {"type": "decimal", "value": "97.35"},
+          "unitId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/unit/usd-per-share",
+          "effectiveDate": "2026-07-23",
+          "sourceId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/source/market",
+          "staleAt": "2026-07-24T00:00:00Z"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/servicenow-valuation/entities/fact/risk-free-rate",
+          "label": "10-year U.S. Treasury yield",
+          "value": {"type": "decimal", "value": "0.0463"},
+          "unitId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/unit/percentage",
+          "effectiveDate": "2026-07-22",
+          "sourceId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/source/treasury",
+          "staleAt": "2026-07-30T00:00:00Z"
+        }
+      ],
+      "assumptions": [
+        {
+          "id": "https://openfinanceformat.org/examples/servicenow-valuation/entities/assumption/common-operating",
+          "label": "Common tax and reinvestment policy",
+          "value": {"type": "string", "value": "21% cash tax; D&A 5% of revenue; capex 6% of revenue"},
+          "effectiveDate": "2026-07-23",
+          "designation": "analystJudgment",
+          "reviewBy": "2026-10-31T00:00:00Z"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/servicenow-valuation/entities/assumption/wacc-policy",
+          "label": "Formula-driven WACC policy",
+          "value": {"type": "string", "value": "8.62765% WACC from 4.63% risk-free rate, 0.96 beta, 4.5% ERP, 0.4% company premium, 5.5% pretax debt cost, 21% tax, and 7% target debt weight"},
+          "effectiveDate": "2026-07-23",
+          "designation": "analystJudgment",
+          "reviewBy": "2026-10-31T00:00:00Z"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/servicenow-valuation/entities/assumption/terminal-growth",
+          "label": "Perpetual growth rate",
+          "value": {"type": "decimal", "value": "0.03"},
+          "unitId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/unit/percentage",
+          "effectiveDate": "2026-07-23",
+          "designation": "analystJudgment",
+          "reviewBy": "2026-10-31T00:00:00Z"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/servicenow-valuation/entities/assumption/bear-path",
+          "label": "Downside operating path",
+          "value": {"type": "string", "value": "Revenue growth 22.08%,17%,14%,11%,8%,6%; owner-EBIT margin 16.5%,16%,17%,18%,19%,20%; operating NWC/revenue -39% then -36%"},
+          "effectiveDate": "2026-07-23",
+          "designation": "analystJudgment",
+          "reviewBy": "2026-10-31T00:00:00Z",
+          "scenarioIds": ["https://openfinanceformat.org/examples/servicenow-valuation/entities/scenario/bear"]
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/servicenow-valuation/entities/assumption/base-path",
+          "label": "Base operating path",
+          "value": {"type": "string", "value": "Revenue growth 22.08%,20%,19%,17%,16%,12%; owner-EBIT margin 16.5%,18%,20%,22%,24%,26%; operating NWC/revenue -39%"},
+          "effectiveDate": "2026-07-23",
+          "designation": "analystJudgment",
+          "reviewBy": "2026-10-31T00:00:00Z",
+          "scenarioIds": ["https://openfinanceformat.org/examples/servicenow-valuation/entities/scenario/base"]
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/servicenow-valuation/entities/assumption/bull-path",
+          "label": "Upside operating path",
+          "value": {"type": "string", "value": "Revenue growth 22.08%,22%,21%,19%,17%,15%; owner-EBIT margin 16.5%,20%,23%,26%,29%,31%; operating NWC/revenue -39% then -42%"},
+          "effectiveDate": "2026-07-23",
+          "designation": "analystJudgment",
+          "reviewBy": "2026-10-31T00:00:00Z",
+          "scenarioIds": ["https://openfinanceformat.org/examples/servicenow-valuation/entities/scenario/bull"]
+        }
+      ],
+      "outputs": [
+        {
+          "id": "https://openfinanceformat.org/examples/servicenow-valuation/entities/output/bear-value-per-share",
+          "label": "Downside implied value per share",
+          "value": {"type": "decimal", "value": "65.0914411732505"},
+          "unitId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/unit/usd-per-share",
+          "asOfDate": "2026-07-23",
+          "scenarioId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/scenario/bear",
+          "headline": true,
+          "artifactResourceId": "https://openfinanceformat.org/examples/servicenow-valuation/resources/model",
+          "methodology": "Six-year owner-FCFF DCF with year-end discounting, Gordon-growth terminal value, net debt, and diluted shares under the downside operating path.",
+          "attestationId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/attestation/valuation"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/servicenow-valuation/entities/output/base-value-per-share",
+          "label": "Base implied value per share",
+          "value": {"type": "decimal", "value": "112.469771690509"},
+          "unitId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/unit/usd-per-share",
+          "asOfDate": "2026-07-23",
+          "scenarioId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/scenario/base",
+          "headline": true,
+          "artifactResourceId": "https://openfinanceformat.org/examples/servicenow-valuation/resources/model",
+          "methodology": "Six-year owner-FCFF DCF with year-end discounting, Gordon-growth terminal value, net debt, and diluted shares under the base operating path.",
+          "attestationId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/attestation/valuation"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/servicenow-valuation/entities/output/bull-value-per-share",
+          "label": "Upside implied value per share",
+          "value": {"type": "decimal", "value": "147.699186990919"},
+          "unitId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/unit/usd-per-share",
+          "asOfDate": "2026-07-23",
+          "scenarioId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/scenario/bull",
+          "headline": true,
+          "artifactResourceId": "https://openfinanceformat.org/examples/servicenow-valuation/resources/model",
+          "methodology": "Six-year owner-FCFF DCF with year-end discounting, Gordon-growth terminal value, net debt, and diluted shares under the upside operating path.",
+          "attestationId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/attestation/valuation"
+        }
+      ],
+      "lineageEdges": [
+        {"fromId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/output/bear-value-per-share", "toId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/fact/revenue-2025", "material": true},
+        {"fromId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/output/bear-value-per-share", "toId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/fact/owner-ebit-2025", "material": true},
+        {"fromId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/output/bear-value-per-share", "toId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/fact/operating-nwc-2025", "material": true},
+        {"fromId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/output/bear-value-per-share", "toId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/fact/net-debt", "material": true},
+        {"fromId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/output/bear-value-per-share", "toId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/fact/shares", "material": true},
+        {"fromId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/output/bear-value-per-share", "toId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/fact/risk-free-rate", "material": true},
+        {"fromId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/output/bear-value-per-share", "toId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/assumption/common-operating", "material": true},
+        {"fromId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/output/bear-value-per-share", "toId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/assumption/wacc-policy", "material": true},
+        {"fromId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/output/bear-value-per-share", "toId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/assumption/terminal-growth", "material": true},
+        {"fromId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/output/bear-value-per-share", "toId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/assumption/bear-path", "material": true},
+
+        {"fromId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/output/base-value-per-share", "toId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/fact/revenue-2025", "material": true},
+        {"fromId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/output/base-value-per-share", "toId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/fact/owner-ebit-2025", "material": true},
+        {"fromId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/output/base-value-per-share", "toId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/fact/operating-nwc-2025", "material": true},
+        {"fromId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/output/base-value-per-share", "toId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/fact/net-debt", "material": true},
+        {"fromId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/output/base-value-per-share", "toId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/fact/shares", "material": true},
+        {"fromId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/output/base-value-per-share", "toId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/fact/risk-free-rate", "material": true},
+        {"fromId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/output/base-value-per-share", "toId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/assumption/common-operating", "material": true},
+        {"fromId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/output/base-value-per-share", "toId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/assumption/wacc-policy", "material": true},
+        {"fromId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/output/base-value-per-share", "toId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/assumption/terminal-growth", "material": true},
+        {"fromId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/output/base-value-per-share", "toId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/assumption/base-path", "material": true},
+
+        {"fromId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/output/bull-value-per-share", "toId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/fact/revenue-2025", "material": true},
+        {"fromId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/output/bull-value-per-share", "toId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/fact/owner-ebit-2025", "material": true},
+        {"fromId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/output/bull-value-per-share", "toId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/fact/operating-nwc-2025", "material": true},
+        {"fromId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/output/bull-value-per-share", "toId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/fact/net-debt", "material": true},
+        {"fromId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/output/bull-value-per-share", "toId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/fact/shares", "material": true},
+        {"fromId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/output/bull-value-per-share", "toId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/fact/risk-free-rate", "material": true},
+        {"fromId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/output/bull-value-per-share", "toId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/assumption/common-operating", "material": true},
+        {"fromId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/output/bull-value-per-share", "toId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/assumption/wacc-policy", "material": true},
+        {"fromId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/output/bull-value-per-share", "toId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/assumption/terminal-growth", "material": true},
+        {"fromId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/output/bull-value-per-share", "toId": "https://openfinanceformat.org/examples/servicenow-valuation/entities/assumption/bull-path", "material": true}
+      ],
+      "attestations": [
+        {
+          "id": "https://openfinanceformat.org/examples/servicenow-valuation/entities/attestation/valuation",
+          "outputIds": [
+            "https://openfinanceformat.org/examples/servicenow-valuation/entities/output/bear-value-per-share",
+            "https://openfinanceformat.org/examples/servicenow-valuation/entities/output/base-value-per-share",
+            "https://openfinanceformat.org/examples/servicenow-valuation/entities/output/bull-value-per-share"
+          ],
+          "authorId": "https://github.com/HenryBranchAdams",
+          "attestedAt": "2026-07-23T14:46:02Z",
+          "artifactResourceId": "https://openfinanceformat.org/examples/servicenow-valuation/resources/model",
+          "artifactSha256": "ec7f1bd855dade12f43e9c3bedebd7567fab7e2b4700c4232b8e9ace56520aef",
+          "lineageBasis": "author-declared",
+          "materialityPolicy": "All sourced opening values, capital-structure inputs, discount-rate inputs, cash-flow policies, scenario operating paths, and terminal assumptions that materially drive the three headline DCF outputs are declared.",
+          "scope": "The three headline implied values per share produced by the ServiceNow valuation workbook as of 2026-07-23.",
+          "knownExclusions": [
+            "No consensus estimates are used in the valuation engine.",
+            "Only the latest full historical year is populated.",
+            "Aggregate operating net working capital is used without a full component history.",
+            "The market-price snapshot is short-lived and is not independently archived.",
+            "Lineage is author-declared and has not been independently verified.",
+            "The package does not claim cross-engine spreadsheet execution equivalence."
+          ],
+          "lineageCompleteness": "attested-not-independently-verified"
+        }
+      ]
+    }
+  },
+  "extensions": {
+    "https://openfinanceformat.org/extensions/dogfood/0.1": {
+      "readiness": "screen-grade",
+      "supportsExecution": false,
+      "decisionPosture": "watchlist-or-starter-only",
+      "consensusUsedInValuation": false
+    }
+  }
+}

@@ -1,0 +1,77 @@
+[
+  {
+    "name": "OFF Research Workspace",
+    "img": "http://127.0.0.1:7779/assets/off-workspace.svg",
+    "img_dark": "http://127.0.0.1:7779/assets/off-workspace.svg",
+    "img_light": "http://127.0.0.1:7779/assets/off-workspace.svg",
+    "description": "Dense, read-only inspection of portable, versioned, source-backed OFF research packages. OFF remains normative; OpenBB is a non-normative presentation host.",
+    "allowCustomization": true,
+    "tabs": {
+      "research": {
+        "id": "research",
+        "name": "Research",
+        "layout": [
+          { "i": "package_context", "x": 0, "y": 0, "w": 40, "h": 6, "groups": ["Group 1", "Group 2"] },
+          { "i": "narrative", "x": 0, "y": 6, "w": 24, "h": 14, "groups": ["Group 1", "Group 2"] },
+          { "i": "headline_outputs", "x": 24, "y": 6, "w": 16, "h": 14, "groups": ["Group 1", "Group 2"] },
+          { "i": "assumptions", "x": 0, "y": 20, "w": 40, "h": 14, "groups": ["Group 1", "Group 2"] }
+        ]
+      },
+      "evidence": {
+        "id": "evidence",
+        "name": "Evidence",
+        "layout": [
+          { "i": "package_context", "x": 0, "y": 0, "w": 40, "h": 6, "groups": ["Group 1", "Group 2"] },
+          { "i": "source_facts", "x": 0, "y": 6, "w": 24, "h": 14, "groups": ["Group 1", "Group 2"] },
+          { "i": "sources", "x": 24, "y": 6, "w": 16, "h": 14, "groups": ["Group 1", "Group 2"] },
+          { "i": "freshness", "x": 0, "y": 20, "w": 20, "h": 12, "groups": ["Group 1", "Group 2"] },
+          { "i": "lineage", "x": 20, "y": 20, "w": 20, "h": 12, "groups": ["Group 1", "Group 2"] }
+        ]
+      },
+      "files": {
+        "id": "files",
+        "name": "Files",
+        "layout": [
+          { "i": "package_context", "x": 0, "y": 0, "w": 40, "h": 6, "groups": ["Group 1", "Group 2"] },
+          { "i": "resources", "x": 0, "y": 6, "w": 20, "h": 14, "groups": ["Group 1", "Group 2"] },
+          { "i": "workbook_bindings", "x": 20, "y": 6, "w": 20, "h": 14, "groups": ["Group 1", "Group 2"] },
+          { "i": "native_files", "x": 0, "y": 20, "w": 40, "h": 14, "groups": ["Group 1", "Group 2"] }
+        ]
+      },
+      "conformance": {
+        "id": "conformance",
+        "name": "Conformance",
+        "layout": [
+          { "i": "package_context", "x": 0, "y": 0, "w": 40, "h": 6, "groups": ["Group 1", "Group 2"] },
+          { "i": "profile_results", "x": 0, "y": 6, "w": 20, "h": 10, "groups": ["Group 1", "Group 2"] },
+          { "i": "diagnostics", "x": 20, "y": 6, "w": 20, "h": 10, "groups": ["Group 1", "Group 2"] },
+          { "i": "claims_boundary", "x": 0, "y": 16, "w": 40, "h": 10, "groups": ["Group 1", "Group 2"] },
+          { "i": "normalized_view", "x": 0, "y": 26, "w": 40, "h": 18, "groups": ["Group 1", "Group 2"] }
+        ]
+      }
+    },
+    "groups": [
+      {
+        "name": "Group 1",
+        "type": "endpointParam",
+        "paramName": "package_id",
+        "defaultValue": "pkg__QU3vjyKzzG5Ogl3Rgx2ZRT5",
+        "widgetIds": ["package_context", "narrative", "headline_outputs", "assumptions", "source_facts", "sources", "freshness", "lineage", "resources", "workbook_bindings", "native_files", "profile_results", "diagnostics", "normalized_view", "claims_boundary"]
+      },
+      {
+        "name": "Group 2",
+        "type": "param",
+        "paramName": "evaluated_at",
+        "defaultValue": "",
+        "widgetIds": ["package_context", "narrative", "headline_outputs", "assumptions", "source_facts", "sources", "freshness", "lineage", "resources", "workbook_bindings", "native_files", "profile_results", "diagnostics", "normalized_view", "claims_boundary"]
+      }
+    ],
+    "prompts": [
+      "Explain the selected package's @[id:headline_outputs] and identify which are stale using @[id:freshness].",
+      "Trace a selected headline output in @[id:headline_outputs] back through @[id:lineage] to material @[id:assumptions] and @[id:source_facts].",
+      "Summarize the selected package's profile outcomes in @[id:profile_results] without treating validation as proof that the model is financially correct; use @[id:claims_boundary].",
+      "Show which author-declared workbook locators appear in @[id:workbook_bindings] and which workbook properties remain unevaluated.",
+      "Compare declared profiles with the profiles actually evaluated in @[id:profile_results]."
+    ]
+  }
+]

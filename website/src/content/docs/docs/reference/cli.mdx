@@ -1,0 +1,26 @@
+---
+title: "CLI reference"
+description: "The current offline commands exposed by the checked-in OFF evaluator."
+authority: "guidance"
+---
+
+## Validate a package
+
+```sh
+off validate <package-root> --evaluated-at <timestamp> [--profile <uri> ...]
+```
+
+## Normalize a package
+
+```sh
+off normalize <package-root> --evaluated-at <timestamp> [--profile <uri> ...]
+```
+
+## Verify the conformance corpus
+
+```sh
+off corpus verify --corpus conformance/corpus.json
+```
+
+All evaluation commands are offline. The timestamp is explicit so freshness
+results remain reproducible.

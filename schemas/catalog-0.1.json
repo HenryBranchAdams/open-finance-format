@@ -1,0 +1,20 @@
+{
+  "$schema": "https://openfinanceformat.org/schemas/schema-catalog-0.1.schema.json",
+  "catalogVersion": "0.1",
+  "dialect": "https://json-schema.org/draft/2020-12/schema",
+  "resolution": {
+    "base": "repository-root",
+    "networkRetrieval": "forbidden",
+    "uriSemantics": "identifier-only"
+  },
+  "schemas": {
+    "https://openfinanceformat.org/schemas/schema-catalog-0.1.schema.json": "schemas/schema-catalog-0.1.schema.json",
+    "https://openfinanceformat.org/schemas/diagnostic-0.1.schema.json": "schemas/diagnostic-0.1.schema.json",
+    "https://openfinanceformat.org/schemas/evaluator-failure-0.1.schema.json": "schemas/evaluator-failure-0.1.schema.json",
+    "https://openfinanceformat.org/schemas/normalized-result-0.1.schema.json": "schemas/normalized-result-0.1.schema.json",
+    "https://openfinanceformat.org/schemas/off-core-0.1.schema.json": "schemas/off-core-0.1.schema.json",
+    "https://openfinanceformat.org/schemas/profiles/public-equity-research-0.1.schema.json": "schemas/profiles/public-equity-research-0.1.schema.json",
+    "https://openfinanceformat.org/schemas/profiles/workbook-binding-0.1.schema.json": "schemas/profiles/workbook-binding-0.1.schema.json",
+    "https://openfinanceformat.org/schemas/protocol-catalog-0.1.schema.json": "schemas/protocol-catalog-0.1.schema.json"
+  }
+}

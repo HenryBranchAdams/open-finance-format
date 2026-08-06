@@ -1,0 +1,616 @@
+{
+  "offVersion": "0.1",
+  "package": {
+    "id": "https://openfinanceformat.org/examples/pagaya-valuation",
+    "releaseId": "https://openfinanceformat.org/examples/pagaya-valuation/releases/2026-07-30-q2-refresh",
+    "releaseVersion": "2026-07-30-q2-refresh",
+    "title": "Pagaya Technologies valuation — risk-retention FCFE",
+    "authors": [
+      {
+        "id": "https://github.com/HenryBranchAdams",
+        "name": "Henry Adams"
+      }
+    ],
+    "license": {
+      "id": "Apache-2.0",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0"
+    },
+    "publishedAt": "2026-07-30T14:28:51Z",
+    "canonicalUrl": "https://github.com/HenryBranchAdams/open-finance-format/tree/main/examples/pagaya-valuation",
+    "entrypointResourceId": "https://openfinanceformat.org/examples/pagaya-valuation/resources/narrative"
+  },
+  "profiles": [
+    "https://openfinanceformat.org/profiles/public-equity-research/0.1"
+  ],
+  "resources": [
+    {
+      "id": "https://openfinanceformat.org/examples/pagaya-valuation/resources/narrative",
+      "mediaType": "text/markdown",
+      "roles": [
+        "entrypoint",
+        "narrative"
+      ],
+      "locations": [
+        {
+          "kind": "local",
+          "path": "OFF.md"
+        }
+      ],
+      "byteSize": 4215,
+      "sha256": "0a09fc60a2c6bb7f5325342a241ebecf115b570a3476b6f7c8e60e2ab2878a56"
+    },
+    {
+      "id": "https://openfinanceformat.org/examples/pagaya-valuation/resources/model",
+      "mediaType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "roles": [
+        "model-artifact"
+      ],
+      "locations": [
+        {
+          "kind": "local",
+          "path": "outputs/2026-07-30-q2-refresh/pagaya-valuation-model.xlsx"
+        }
+      ],
+      "byteSize": 39062,
+      "sha256": "937677e2fedf115ba7677d8a92b787172ac03d81d0b9824fdc83940209c0a1b5"
+    },
+    {
+      "id": "https://openfinanceformat.org/examples/pagaya-valuation/resources/evidence",
+      "mediaType": "text/markdown",
+      "roles": [
+        "source-evidence"
+      ],
+      "locations": [
+        {
+          "kind": "local",
+          "path": "SOURCES.md"
+        }
+      ],
+      "byteSize": 5112,
+      "sha256": "b2f66edf533b9941d4a58d068fffc0edb31c3af7727e9112b1c9e5eac172cf71"
+    }
+  ],
+  "relationships": [
+    {
+      "fromResourceId": "https://openfinanceformat.org/examples/pagaya-valuation/resources/narrative",
+      "relation": "describes",
+      "toResourceId": "https://openfinanceformat.org/examples/pagaya-valuation/resources/model"
+    },
+    {
+      "fromResourceId": "https://openfinanceformat.org/examples/pagaya-valuation/resources/evidence",
+      "relation": "supports",
+      "toResourceId": "https://openfinanceformat.org/examples/pagaya-valuation/resources/model"
+    }
+  ],
+  "profileData": {
+    "https://openfinanceformat.org/profiles/public-equity-research/0.1": {
+      "securities": [
+        {
+          "id": "https://openfinanceformat.org/examples/pagaya-valuation/entities/security/pgy",
+          "issuerName": "Pagaya Technologies Ltd.",
+          "ticker": "PGY",
+          "exchange": "XNAS",
+          "securityType": "common-stock",
+          "reportingCurrencyUnitId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/unit/usd-mm",
+          "identifiers": {
+            "CIK": "0001883085"
+          }
+        }
+      ],
+      "scenarios": [
+        {
+          "id": "https://openfinanceformat.org/examples/pagaya-valuation/entities/scenario/bear",
+          "label": "Downside case",
+          "role": "bear",
+          "description": "Network Volume reaches $15.0 billion in 2031, FRLPC fades to 3.9%, and required risk-retention equity is 2.0% of incremental volume."
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/pagaya-valuation/entities/scenario/base",
+          "label": "Base case",
+          "role": "base",
+          "description": "Network Volume reaches $21.0 billion in 2031, FRLPC stabilizes at 4.35%, and required risk-retention equity is 1.25% of incremental volume."
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/pagaya-valuation/entities/scenario/bull",
+          "label": "Upside case",
+          "role": "bull",
+          "description": "Network Volume reaches $24.8 billion in 2031, FRLPC recovers to 4.6%, and required risk-retention equity is 0.75% of incremental volume."
+        }
+      ],
+      "units": [
+        {
+          "id": "https://openfinanceformat.org/examples/pagaya-valuation/entities/unit/usd-mm",
+          "label": "US dollars in millions",
+          "kind": "currency",
+          "symbol": "$mm",
+          "currency": "USD"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/pagaya-valuation/entities/unit/usd-bn",
+          "label": "US dollars in billions",
+          "kind": "custom",
+          "symbol": "$bn"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/pagaya-valuation/entities/unit/usd-per-share",
+          "label": "US dollars per share",
+          "kind": "custom",
+          "symbol": "$/share"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/pagaya-valuation/entities/unit/shares-mm",
+          "label": "Shares in millions",
+          "kind": "shares",
+          "symbol": "mm"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/pagaya-valuation/entities/unit/percentage",
+          "label": "Percentage expressed as decimal",
+          "kind": "percentage",
+          "symbol": "%"
+        }
+      ],
+      "sources": [
+        {
+          "id": "https://openfinanceformat.org/examples/pagaya-valuation/entities/source/sec",
+          "title": "Pagaya FY2025 Form 10-K",
+          "publisher": "U.S. Securities and Exchange Commission",
+          "canonicalUrl": "https://www.sec.gov/Archives/edgar/data/1883085/000188308526000018/pgy-20251231.htm",
+          "evidenceResourceId": "https://openfinanceformat.org/examples/pagaya-valuation/resources/evidence"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/pagaya-valuation/entities/source/q1-2026",
+          "title": "Pagaya Q1 2026 earnings release",
+          "publisher": "Pagaya Technologies Ltd.",
+          "canonicalUrl": "https://investor.pagaya.com/static-files/1f38d3e9-6d00-49c7-921d-a6b5be49a276",
+          "evidenceResourceId": "https://openfinanceformat.org/examples/pagaya-valuation/resources/evidence"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/pagaya-valuation/entities/source/market",
+          "title": "PGY public market-data snapshot",
+          "publisher": "Public market data",
+          "canonicalUrl": "https://finance.yahoo.com/quote/PGY/",
+          "evidenceResourceId": "https://openfinanceformat.org/examples/pagaya-valuation/resources/evidence"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/pagaya-valuation/entities/source/q2-2026",
+          "title": "Pagaya Q2 2026 earnings release",
+          "publisher": "Pagaya Technologies Ltd. / U.S. Securities and Exchange Commission",
+          "canonicalUrl": "https://www.sec.gov/Archives/edgar/data/1883085/000188308526000052/earningspressreleasefina.htm",
+          "evidenceResourceId": "https://openfinanceformat.org/examples/pagaya-valuation/resources/evidence"
+        }
+      ],
+      "sourceFacts": [
+        {
+          "id": "https://openfinanceformat.org/examples/pagaya-valuation/entities/fact/network-volume-2025",
+          "label": "FY2025 Network Volume",
+          "value": {
+            "type": "decimal",
+            "value": "10.534"
+          },
+          "unitId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/unit/usd-bn",
+          "effectiveDate": "2025-12-31",
+          "sourceId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/source/sec",
+          "staleAt": "2027-03-01T00:00:00Z"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/pagaya-valuation/entities/fact/frlpc-2025",
+          "label": "FY2025 FRLPC",
+          "value": {
+            "type": "decimal",
+            "value": "512.172"
+          },
+          "unitId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/unit/usd-mm",
+          "effectiveDate": "2025-12-31",
+          "sourceId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/source/sec",
+          "staleAt": "2027-03-01T00:00:00Z"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/pagaya-valuation/entities/fact/q2-frlpc-rate",
+          "label": "Q2 2026 FRLPC percentage",
+          "value": {
+            "type": "decimal",
+            "value": "0.042"
+          },
+          "unitId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/unit/percentage",
+          "effectiveDate": "2026-06-30",
+          "sourceId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/source/q2-2026",
+          "staleAt": "2026-11-15T00:00:00Z"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/pagaya-valuation/entities/fact/fy2026-network-volume-guidance-midpoint",
+          "label": "FY2026 Network Volume guidance midpoint",
+          "value": {
+            "type": "decimal",
+            "value": "12.875"
+          },
+          "unitId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/unit/usd-bn",
+          "effectiveDate": "2026-07-30",
+          "sourceId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/source/q2-2026",
+          "staleAt": "2026-11-15T00:00:00Z"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/pagaya-valuation/entities/fact/fy2026-net-income-guidance-midpoint",
+          "label": "FY2026 GAAP net-income guidance midpoint",
+          "value": {
+            "type": "decimal",
+            "value": "167.5"
+          },
+          "unitId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/unit/usd-mm",
+          "effectiveDate": "2026-07-30",
+          "sourceId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/source/q2-2026",
+          "staleAt": "2026-11-15T00:00:00Z"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/pagaya-valuation/entities/fact/cash",
+          "label": "Cash and equivalents",
+          "value": {
+            "type": "decimal",
+            "value": "249.257"
+          },
+          "unitId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/unit/usd-mm",
+          "effectiveDate": "2026-06-30",
+          "sourceId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/source/q2-2026",
+          "staleAt": "2026-11-15T00:00:00Z"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/pagaya-valuation/entities/fact/risk-investments",
+          "label": "Risk-retention investments",
+          "value": {
+            "type": "decimal",
+            "value": "1040.118"
+          },
+          "unitId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/unit/usd-mm",
+          "effectiveDate": "2026-06-30",
+          "sourceId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/source/q2-2026",
+          "staleAt": "2026-11-15T00:00:00Z"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/pagaya-valuation/entities/fact/secured-borrowing",
+          "label": "Secured borrowing",
+          "value": {
+            "type": "decimal",
+            "value": "252.995"
+          },
+          "unitId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/unit/usd-mm",
+          "effectiveDate": "2026-06-30",
+          "sourceId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/source/q2-2026",
+          "staleAt": "2026-11-15T00:00:00Z"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/pagaya-valuation/entities/fact/basic-shares",
+          "label": "Q2 weighted-average basic shares",
+          "value": {
+            "type": "decimal",
+            "value": "83.185"
+          },
+          "unitId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/unit/shares-mm",
+          "effectiveDate": "2026-06-30",
+          "sourceId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/source/q2-2026",
+          "staleAt": "2026-11-15T00:00:00Z"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/pagaya-valuation/entities/fact/share-price",
+          "label": "PGY intraday share-price snapshot at 09:28 CDT",
+          "value": {
+            "type": "decimal",
+            "value": "16.32"
+          },
+          "unitId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/unit/usd-per-share",
+          "effectiveDate": "2026-07-30",
+          "sourceId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/source/market",
+          "staleAt": "2026-07-31T00:00:00Z"
+        }
+      ],
+      "assumptions": [
+        {
+          "id": "https://openfinanceformat.org/examples/pagaya-valuation/entities/assumption/common-operating",
+          "label": "Common owner-cash-flow policy",
+          "value": {
+            "type": "string",
+            "value": "21% cash tax; D&A 5% of FRLPC; capex 4% of FRLPC; FCFE deducts equity capital required for incremental Network Volume"
+          },
+          "effectiveDate": "2026-07-30",
+          "designation": "analystJudgment",
+          "reviewBy": "2026-10-31T00:00:00Z"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/pagaya-valuation/entities/assumption/diluted-shares",
+          "label": "Valuation diluted shares",
+          "value": {
+            "type": "decimal",
+            "value": "97.25"
+          },
+          "unitId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/unit/shares-mm",
+          "effectiveDate": "2026-07-30",
+          "designation": "analystJudgment",
+          "reviewBy": "2026-10-31T00:00:00Z"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/pagaya-valuation/entities/assumption/bear-path",
+          "label": "Downside case operating and valuation path",
+          "value": {
+            "type": "string",
+            "value": "Network Volume $12.5bn,$13.0bn,$13.5bn,$14.0bn,$14.5bn,$15.0bn; FRLPC 4.1%,4.0%,4.0%,3.95%,3.9%,3.9%; normalized net income/FRLPC 30.25%,30.0%,29.5%,29.0%,28.5%,28.0%; required equity/incremental volume 2.0%; cost of equity 16.0%; terminal growth 2.5%"
+          },
+          "effectiveDate": "2026-07-30",
+          "designation": "analystJudgment",
+          "reviewBy": "2026-10-31T00:00:00Z",
+          "scenarioIds": [
+            "https://openfinanceformat.org/examples/pagaya-valuation/entities/scenario/bear"
+          ]
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/pagaya-valuation/entities/assumption/base-path",
+          "label": "Base case operating and valuation path",
+          "value": {
+            "type": "string",
+            "value": "Network Volume $12.875bn,$14.5bn,$16.2bn,$17.9bn,$19.5bn,$21.0bn; FRLPC 4.3%,4.3%,4.3%,4.35%,4.35%,4.35%; normalized net income/FRLPC 30.25%,32%,34%,36%,37%,38%; required equity/incremental volume 1.25%; cost of equity 14.0%; terminal growth 3.0%"
+          },
+          "effectiveDate": "2026-07-30",
+          "designation": "analystJudgment",
+          "reviewBy": "2026-10-31T00:00:00Z",
+          "scenarioIds": [
+            "https://openfinanceformat.org/examples/pagaya-valuation/entities/scenario/base"
+          ]
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/pagaya-valuation/entities/assumption/bull-path",
+          "label": "Upside case operating and valuation path",
+          "value": {
+            "type": "string",
+            "value": "Network Volume $13.25bn,$15.4bn,$17.8bn,$20.2bn,$22.6bn,$24.8bn; FRLPC 4.4%,4.45%,4.5%,4.55%,4.6%,4.6%; normalized net income/FRLPC 30.9%,34%,37%,40%,42%,44%; required equity/incremental volume 0.75%; cost of equity 12.5%; terminal growth 3.5%"
+          },
+          "effectiveDate": "2026-07-30",
+          "designation": "analystJudgment",
+          "reviewBy": "2026-10-31T00:00:00Z",
+          "scenarioIds": [
+            "https://openfinanceformat.org/examples/pagaya-valuation/entities/scenario/bull"
+          ]
+        }
+      ],
+      "outputs": [
+        {
+          "id": "https://openfinanceformat.org/examples/pagaya-valuation/entities/output/bear-value-per-share",
+          "label": "Downside case implied value per share",
+          "value": {
+            "type": "decimal",
+            "value": "10.688537733616583"
+          },
+          "unitId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/unit/usd-per-share",
+          "asOfDate": "2026-07-30",
+          "scenarioId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/scenario/bear",
+          "headline": true,
+          "artifactResourceId": "https://openfinanceformat.org/examples/pagaya-valuation/resources/model",
+          "methodology": "Six-year equity cash-flow valuation driven by Network Volume, FRLPC, normalized net income, D&A, capex, incremental risk-retention equity, year-end discounting, and a Gordon-growth terminal value.",
+          "attestationId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/attestation/valuation"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/pagaya-valuation/entities/output/base-value-per-share",
+          "label": "Base case implied value per share",
+          "value": {
+            "type": "decimal",
+            "value": "23.93434016758543"
+          },
+          "unitId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/unit/usd-per-share",
+          "asOfDate": "2026-07-30",
+          "scenarioId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/scenario/base",
+          "headline": true,
+          "artifactResourceId": "https://openfinanceformat.org/examples/pagaya-valuation/resources/model",
+          "methodology": "Six-year equity cash-flow valuation driven by Network Volume, FRLPC, normalized net income, D&A, capex, incremental risk-retention equity, year-end discounting, and a Gordon-growth terminal value.",
+          "attestationId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/attestation/valuation"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/pagaya-valuation/entities/output/bull-value-per-share",
+          "label": "Upside case implied value per share",
+          "value": {
+            "type": "decimal",
+            "value": "41.65335377687214"
+          },
+          "unitId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/unit/usd-per-share",
+          "asOfDate": "2026-07-30",
+          "scenarioId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/scenario/bull",
+          "headline": true,
+          "artifactResourceId": "https://openfinanceformat.org/examples/pagaya-valuation/resources/model",
+          "methodology": "Six-year equity cash-flow valuation driven by Network Volume, FRLPC, normalized net income, D&A, capex, incremental risk-retention equity, year-end discounting, and a Gordon-growth terminal value.",
+          "attestationId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/attestation/valuation"
+        }
+      ],
+      "lineageEdges": [
+        {
+          "fromId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/output/bear-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/fact/network-volume-2025",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/output/bear-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/fact/frlpc-2025",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/output/bear-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/fact/q2-frlpc-rate",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/output/bear-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/fact/fy2026-network-volume-guidance-midpoint",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/output/bear-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/fact/fy2026-net-income-guidance-midpoint",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/output/bear-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/fact/cash",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/output/bear-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/fact/risk-investments",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/output/bear-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/fact/secured-borrowing",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/output/bear-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/assumption/common-operating",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/output/bear-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/assumption/diluted-shares",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/output/bear-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/assumption/bear-path",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/output/base-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/fact/network-volume-2025",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/output/base-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/fact/frlpc-2025",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/output/base-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/fact/q2-frlpc-rate",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/output/base-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/fact/fy2026-network-volume-guidance-midpoint",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/output/base-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/fact/fy2026-net-income-guidance-midpoint",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/output/base-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/fact/cash",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/output/base-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/fact/risk-investments",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/output/base-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/fact/secured-borrowing",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/output/base-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/assumption/common-operating",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/output/base-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/assumption/diluted-shares",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/output/base-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/assumption/base-path",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/output/bull-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/fact/network-volume-2025",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/output/bull-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/fact/frlpc-2025",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/output/bull-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/fact/q2-frlpc-rate",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/output/bull-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/fact/fy2026-network-volume-guidance-midpoint",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/output/bull-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/fact/fy2026-net-income-guidance-midpoint",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/output/bull-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/fact/cash",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/output/bull-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/fact/risk-investments",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/output/bull-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/fact/secured-borrowing",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/output/bull-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/assumption/common-operating",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/output/bull-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/assumption/diluted-shares",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/output/bull-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/pagaya-valuation/entities/assumption/bull-path",
+          "material": true
+        }
+      ],
+      "attestations": [
+        {
+          "id": "https://openfinanceformat.org/examples/pagaya-valuation/entities/attestation/valuation",
+          "outputIds": [
+            "https://openfinanceformat.org/examples/pagaya-valuation/entities/output/bear-value-per-share",
+            "https://openfinanceformat.org/examples/pagaya-valuation/entities/output/base-value-per-share",
+            "https://openfinanceformat.org/examples/pagaya-valuation/entities/output/bull-value-per-share"
+          ],
+          "authorId": "https://github.com/HenryBranchAdams",
+          "attestedAt": "2026-07-30T14:28:51Z",
+          "artifactResourceId": "https://openfinanceformat.org/examples/pagaya-valuation/resources/model",
+          "artifactSha256": "937677e2fedf115ba7677d8a92b787172ac03d81d0b9824fdc83940209c0a1b5",
+          "lineageBasis": "author-declared",
+          "materialityPolicy": "All sourced opening operating and capital inputs, common owner-cash-flow policies, diluted-share policy, scenario operating paths, discount rates, and terminal assumptions that materially drive the three headline FCFE outputs are declared.",
+          "scope": "The three headline implied values per share produced by the Pagaya valuation workbook as of 2026-07-30.",
+          "knownExclusions": [
+            "The independently retrieved share-price snapshot is intraday at 09:28 CDT on 2026-07-30 and is not an official closing price.",
+            "No licensed consensus estimates are used in the valuation engine.",
+            "Required risk-retention equity and post-2026 operating paths are analyst judgment rather than company guidance.",
+            "No Q2 Form 10-Q or official earnings-call transcript was available at refresh time.",
+            "The peer snapshot is dated and used only as a corroborative screen.",
+            "Lineage is author-declared and has not been independently verified.",
+            "The package does not claim cross-engine spreadsheet execution equivalence.",
+            "Native Excel accessibility review and print/PDF QA were not performed."
+          ],
+          "lineageCompleteness": "attested-not-independently-verified"
+        }
+      ]
+    }
+  }
+}
