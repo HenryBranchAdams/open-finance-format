@@ -1,6 +1,6 @@
 # Third-party notices
 
-The dependency-free `dist/off.mjs` bundle includes the following third-party software. These notices apply to those components; they do not change the Apache-2.0 license for OFF's original code.
+The dependency-free `dist/off.mjs` bundle includes the following third-party software. These notices apply to those components; they do not change the MIT license for OFF's original code.
 
 ## Ajv 8.20.0
 

@@ -183,4 +183,4 @@ The rc.1 release validator checks local artifact consistency only. It cannot cer
 - [docs/handoff.yaml](docs/handoff.yaml) records current development status,
   the frozen candidate boundary, and pending external evidence.
 
-The repository is licensed under Apache-2.0. The checked-in bundle's third-party components retain their upstream terms in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). A package's declared license describes that package; validation does not prove identity, ownership, or legal rights.
+The repository is licensed under MIT. The checked-in bundle's third-party components retain their upstream terms in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). A package's declared license describes that package; validation does not prove identity, ownership, or legal rights.
