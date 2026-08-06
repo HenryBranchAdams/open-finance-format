@@ -7,7 +7,7 @@ import { after, before, describe, test } from "node:test";
 
 import { PackageCatalog, resourceOpaqueId } from "../src/catalog.ts";
 import { evaluateRecord } from "../src/evaluate.ts";
-import { sanitizeMarkdown, verifiedFile } from "../src/files.ts";
+import { sanitizeMarkdown, verifiedFile, viewerFiles } from "../src/files.ts";
 import { loadOffApi, locateRepositoryRoot } from "../src/off-api.ts";
 import { createHttpServer } from "../src/server.ts";
 import type { NormalizedResult, OffApi } from "../src/types.ts";
@@ -183,18 +183,46 @@ describe("evaluator-authoritative semantics", () => {
 
 describe("HTTP determinism and bounds", () => {
   test("serves health and deterministic fixed-time semantic endpoints", async () => {
-    assert.deepEqual(await (await get("/health")).json(), {
+    const health = await (await get("/health")).json() as Record<string, unknown>;
+    assert.deepEqual({ ...health, default_evaluated_at: undefined }, {
       status: "ok",
       service: "OFF Research Workspace local adapter",
       version: "0.1.0",
       package_count: catalog.list().length,
       read_only: true,
+      default_evaluated_at: undefined,
     });
+    assert.match(String(health.default_evaluated_at), /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/u);
     const item = recordNamed("Public Equity Traceable");
     const path = `/off/normalized?package_id=${item.id}&evaluated_at=${fixed}`;
-    assert.equal(await (await get(path)).text(), await (await get(path)).text());
+    const state = await evaluateRecord(api, item, new URL(`http://local${path}`));
+    assert.equal(state.result.kind, "packageResult");
+    if (state.result.kind !== "packageResult") return;
+    assert.deepEqual(Buffer.from(await (await get(path)).arrayBuffer()), Buffer.from(state.result.canonicalBytes));
     const options = await (await get("/off/packages/options")).json() as Array<Record<string, unknown>>;
     assert.ok(options.some((option) => option.value === item.id));
+    assert.ok(options.every((option) => typeof option.extraInfo === "object" && option.extraInfo !== null));
+  });
+
+  test("pins blank evaluation time for the server lifetime and restricts browser origins", async () => {
+    const item = recordNamed("Minimal Core");
+    const health = await (await get("/health")).json() as Record<string, unknown>;
+    const first = await get(`/off/overview?package_id=${item.id}`);
+    const second = await get(`/off/context?package_id=${item.id}`);
+    assert.equal(first.headers.get("x-off-evaluated-at"), health.default_evaluated_at);
+    assert.equal(second.headers.get("x-off-evaluated-at"), health.default_evaluated_at);
+
+    const allowed = await fetch(`${origin}/health`, { headers: { origin: "https://pro.openbb.co" } });
+    assert.equal(allowed.status, 200);
+    assert.equal(allowed.headers.get("access-control-allow-origin"), "https://pro.openbb.co");
+    const refused = await fetch(`${origin}/health`, { headers: { origin: "https://example.invalid" } });
+    assert.equal(refused.status, 403);
+    assert.equal(refused.headers.get("access-control-allow-origin"), null);
+    const noOriginCrossSite = await fetch(`${origin}/health`, { headers: { "sec-fetch-site": "cross-site" } });
+    assert.equal(noOriginCrossSite.status, 403);
+    const publicImage = await fetch(`${origin}/assets/off-workspace.svg`, { headers: { "sec-fetch-site": "cross-site" } });
+    assert.equal(publicImage.status, 200);
+    assert.equal(publicImage.headers.get("content-type"), "image/svg+xml; charset=utf-8");
   });
 
   test("bounds pagination and exposes totals without changing table response shape", async () => {
@@ -245,6 +273,8 @@ describe("resource and narrative security", () => {
     assert.equal(typeof evidence?.file_id, "string");
     const viewed = await (await post(`/off/files?package_id=${equity.id}&evaluated_at=${fixed}`, { file_id: [evidence?.file_id] })).json() as Array<Record<string, unknown>>;
     assert.equal(Buffer.from(String(viewed[0]?.content), "base64").toString("utf8").includes("Synthetic issuer filing evidence"), true);
+    const duplicate = await post(`/off/files?package_id=${equity.id}&evaluated_at=${fixed}`, { file_id: [evidence?.file_id, evidence?.file_id] });
+    assert.equal(duplicate.status, 400);
 
     const workbook = recordNamed("Workbook Binding Google snapshot");
     const workbookInventory = await (await get(`/off/resources?package_id=${workbook.id}&evaluated_at=${fixed}`)).json() as Array<Record<string, unknown>>;
@@ -274,6 +304,44 @@ describe("resource and narrative security", () => {
     assert.equal(download.status, 200);
     assert.match(download.headers.get("content-disposition") ?? "", /^attachment;/u);
     assert.equal(download.headers.get("content-type"), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+  });
+
+  test("bounds aggregate inline viewer bytes across unique files", async () => {
+    const packageRoot = await realpath(await mkdtemp(join(tmpdir(), "off-openbb-viewer-bound-")));
+    const packageId = "pkg_BBBBBBBBBBBBBBBBBBBBBBBB";
+    const resources = [];
+    for (const [index, size] of [7 * 1024 * 1024, 2 * 1024 * 1024].entries()) {
+      const bytes = Buffer.alloc(size, index + 1);
+      const path = `file-${index}.txt`;
+      await writeFile(join(packageRoot, path), bytes);
+      resources.push({
+        id: `urn:test:file:${index}`,
+        mediaType: "text/plain",
+        roles: [],
+        byteSize: bytes.length,
+        sha256: createHash("sha256").update(bytes).digest("hex"),
+        locations: [{ kind: "local", path, availability: "available", integrity: "verified" }],
+      });
+    }
+    const state = {
+      record: { id: packageId, packageRoot, configuredRoot: packageRoot, title: "Viewer bound", declaredProfiles: [], outcome: "valid" as const },
+      evaluatedAt: fixed,
+      requestedProfiles: [],
+      result: {
+        kind: "packageResult" as const,
+        canonicalBytes: new Uint8Array(),
+        normalized: {
+          evaluationContext: { offVersion: "0.1", normalizerVersion: "0.1", evaluatedAt: fixed, requestedProfiles: [] },
+          outcome: "valid" as const,
+          profileResults: { core: { status: "passed" as const }, declared: [] },
+          diagnostics: [],
+          resourceInventory: resources,
+        },
+      },
+    };
+    const viewed = await viewerFiles(state, resources.map((resource) => resourceOpaqueId(packageId, resource.id)));
+    assert.equal(typeof viewed[0]?.content, "string");
+    assert.equal(viewed[1]?.error_type, "file_too_large");
   });
 
   test("sanitizes active Markdown constructs", () => {
@@ -358,6 +426,7 @@ describe("large collection cap", () => {
       assert.ok(item);
       const response = await fetch(`http://127.0.0.1:${address.port}/off/assumptions?package_id=${item.id}&evaluated_at=${fixed}&limit=200`);
       assert.equal(response.headers.get("x-off-total"), "300");
+      assert.equal(response.headers.get("x-off-truncated"), "true");
       assert.equal((await response.json() as unknown[]).length, 200);
     } finally {
       await new Promise<void>((accept, reject) => largeServer.close((error) => error ? reject(error) : accept()));

@@ -6,8 +6,8 @@ export function nowWholeSecond(): string {
   return new Date(Math.floor(Date.now() / 1_000) * 1_000).toISOString().replace(".000Z", "Z");
 }
 
-export function parseEvaluatedAt(value: string | null): string {
-  if (value === null || value === "") return nowWholeSecond();
+export function parseEvaluatedAt(value: string | null, fallback = nowWholeSecond()): string {
+  if (value === null || value === "") return fallback;
   const match = WHOLE_SECOND_UTC.exec(value);
   const year = Number(match?.[1]);
   const month = Number(match?.[2]);
@@ -71,8 +71,9 @@ export async function evaluateRecord(
   api: OffApi,
   record: PackageRecord,
   url: URL,
+  defaultEvaluatedAt?: string,
 ): Promise<EvaluationState> {
-  const evaluatedAt = parseEvaluatedAt(url.searchParams.get("evaluated_at"));
+  const evaluatedAt = parseEvaluatedAt(url.searchParams.get("evaluated_at"), defaultEvaluatedAt);
   const explicit = requestedFromUrl(url);
   const supported = new Set([api.PUBLIC_EQUITY_PROFILE_URI, api.WORKBOOK_BINDING_PROFILE_URI]);
   const requestedProfiles = explicit ?? record.declaredProfiles.filter((uri) => supported.has(uri)).sort();

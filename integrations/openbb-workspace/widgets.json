@@ -9,7 +9,7 @@
     "gridData": { "w": 40, "h": 6 },
     "params": [
       { "paramName": "package_id", "value": "pkg__QU3vjyKzzG5Ogl3Rgx2ZRT5", "label": "OFF package", "description": "Select a locally discovered OFF package by opaque ID.", "type": "endpoint", "optionsEndpoint": "/off/packages/options" },
-      { "paramName": "evaluated_at", "value": "", "label": "Evaluated at", "description": "Optional whole-second UTC timestamp. Blank uses the backend's current whole-second UTC time.", "type": "text" }
+      { "paramName": "evaluated_at", "value": "", "label": "Evaluated at", "description": "Optional whole-second UTC timestamp. Blank uses the adapter startup time.", "type": "text" }
     ]
   },
   "narrative": {
@@ -43,7 +43,9 @@
     ] } },
     "params": [
       { "paramName": "package_id", "value": "pkg__QU3vjyKzzG5Ogl3Rgx2ZRT5", "label": "OFF package", "description": "Opaque local package ID.", "type": "endpoint", "optionsEndpoint": "/off/packages/options" },
-      { "paramName": "evaluated_at", "value": "", "label": "Evaluated at", "description": "Optional whole-second UTC timestamp.", "type": "text" }
+      { "paramName": "evaluated_at", "value": "", "label": "Evaluated at", "description": "Optional whole-second UTC timestamp.", "type": "text" },
+      { "paramName": "offset", "value": 0, "label": "Row offset", "description": "Zero-based starting row for bounded table navigation.", "type": "number" },
+      { "paramName": "limit", "value": 200, "label": "Row limit", "description": "Rows to return, from 1 through 200.", "type": "number" }
     ]
   },
   "assumptions": {
@@ -65,7 +67,9 @@
     ] } },
     "params": [
       { "paramName": "package_id", "value": "pkg__QU3vjyKzzG5Ogl3Rgx2ZRT5", "label": "OFF package", "description": "Opaque local package ID.", "type": "endpoint", "optionsEndpoint": "/off/packages/options" },
-      { "paramName": "evaluated_at", "value": "", "label": "Evaluated at", "description": "Optional whole-second UTC timestamp.", "type": "text" }
+      { "paramName": "evaluated_at", "value": "", "label": "Evaluated at", "description": "Optional whole-second UTC timestamp.", "type": "text" },
+      { "paramName": "offset", "value": 0, "label": "Row offset", "description": "Zero-based starting row for bounded table navigation.", "type": "number" },
+      { "paramName": "limit", "value": 200, "label": "Row limit", "description": "Rows to return, from 1 through 200.", "type": "number" }
     ]
   },
   "source_facts": {
@@ -86,7 +90,9 @@
     ] } },
     "params": [
       { "paramName": "package_id", "value": "pkg__QU3vjyKzzG5Ogl3Rgx2ZRT5", "label": "OFF package", "description": "Opaque local package ID.", "type": "endpoint", "optionsEndpoint": "/off/packages/options" },
-      { "paramName": "evaluated_at", "value": "", "label": "Evaluated at", "description": "Optional whole-second UTC timestamp.", "type": "text" }
+      { "paramName": "evaluated_at", "value": "", "label": "Evaluated at", "description": "Optional whole-second UTC timestamp.", "type": "text" },
+      { "paramName": "offset", "value": 0, "label": "Row offset", "description": "Zero-based starting row for bounded table navigation.", "type": "number" },
+      { "paramName": "limit", "value": 200, "label": "Row limit", "description": "Rows to return, from 1 through 200.", "type": "number" }
     ]
   },
   "sources": {
@@ -105,7 +111,9 @@
     ] } },
     "params": [
       { "paramName": "package_id", "value": "pkg__QU3vjyKzzG5Ogl3Rgx2ZRT5", "label": "OFF package", "description": "Opaque local package ID.", "type": "endpoint", "optionsEndpoint": "/off/packages/options" },
-      { "paramName": "evaluated_at", "value": "", "label": "Evaluated at", "description": "Optional whole-second UTC timestamp.", "type": "text" }
+      { "paramName": "evaluated_at", "value": "", "label": "Evaluated at", "description": "Optional whole-second UTC timestamp.", "type": "text" },
+      { "paramName": "offset", "value": 0, "label": "Row offset", "description": "Zero-based starting row for bounded table navigation.", "type": "number" },
+      { "paramName": "limit", "value": 200, "label": "Row limit", "description": "Rows to return, from 1 through 200.", "type": "number" }
     ]
   },
   "freshness": {
@@ -124,7 +132,9 @@
     ] } },
     "params": [
       { "paramName": "package_id", "value": "pkg__QU3vjyKzzG5Ogl3Rgx2ZRT5", "label": "OFF package", "description": "Opaque local package ID.", "type": "endpoint", "optionsEndpoint": "/off/packages/options" },
-      { "paramName": "evaluated_at", "value": "", "label": "Evaluated at", "description": "Optional whole-second UTC timestamp.", "type": "text" }
+      { "paramName": "evaluated_at", "value": "", "label": "Evaluated at", "description": "Optional whole-second UTC timestamp.", "type": "text" },
+      { "paramName": "offset", "value": 0, "label": "Row offset", "description": "Zero-based starting row for bounded table navigation.", "type": "number" },
+      { "paramName": "limit", "value": 200, "label": "Row limit", "description": "Rows to return, from 1 through 200.", "type": "number" }
     ]
   },
   "lineage": {
@@ -142,7 +152,9 @@
     ] } },
     "params": [
       { "paramName": "package_id", "value": "pkg__QU3vjyKzzG5Ogl3Rgx2ZRT5", "label": "OFF package", "description": "Opaque local package ID.", "type": "endpoint", "optionsEndpoint": "/off/packages/options" },
-      { "paramName": "evaluated_at", "value": "", "label": "Evaluated at", "description": "Optional whole-second UTC timestamp.", "type": "text" }
+      { "paramName": "evaluated_at", "value": "", "label": "Evaluated at", "description": "Optional whole-second UTC timestamp.", "type": "text" },
+      { "paramName": "offset", "value": 0, "label": "Row offset", "description": "Zero-based starting row for bounded table navigation.", "type": "number" },
+      { "paramName": "limit", "value": 200, "label": "Row limit", "description": "Rows to return, from 1 through 200.", "type": "number" }
     ]
   },
   "resources": {
@@ -163,7 +175,9 @@
     ] } },
     "params": [
       { "paramName": "package_id", "value": "pkg__QU3vjyKzzG5Ogl3Rgx2ZRT5", "label": "OFF package", "description": "Opaque local package ID.", "type": "endpoint", "optionsEndpoint": "/off/packages/options" },
-      { "paramName": "evaluated_at", "value": "", "label": "Evaluated at", "description": "Optional whole-second UTC timestamp.", "type": "text" }
+      { "paramName": "evaluated_at", "value": "", "label": "Evaluated at", "description": "Optional whole-second UTC timestamp.", "type": "text" },
+      { "paramName": "offset", "value": 0, "label": "Row offset", "description": "Zero-based starting row for bounded table navigation.", "type": "number" },
+      { "paramName": "limit", "value": 200, "label": "Row limit", "description": "Rows to return, from 1 through 200.", "type": "number" }
     ]
   },
   "workbook_bindings": {
@@ -184,7 +198,9 @@
     ] } },
     "params": [
       { "paramName": "package_id", "value": "pkg__QU3vjyKzzG5Ogl3Rgx2ZRT5", "label": "OFF package", "description": "Opaque local package ID.", "type": "endpoint", "optionsEndpoint": "/off/packages/options" },
-      { "paramName": "evaluated_at", "value": "", "label": "Evaluated at", "description": "Optional whole-second UTC timestamp.", "type": "text" }
+      { "paramName": "evaluated_at", "value": "", "label": "Evaluated at", "description": "Optional whole-second UTC timestamp.", "type": "text" },
+      { "paramName": "offset", "value": 0, "label": "Row offset", "description": "Zero-based starting row for bounded table navigation.", "type": "number" },
+      { "paramName": "limit", "value": 200, "label": "Row limit", "description": "Rows to return, from 1 through 200.", "type": "number" }
     ]
   },
   "native_files": {
@@ -196,7 +212,7 @@
     "endpoint": "/off/files",
     "gridData": { "w": 40, "h": 14 },
     "params": [
-      { "paramName": "file_id", "value": [], "label": "Verified files", "description": "Choose up to 20 evaluator-verified local resources by opaque ID.", "type": "endpoint", "optionsEndpoint": "/off/files/options", "optionsParams": { "package_id": "$package_id", "evaluated_at": "$evaluated_at" }, "multiSelect": true, "roles": ["fileSelector"] },
+      { "paramName": "file_id", "value": [], "label": "Verified files", "description": "Choose up to 20 unique evaluator-verified local resources by opaque ID, within the 8 MiB aggregate viewer bound.", "type": "endpoint", "optionsEndpoint": "/off/files/options", "optionsParams": { "package_id": "$package_id", "evaluated_at": "$evaluated_at" }, "multiSelect": true, "roles": ["fileSelector"] },
       { "paramName": "package_id", "value": "pkg__QU3vjyKzzG5Ogl3Rgx2ZRT5", "label": "OFF package", "description": "Opaque local package ID.", "type": "endpoint", "optionsEndpoint": "/off/packages/options", "show": false },
       { "paramName": "evaluated_at", "value": "", "label": "Evaluated at", "description": "Optional whole-second UTC timestamp.", "type": "text", "show": false }
     ]
@@ -218,7 +234,9 @@
     ] } },
     "params": [
       { "paramName": "package_id", "value": "pkg__QU3vjyKzzG5Ogl3Rgx2ZRT5", "label": "OFF package", "description": "Opaque local package ID.", "type": "endpoint", "optionsEndpoint": "/off/packages/options" },
-      { "paramName": "evaluated_at", "value": "", "label": "Evaluated at", "description": "Optional whole-second UTC timestamp.", "type": "text" }
+      { "paramName": "evaluated_at", "value": "", "label": "Evaluated at", "description": "Optional whole-second UTC timestamp.", "type": "text" },
+      { "paramName": "offset", "value": 0, "label": "Row offset", "description": "Zero-based starting row for bounded table navigation.", "type": "number" },
+      { "paramName": "limit", "value": 200, "label": "Row limit", "description": "Rows to return, from 1 through 200.", "type": "number" }
     ]
   },
   "diagnostics": {
@@ -239,7 +257,9 @@
     ] } },
     "params": [
       { "paramName": "package_id", "value": "pkg__QU3vjyKzzG5Ogl3Rgx2ZRT5", "label": "OFF package", "description": "Opaque local package ID.", "type": "endpoint", "optionsEndpoint": "/off/packages/options" },
-      { "paramName": "evaluated_at", "value": "", "label": "Evaluated at", "description": "Optional whole-second UTC timestamp.", "type": "text" }
+      { "paramName": "evaluated_at", "value": "", "label": "Evaluated at", "description": "Optional whole-second UTC timestamp.", "type": "text" },
+      { "paramName": "offset", "value": 0, "label": "Row offset", "description": "Zero-based starting row for bounded table navigation.", "type": "number" },
+      { "paramName": "limit", "value": 200, "label": "Row limit", "description": "Rows to return, from 1 through 200.", "type": "number" }
     ]
   },
   "normalized_view": {

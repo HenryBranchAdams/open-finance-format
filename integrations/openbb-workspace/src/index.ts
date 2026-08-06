@@ -11,6 +11,7 @@ interface StartOptions {
   readonly roots?: readonly string[];
   readonly port?: number;
   readonly host?: string;
+  readonly allowedOrigins?: readonly string[];
 }
 
 export async function startServer(options: StartOptions = {}) {
@@ -28,7 +29,21 @@ export async function startServer(options: StartOptions = {}) {
   }
   const port = options.port ?? Number(process.env.OFF_PORT ?? "7779");
   if (!Number.isInteger(port) || port < 0 || port > 65_535) throw new Error("OFF_PORT must be an integer from 0 through 65535");
-  const server = createHttpServer({ api, catalog, projectRoot });
+  const configuredOrigins = (process.env.OFF_ALLOWED_ORIGINS ?? "")
+    .split(",")
+    .filter((value) => value.length > 0);
+  const allowedOrigins = options.allowedOrigins ?? (configuredOrigins.length > 0 ? configuredOrigins : undefined);
+  if (allowedOrigins?.some((value) => {
+    try {
+      const url = new URL(value);
+      return url.protocol !== "https:" || url.origin !== value;
+    } catch {
+      return true;
+    }
+  })) {
+    throw new Error("OFF_ALLOWED_ORIGINS must contain comma-delimited HTTPS origins without paths");
+  }
+  const server = createHttpServer({ api, catalog, projectRoot, ...(allowedOrigins === undefined ? {} : { allowedOrigins }) });
   await new Promise<void>((accept, reject) => {
     server.once("error", reject);
     server.listen(port, host, () => {

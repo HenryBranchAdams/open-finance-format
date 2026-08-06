@@ -24,7 +24,7 @@ pnpm build
 OFF_HOST=127.0.0.1 OFF_PORT=7779 pnpm start
 ```
 
-The v1 server rejects non-loopback hosts. Open `http://127.0.0.1:7779/health`, `widgets.json`, and `apps.json` to confirm local service and configuration. The bundled app image is served at `/assets/off-workspace.svg` and assumes the documented port 7779.
+The v1 server rejects non-loopback hosts. Browser requests are limited to the exact `https://pro.openbb.co` origin by default, including rejection of no-`Origin` requests marked `Sec-Fetch-Site: cross-site`; the exact bundled app-image GET route remains public so Workspace can render it, and direct loopback clients without browser fetch metadata continue to work. Set `OFF_ALLOWED_ORIGINS` to a comma-delimited list of exact HTTPS origins only when a different user-controlled Workspace origin is required. Open `http://127.0.0.1:7779/health`, `widgets.json`, and `apps.json` to confirm local service and configuration. The bundled app image is served at `/assets/off-workspace.svg` and assumes the documented port 7779.
 
 To add bounded local package roots at process startup on macOS, provide an absolute colon-delimited list:
 
@@ -61,11 +61,11 @@ Backend routes:
 | `POST /off/files` | Ordered multi-file-viewer success/error records. |
 | `GET /off/files/:opaque_id` | Verified download or safe inline response. |
 
-Table endpoints accept `offset` and `limit`; the application limit is 1–200 rows per response and total/offset/limit are returned in `X-OFF-*` headers. This is an application bound, not a claim about a universal OpenBB limit.
+Table endpoints accept visible per-widget `offset` and `limit` controls; the application limit is 1–200 rows per response and total/offset/limit/truncation are returned in `X-OFF-*` headers. The default is 200 rows. This is an application bound, not a claim about a universal OpenBB limit.
 
 ## Evaluation time
 
-`evaluated_at` must be a real whole-second UTC timestamp such as `2026-07-17T23:59:59Z`. When omitted or blank, the backend generates the current whole-second UTC timestamp. Every evaluation-derived JSON row or object includes it, Markdown views display it, and responses also return `X-OFF-Evaluated-At`. Use a fixed value for reproducible tests and comparisons.
+`evaluated_at` must be a real whole-second UTC timestamp such as `2026-07-17T23:59:59Z`. When omitted or blank, the backend uses one whole-second UTC timestamp captured when the local adapter starts, so every widget in that server session shares the same evaluation instant. `/health` reports it as `default_evaluated_at`. Every evaluation-derived JSON row or object includes it, Markdown views display it, and responses also return `X-OFF-Evaluated-At`. Use a fixed value for reproducible tests and comparisons.
 
 By default the adapter requests every declared profile supported by the installed evaluator. Requested, declared, unsupported, passed, failed, and `notEvaluated` distinctions are retained. Canonical numeric strings and units are not coerced into binary floating-point values.
 
@@ -73,7 +73,7 @@ By default the adapter requests every declared profile supported by the installe
 
 The service is read-only and loopback-only. It does not fetch remote descriptors, mutate packages, initialize Core content, connect accounts, expose credentials, provide an MCP server, trade, execute, or provide investment advice.
 
-File access is restricted to evaluator-verified local resources. The service rechecks containment, symlinks, file identity, size, and digest at access time. It exposes opaque file IDs, not local paths. Active or unsafe formats are download-only or refused by the native viewer; remote-only resources are never proxied. There are no directory listings or arbitrary file routes.
+File access is restricted to evaluator-verified local resources. The service rechecks containment, symlinks, file identity, size, and digest at access time. It exposes opaque file IDs, not local paths. Active or unsafe formats are download-only or refused by the native viewer; remote-only resources are never proxied. Viewer selections must contain unique IDs and are bounded to 8 MiB of verified decoded content in aggregate. There are no directory listings or arbitrary file routes.
 
 AI exposure is deliberately explicit and conservative. Current official OpenBB widget documentation defines the widget-level boolean `ai`; `false` excludes a widget from AI workflows. Every widget declares this field. Safe normalized analytical views use `ai: true`; `native_files`, `diagnostics`, and `normalized_view` use `ai: false` because they expose raw file selection, implementation diagnostics, or canonical normalized JSON that can contain local resource paths. App prompts use `@[id:widget_id]` only for widgets marked `ai: true`, and do not mention authentication or unsafe parameters. The pinned public validator is fallback evidence rather than the canonical live Workspace contract, so visibility must still be revalidated before any live connection. No `selected_agent` or MCP server is declared.
 
@@ -109,7 +109,7 @@ For a later deployment, retain HTTPS, authentication appropriate to the hosting 
 - **Port or image unavailable:** confirm `lsof -nP -iTCP:7779 -sTCP:LISTEN` and `curl http://127.0.0.1:7779/health`. The app image URLs intentionally use port 7779.
 - **Package absent:** confirm its directory is below `examples/` or an explicitly configured non-symlink `OFF_PACKAGE_ROOTS` directory and contains `off.json`.
 - **Invalid `package_id`:** refresh the dynamic selector after changing configured-root order or package-relative paths; IDs are opaque and derived from the root index plus package-relative path.
-- **Unexpected freshness:** inspect the visible `evaluated_at`; a blank value intentionally uses the request-time whole-second UTC timestamp.
+- **Unexpected freshness:** inspect the visible `evaluated_at`; a blank value intentionally uses the server-start whole-second UTC timestamp reported by `/health`.
 - **Schema drift:** rerun the pinned validators, then compare with the current official app-builder resources or Workspace MCP. Preserve explicit widget-level `ai` exclusions and do not silently add MCP or agent IDs.
 - **Mixed content or remote Workspace access:** an HTTPS Workspace may block a plain HTTP backend or be unable to reach loopback. Use an explicitly authorized HTTPS deployment path later; do not weaken browser security or expose the local service broadly.
 - **Workbook view empty:** the selected package may not declare Workbook Binding. An empty table is deliberate degradation, not proof that a workbook lacks locators.

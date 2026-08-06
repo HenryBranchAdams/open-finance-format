@@ -3,7 +3,7 @@ import { createServer, type IncomingMessage, type Server, type ServerResponse } 
 import { join } from "node:path";
 
 import { PackageCatalog, resourceOpaqueId } from "./catalog.ts";
-import { evaluateRecord, RequestError } from "./evaluate.ts";
+import { evaluateRecord, nowWholeSecond, RequestError } from "./evaluate.ts";
 import { sanitizeMarkdown, verifiedFile, viewerFiles } from "./files.ts";
 import type { OffApi, PackageRecord } from "./types.ts";
 import {
@@ -26,23 +26,40 @@ import {
 
 const MAX_JSON_BODY = 32 * 1024;
 const MAX_PAGE_SIZE = 200;
+const DEFAULT_ALLOWED_ORIGINS = ["https://pro.openbb.co"] as const;
 
 export interface AppOptions {
   readonly api: OffApi;
   readonly catalog: PackageCatalog;
   readonly projectRoot: string;
+  readonly allowedOrigins?: readonly string[];
 }
 
 function baseHeaders(): Record<string, string> {
   return {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "Content-Type, X-OpenBB-User",
-    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
     "Cache-Control": "no-store",
     "Content-Security-Policy": "default-src 'none'; frame-ancestors 'none'; sandbox",
     "Referrer-Policy": "no-referrer",
     "X-Content-Type-Options": "nosniff",
   };
+}
+
+function applyCors(request: IncomingMessage, response: ServerResponse, allowedOrigins: ReadonlySet<string>): void {
+  const origin = request.headers.origin;
+  response.setHeader("Vary", "Origin");
+  response.setHeader("Access-Control-Allow-Headers", "Content-Type, X-OpenBB-User");
+  response.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  if (origin === undefined) {
+    if (request.headers["sec-fetch-site"] === "cross-site") {
+      if (request.method === "GET" && request.url === "/assets/off-workspace.svg") return;
+      throw new RequestError(403, "origin_not_allowed", "Cross-site browser requests are not allowed by this local service");
+    }
+    return;
+  }
+  if (!allowedOrigins.has(origin)) {
+    throw new RequestError(403, "origin_not_allowed", "The request origin is not allowed by this local service");
+  }
+  response.setHeader("Access-Control-Allow-Origin", origin);
 }
 
 function sendJson(response: ServerResponse, status: number, body: unknown, headers: Record<string, string> = {}): void {
@@ -73,7 +90,7 @@ function page(url: URL, rows: readonly Record<string, unknown>[]): {
   readonly headers: Record<string, string>;
 } {
   const offsetRaw = url.searchParams.get("offset") ?? "0";
-  const limitRaw = url.searchParams.get("limit") ?? "100";
+  const limitRaw = url.searchParams.get("limit") ?? String(MAX_PAGE_SIZE);
   if (!/^\d+$/u.test(offsetRaw) || !/^\d+$/u.test(limitRaw)) {
     throw new RequestError(400, "invalid_pagination", "offset and limit must be non-negative integers");
   }
@@ -88,6 +105,7 @@ function page(url: URL, rows: readonly Record<string, unknown>[]): {
       "X-OFF-Total": String(rows.length),
       "X-OFF-Offset": String(offset),
       "X-OFF-Limit": String(limit),
+      "X-OFF-Truncated": String(offset + limit < rows.length),
     },
   };
 }
@@ -138,8 +156,11 @@ async function staticAsset(response: ServerResponse, projectRoot: string): Promi
 }
 
 export function createApp(options: AppOptions): (request: IncomingMessage, response: ServerResponse) => Promise<void> {
+  const allowedOrigins = new Set(options.allowedOrigins ?? DEFAULT_ALLOWED_ORIGINS);
+  const defaultEvaluatedAt = nowWholeSecond();
   return async (request, response) => {
     try {
+      applyCors(request, response, allowedOrigins);
       if (request.method === "OPTIONS") {
         response.writeHead(204, baseHeaders());
         response.end();
@@ -164,6 +185,7 @@ export function createApp(options: AppOptions): (request: IncomingMessage, respo
           version: "0.1.0",
           package_count: options.catalog.list().length,
           read_only: true,
+          default_evaluated_at: defaultEvaluatedAt,
         });
         return;
       }
@@ -179,13 +201,13 @@ export function createApp(options: AppOptions): (request: IncomingMessage, respo
         sendJson(response, 200, options.catalog.list().map((record) => ({
           label: record.title,
           value: record.id,
-          extraInfo: `${record.releaseVersion ?? "release unknown"} · ${record.outcome}`,
+          extraInfo: { description: `${record.releaseVersion ?? "release unknown"} · ${record.outcome}` },
         })));
         return;
       }
 
       const record = packageRecord(options.catalog, url);
-      const state = await evaluateRecord(options.api, record, url);
+      const state = await evaluateRecord(options.api, record, url, defaultEvaluatedAt);
       const evaluationHeaders = { "X-OFF-Evaluated-At": state.evaluatedAt };
 
       if (request.method === "GET" && url.pathname === "/off/overview") {
@@ -221,7 +243,18 @@ export function createApp(options: AppOptions): (request: IncomingMessage, respo
         return;
       }
       if (request.method === "GET" && url.pathname === "/off/normalized") {
-        sendJson(response, 200, normalized(state), evaluationHeaders);
+        if (state.result.kind === "packageResult") {
+          const bytes = Buffer.from(state.result.canonicalBytes);
+          response.writeHead(200, {
+            ...baseHeaders(),
+            ...evaluationHeaders,
+            "Content-Type": "application/json; charset=utf-8",
+            "Content-Length": String(bytes.byteLength),
+          });
+          response.end(bytes);
+        } else {
+          sendJson(response, 200, normalized(state), evaluationHeaders);
+        }
         return;
       }
       if (request.method === "GET" && url.pathname === "/off/normalized-view") {
@@ -261,8 +294,12 @@ export function createApp(options: AppOptions): (request: IncomingMessage, respo
         const document = typeof body === "object" && body !== null ? body as Record<string, unknown> : {};
         const selection = document.file_id ?? document.resource_id;
         const fileIds = typeof selection === "string" ? [selection] : Array.isArray(selection) ? selection : [];
-        if (fileIds.length > 20 || !fileIds.every((id): id is string => typeof id === "string" && /^res_[A-Za-z0-9_-]{24}$/u.test(id))) {
-          throw new RequestError(400, "invalid_file_selection", "file_id must select no more than 20 opaque file IDs");
+        if (
+          fileIds.length > 20 ||
+          new Set(fileIds).size !== fileIds.length ||
+          !fileIds.every((id): id is string => typeof id === "string" && /^res_[A-Za-z0-9_-]{24}$/u.test(id))
+        ) {
+          throw new RequestError(400, "invalid_file_selection", "file_id must select no more than 20 unique opaque file IDs");
         }
         sendJson(response, 200, await viewerFiles(state, fileIds), evaluationHeaders);
         return;
@@ -272,7 +309,7 @@ export function createApp(options: AppOptions): (request: IncomingMessage, respo
         sendJson(response, 200, rows.map((row) => ({
           label: `${String(row.id)} · ${String(row.media_type ?? "file")}`,
           value: row.file_id,
-          extraInfo: "Evaluator-verified local resource",
+          extraInfo: { description: "Evaluator-verified local resource" },
         })), evaluationHeaders);
         return;
       }

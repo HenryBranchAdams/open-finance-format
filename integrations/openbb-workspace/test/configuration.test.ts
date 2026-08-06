@@ -53,6 +53,10 @@ describe("OpenBB configuration contract", () => {
       const params = widget.params ?? [];
       assert.ok(params.some((item) => item.paramName === "package_id"), widgetId);
       assert.ok(params.some((item) => item.paramName === "evaluated_at"), widgetId);
+      if (widget.type === "table") {
+        assert.ok(params.some((item) => item.paramName === "offset" && item.type === "number"), widgetId);
+        assert.ok(params.some((item) => item.paramName === "limit" && item.type === "number"), widgetId);
+      }
     }
 
     for (const tab of Object.values(app.tabs as Record<string, Record<string, unknown>>)) {
@@ -128,6 +132,7 @@ describe("configured widget response shapes", () => {
       },
     });
     assert.equal(preflight.status, 204);
+    assert.equal(preflight.headers.get("access-control-allow-origin"), "https://pro.openbb.co");
     assert.ok((preflight.headers.get("access-control-allow-headers") ?? "")
       .split(",")
       .map((header) => header.trim().toLowerCase())
@@ -144,6 +149,7 @@ describe("configured widget response shapes", () => {
     if (packageId === undefined) throw new Error("Apple DCF package was not discovered");
     const options = await (await fetch(`${origin}/off/packages/options`)).json() as Array<Record<string, unknown>>;
     assert.ok(options.some((option) => option.value === packageId));
+    assert.ok(options.every((option) => typeof option.extraInfo === "object" && option.extraInfo !== null));
 
     for (const [widgetId, widget] of Object.entries(widgets)) {
       const query: string = `package_id=${encodeURIComponent(packageId)}&evaluated_at=${encodeURIComponent(fixed)}`;
@@ -167,6 +173,7 @@ describe("configured widget response shapes", () => {
     const fileOptions = await (await fetch(`${origin}/off/files/options?package_id=${encodeURIComponent(packageId)}&evaluated_at=${fixed}`)).json() as Array<Record<string, unknown>>;
     assert.ok(fileOptions.length > 0);
     assert.ok(fileOptions.every((option) => /^res_[A-Za-z0-9_-]{24}$/u.test(String(option.value))));
+    assert.ok(fileOptions.every((option) => typeof option.extraInfo === "object" && option.extraInfo !== null));
     assert.equal(JSON.stringify(fileOptions).includes(repositoryRoot), false);
   });
 

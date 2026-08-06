@@ -190,8 +190,8 @@ var WHOLE_SECOND_UTC = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})Z$/u;
 function nowWholeSecond() {
   return new Date(Math.floor(Date.now() / 1e3) * 1e3).toISOString().replace(".000Z", "Z");
 }
-function parseEvaluatedAt(value) {
-  if (value === null || value === "") return nowWholeSecond();
+function parseEvaluatedAt(value, fallback = nowWholeSecond()) {
+  if (value === null || value === "") return fallback;
   const match = WHOLE_SECOND_UTC.exec(value);
   const year = Number(match?.[1]);
   const month = Number(match?.[2]);
@@ -234,8 +234,8 @@ function requestedFromUrl(url) {
   }
   return values.sort();
 }
-async function evaluateRecord(api, record, url) {
-  const evaluatedAt = parseEvaluatedAt(url.searchParams.get("evaluated_at"));
+async function evaluateRecord(api, record, url, defaultEvaluatedAt) {
+  const evaluatedAt = parseEvaluatedAt(url.searchParams.get("evaluated_at"), defaultEvaluatedAt);
   const explicit = requestedFromUrl(url);
   const supported = /* @__PURE__ */ new Set([api.PUBLIC_EQUITY_PROFILE_URI, api.WORKBOOK_BINDING_PROFILE_URI]);
   const requestedProfiles = explicit ?? record.declaredProfiles.filter((uri) => supported.has(uri)).sort();
@@ -253,6 +253,7 @@ import { constants as fsConstants } from "node:fs";
 import { lstat as lstat2, open, realpath as realpath2 } from "node:fs/promises";
 import { basename as basename2, isAbsolute as isAbsolute2, relative as relative2, resolve as resolve3, sep as sep2 } from "node:path";
 var MAX_VIEWER_BYTES = 8 * 1024 * 1024;
+var MAX_VIEWER_TOTAL_BYTES = 8 * 1024 * 1024;
 var MAX_DOWNLOAD_BYTES = 64 * 1024 * 1024;
 var SAFE_INLINE_TYPES = /* @__PURE__ */ new Set([
   "text/plain",
@@ -360,9 +361,12 @@ async function verifiedFile(state, fileId, maxBytes = MAX_DOWNLOAD_BYTES) {
 }
 async function viewerFiles(state, fileIds) {
   const output = [];
+  let totalBytes = 0;
   for (const fileId of fileIds) {
     try {
-      const file = await verifiedFile(state, fileId, MAX_VIEWER_BYTES);
+      const remainingBytes = Math.min(MAX_VIEWER_BYTES, MAX_VIEWER_TOTAL_BYTES - totalBytes);
+      const file = await verifiedFile(state, fileId, remainingBytes);
+      totalBytes += file.bytes.byteLength;
       if (!file.inline) {
         output.push({ error_type: "unsafe_inline_format", content: "This verified file is download-only and is not rendered inline." });
       } else {
@@ -695,16 +699,31 @@ function normalized(state) {
 // src/server.ts
 var MAX_JSON_BODY = 32 * 1024;
 var MAX_PAGE_SIZE = 200;
+var DEFAULT_ALLOWED_ORIGINS = ["https://pro.openbb.co"];
 function baseHeaders() {
   return {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "Content-Type, X-OpenBB-User",
-    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
     "Cache-Control": "no-store",
     "Content-Security-Policy": "default-src 'none'; frame-ancestors 'none'; sandbox",
     "Referrer-Policy": "no-referrer",
     "X-Content-Type-Options": "nosniff"
   };
+}
+function applyCors(request, response, allowedOrigins) {
+  const origin = request.headers.origin;
+  response.setHeader("Vary", "Origin");
+  response.setHeader("Access-Control-Allow-Headers", "Content-Type, X-OpenBB-User");
+  response.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  if (origin === void 0) {
+    if (request.headers["sec-fetch-site"] === "cross-site") {
+      if (request.method === "GET" && request.url === "/assets/off-workspace.svg") return;
+      throw new RequestError(403, "origin_not_allowed", "Cross-site browser requests are not allowed by this local service");
+    }
+    return;
+  }
+  if (!allowedOrigins.has(origin)) {
+    throw new RequestError(403, "origin_not_allowed", "The request origin is not allowed by this local service");
+  }
+  response.setHeader("Access-Control-Allow-Origin", origin);
 }
 function sendJson(response, status, body, headers = {}) {
   response.writeHead(status, { ...baseHeaders(), "Content-Type": "application/json; charset=utf-8", ...headers });
@@ -728,7 +747,7 @@ function packageRecord(catalog, url) {
 }
 function page(url, rows) {
   const offsetRaw = url.searchParams.get("offset") ?? "0";
-  const limitRaw = url.searchParams.get("limit") ?? "100";
+  const limitRaw = url.searchParams.get("limit") ?? String(MAX_PAGE_SIZE);
   if (!/^\d+$/u.test(offsetRaw) || !/^\d+$/u.test(limitRaw)) {
     throw new RequestError(400, "invalid_pagination", "offset and limit must be non-negative integers");
   }
@@ -742,7 +761,8 @@ function page(url, rows) {
     headers: {
       "X-OFF-Total": String(rows.length),
       "X-OFF-Offset": String(offset),
-      "X-OFF-Limit": String(limit)
+      "X-OFF-Limit": String(limit),
+      "X-OFF-Truncated": String(offset + limit < rows.length)
     }
   };
 }
@@ -789,8 +809,11 @@ async function staticAsset(response, projectRoot) {
   }
 }
 function createApp(options) {
+  const allowedOrigins = new Set(options.allowedOrigins ?? DEFAULT_ALLOWED_ORIGINS);
+  const defaultEvaluatedAt = nowWholeSecond();
   return async (request, response) => {
     try {
+      applyCors(request, response, allowedOrigins);
       if (request.method === "OPTIONS") {
         response.writeHead(204, baseHeaders());
         response.end();
@@ -814,7 +837,8 @@ function createApp(options) {
           service: "OFF Research Workspace local adapter",
           version: "0.1.0",
           package_count: options.catalog.list().length,
-          read_only: true
+          read_only: true,
+          default_evaluated_at: defaultEvaluatedAt
         });
         return;
       }
@@ -830,12 +854,12 @@ function createApp(options) {
         sendJson(response, 200, options.catalog.list().map((record2) => ({
           label: record2.title,
           value: record2.id,
-          extraInfo: `${record2.releaseVersion ?? "release unknown"} \xB7 ${record2.outcome}`
+          extraInfo: { description: `${record2.releaseVersion ?? "release unknown"} \xB7 ${record2.outcome}` }
         })));
         return;
       }
       const record = packageRecord(options.catalog, url);
-      const state = await evaluateRecord(options.api, record, url);
+      const state = await evaluateRecord(options.api, record, url, defaultEvaluatedAt);
       const evaluationHeaders = { "X-OFF-Evaluated-At": state.evaluatedAt };
       if (request.method === "GET" && url.pathname === "/off/overview") {
         sendJson(response, 200, overview(state), evaluationHeaders);
@@ -870,7 +894,18 @@ function createApp(options) {
         return;
       }
       if (request.method === "GET" && url.pathname === "/off/normalized") {
-        sendJson(response, 200, normalized(state), evaluationHeaders);
+        if (state.result.kind === "packageResult") {
+          const bytes = Buffer.from(state.result.canonicalBytes);
+          response.writeHead(200, {
+            ...baseHeaders(),
+            ...evaluationHeaders,
+            "Content-Type": "application/json; charset=utf-8",
+            "Content-Length": String(bytes.byteLength)
+          });
+          response.end(bytes);
+        } else {
+          sendJson(response, 200, normalized(state), evaluationHeaders);
+        }
         return;
       }
       if (request.method === "GET" && url.pathname === "/off/normalized-view") {
@@ -912,8 +947,8 @@ ${error.message}`);
         const document = typeof body === "object" && body !== null ? body : {};
         const selection = document.file_id ?? document.resource_id;
         const fileIds = typeof selection === "string" ? [selection] : Array.isArray(selection) ? selection : [];
-        if (fileIds.length > 20 || !fileIds.every((id) => typeof id === "string" && /^res_[A-Za-z0-9_-]{24}$/u.test(id))) {
-          throw new RequestError(400, "invalid_file_selection", "file_id must select no more than 20 opaque file IDs");
+        if (fileIds.length > 20 || new Set(fileIds).size !== fileIds.length || !fileIds.every((id) => typeof id === "string" && /^res_[A-Za-z0-9_-]{24}$/u.test(id))) {
+          throw new RequestError(400, "invalid_file_selection", "file_id must select no more than 20 unique opaque file IDs");
         }
         sendJson(response, 200, await viewerFiles(state, fileIds), evaluationHeaders);
         return;
@@ -923,7 +958,7 @@ ${error.message}`);
         sendJson(response, 200, rows.map((row) => ({
           label: `${String(row.id)} \xB7 ${String(row.media_type ?? "file")}`,
           value: row.file_id,
-          extraInfo: "Evaluator-verified local resource"
+          extraInfo: { description: "Evaluator-verified local resource" }
         })), evaluationHeaders);
         return;
       }
@@ -967,7 +1002,19 @@ async function startServer(options = {}) {
   }
   const port = options.port ?? Number(process.env.OFF_PORT ?? "7779");
   if (!Number.isInteger(port) || port < 0 || port > 65535) throw new Error("OFF_PORT must be an integer from 0 through 65535");
-  const server = createHttpServer({ api, catalog, projectRoot });
+  const configuredOrigins = (process.env.OFF_ALLOWED_ORIGINS ?? "").split(",").filter((value) => value.length > 0);
+  const allowedOrigins = options.allowedOrigins ?? (configuredOrigins.length > 0 ? configuredOrigins : void 0);
+  if (allowedOrigins?.some((value) => {
+    try {
+      const url = new URL(value);
+      return url.protocol !== "https:" || url.origin !== value;
+    } catch {
+      return true;
+    }
+  })) {
+    throw new Error("OFF_ALLOWED_ORIGINS must contain comma-delimited HTTPS origins without paths");
+  }
+  const server = createHttpServer({ api, catalog, projectRoot, ...allowedOrigins === void 0 ? {} : { allowedOrigins } });
   await new Promise((accept, reject) => {
     server.once("error", reject);
     server.listen(port, host, () => {

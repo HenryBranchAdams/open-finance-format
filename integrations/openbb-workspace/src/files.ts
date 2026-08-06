@@ -8,6 +8,7 @@ import { RequestError } from "./evaluate.ts";
 import type { EvaluationState } from "./types.ts";
 
 const MAX_VIEWER_BYTES = 8 * 1024 * 1024;
+const MAX_VIEWER_TOTAL_BYTES = 8 * 1024 * 1024;
 const MAX_DOWNLOAD_BYTES = 64 * 1024 * 1024;
 const SAFE_INLINE_TYPES = new Set([
   "text/plain",
@@ -139,9 +140,12 @@ export async function verifiedFile(
 
 export async function viewerFiles(state: EvaluationState, fileIds: readonly string[]): Promise<Record<string, unknown>[]> {
   const output: Record<string, unknown>[] = [];
+  let totalBytes = 0;
   for (const fileId of fileIds) {
     try {
-      const file = await verifiedFile(state, fileId, MAX_VIEWER_BYTES);
+      const remainingBytes = Math.min(MAX_VIEWER_BYTES, MAX_VIEWER_TOTAL_BYTES - totalBytes);
+      const file = await verifiedFile(state, fileId, remainingBytes);
+      totalBytes += file.bytes.byteLength;
       if (!file.inline) {
         output.push({ error_type: "unsafe_inline_format", content: "This verified file is download-only and is not rendered inline." });
       } else {
