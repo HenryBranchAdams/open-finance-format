@@ -71,6 +71,13 @@ checksum digest exist. Local release self-check remains a self-consistency
 check, not publisher authentication. The generated manifest keeps
 independence, public review, and all promotion gates pending.
 
+For a role-separated external handoff, use
+[QUALIFICATION_HANDOFF.md](QUALIFICATION_HANDOFF.md), the
+[evidence submission template](QUALIFICATION_EVIDENCE.template.md), and the
+[public review packet](QUALIFICATION_REVIEW_PACKET.template.md). The
+[design-partner pilot brief](DESIGN_PARTNER_PILOT.md) is a separate adoption
+track and is not clean-room evidence.
+
 ## Evaluation checklist
 
 1. Admit and normalize `off.json` before interpreting it.

@@ -26,6 +26,10 @@ provenance and does not replace the release-specific evidence below.
 
 ## Clean-room handoff
 
-Give an unaffiliated implementer the immutable public commit/tag and the authenticated checksum digest, then use the [consumer task](../clean-room/CONSUMER_TASK.md) and [producer task](../clean-room/PRODUCER_TASK.md). A request for private clarification ends the attempt: publish the clarification in a new immutable candidate and restart the clean-room exercise from public materials.
+Give an unaffiliated implementer the immutable public commit/tag and the authenticated checksum digest, then use the [external qualification index](QUALIFICATION_INDEX.md), [role-separated handoff](QUALIFICATION_HANDOFF.md), [consumer task](https://github.com/HenryBranchAdams/open-finance-format/blob/2570e38998dd735b83da301a5b6f0e95aca47073/clean-room/CONSUMER_TASK.md), and [producer task](https://github.com/HenryBranchAdams/open-finance-format/blob/2570e38998dd735b83da301a5b6f0e95aca47073/clean-room/PRODUCER_TASK.md). Preserve submissions with the [evidence template](QUALIFICATION_EVIDENCE.template.md) and have a named public human use the [review packet](QUALIFICATION_REVIEW_PACKET.template.md). A request for private clarification ends the attempt: publish the clarification in a new immutable candidate and restart the clean-room exercise from public materials.
+
+The [design-partner pilot brief](DESIGN_PARTNER_PILOT.md) is a separate
+post-interoperability adoption track. It does not replace the clean-room gates
+or establish adoption merely by being prepared.
 
 Do not treat a green CircleCI build as a clean-room pass. It verifies the project’s own local reference behavior and release closure for the built revision; only the unaffiliated consumer, producer, and timed authoring exercises can supply the distinct evidence needed for a future promotion decision.

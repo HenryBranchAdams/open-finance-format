@@ -29,6 +29,11 @@ The local [qualification launchpad](QUALIFICATION_LAUNCHPAD.md) closes the
 repository-preparation gap while leaving the immutable public anchor,
 unaffiliated execution, and named public review explicitly pending.
 
+The [qualification index](QUALIFICATION_INDEX.md) reconciles the current
+repository state with those external blockers. The [design-partner pilot
+brief](DESIGN_PARTNER_PILOT.md) defines a bounded adoption experiment and
+selection categories without naming, contacting, or claiming a partner.
+
 ## Clean-room ambiguity process
 
 The key operational question is whether a clean-room implementer finds any requirement that cannot be resolved from public specification text, schemas, corpus fixtures, and expected outputs.
@@ -46,9 +51,12 @@ The previous candidate is not patched in place or retroactively credited with a 
 
 ### External design partner
 
-- Which independent public-markets analyst will attempt the first real package?
-- Will the partner publish a new model, convert an existing workbook, or consume someone else's package?
-- What baseline should be used to measure authoring time and repair burden?
+- Which named, opted-in partner from the documented categories will authorize
+  one real-model exercise?
+- Will the partner publish a new model, convert an existing workbook, or consume
+  someone else's package within the pilot's stated scope?
+- Has the partner agreed to the baseline, evidence-retention, and exit criteria
+  before authoring begins?
 
 Adoption evidence is pending this external real-model exercise and must remain separate from format conformance.
 

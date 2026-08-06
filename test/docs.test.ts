@@ -18,6 +18,11 @@ const markdownPaths = [
   "spec/schema-resources-0.1.md",
   "docs/IMPLEMENTERS.md",
   "docs/QUALIFICATION_LAUNCHPAD.md",
+  "docs/QUALIFICATION_INDEX.md",
+  "docs/QUALIFICATION_HANDOFF.md",
+  "docs/QUALIFICATION_EVIDENCE.template.md",
+  "docs/QUALIFICATION_REVIEW_PACKET.template.md",
+  "docs/DESIGN_PARTNER_PILOT.md",
   "protocol/README.md",
   "proposals/README.md",
   "proposals/0000-template.md",
@@ -238,6 +243,34 @@ test("qualification launchpad guidance stays non-normative and fail-closed", asy
   assert.match(launchpad, /first validator results/iu);
   assert.match(launchpad, /pinned_git_snapshot/iu);
   assert.match(launchpad, /every non-self-excluded allowlisted file/iu);
+});
+
+test("external qualification packets preserve immutable pointers and pending claims", async () => {
+  const index = await readRepositoryFile("docs/QUALIFICATION_INDEX.md");
+  const handoff = await readRepositoryFile("docs/QUALIFICATION_HANDOFF.md");
+  const evidence = await readRepositoryFile("docs/QUALIFICATION_EVIDENCE.template.md");
+  const review = await readRepositoryFile("docs/QUALIFICATION_REVIEW_PACKET.template.md");
+  const pilot = await readRepositoryFile("docs/DESIGN_PARTNER_PILOT.md");
+
+  assert.match(index, /2c2a656ecd13c7c5f27c94e12882f5fa7694f326/u);
+  assert.match(index, /2570e38998dd735b83da301a5b6f0e95aca47073/u);
+  assert.match(index, /65ac8b6b7521ab1582275317d43d7fff819a706a233be599f2285b40f7d3a59e/u);
+  assert.match(index, /blob\/2570e38998dd735b83da301a5b6f0e95aca47073\/clean-room\/CONSUMER_TASK\.md/u);
+  assert.match(index, /blob\/2570e38998dd735b83da301a5b6f0e95aca47073\/clean-room\/PRODUCER_TASK\.md/u);
+  assert.match(index, /independent authentication still pending/iu);
+  assert.match(index, /not claimed/iu);
+  assert.match(handoff, /frozen.*consumer task/iu);
+  assert.match(handoff, /public reviewer/iu);
+  assert.match(handoff, /private clarification/iu);
+  assert.match(evidence, /author-claimed/iu);
+  assert.match(evidence, /publicly-authenticated/iu);
+  assert.match(evidence, /postValidationRepairs: 0/iu);
+  assert.match(review, /Adjudication boundary/iu);
+  assert.match(review, /claimBasis: publicly-authenticated/iu);
+  assert.match(review, /does not establish:[\s\S]*adoption/iu);
+  assert.match(pilot, /No\s+partner,\s+model,\s+user count,\s+adoption result,\s+or\s+outreach activity/iu);
+  assert.match(pilot, /Entry criteria/iu);
+  assert.match(pilot, /Exit criteria/iu);
 });
 
 test("security guidance covers the protocol threat and privacy boundaries", async () => {

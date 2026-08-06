@@ -92,6 +92,11 @@ current development tree.
 
 The corpus proves the behavior of this reference implementation under local tests. It does not by itself prove that an independent consumer will interpret OFF the same way.
 
+The [external qualification index](docs/QUALIFICATION_INDEX.md) is the
+concise map for immutable release pointers, role-separated handoff, evidence
+submission, public review, and the design-partner pilot. It is mutable
+coordination material and does not add normative release content.
+
 The mutable tree also includes non-normative, source-backed research examples,
 including the versioned [Pagaya Q2 2026 refresh](examples/pagaya-valuation/)
 and [Neuraxis valuation package](examples/nrxs-valuation/). Their narratives,

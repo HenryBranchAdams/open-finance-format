@@ -25,7 +25,9 @@ This directory preserves the product and standards work that led to the current 
 3. `IMPLEMENTERS.md` — offline implementation and clean-room boundaries.
 4. `../GOVERNANCE.md` — founder-led proposal and release authority.
 5. `PUBLICATION.md` — non-normative rc.1 publication procedure.
-6. The remaining files here — product, design, research, roadmap, and history.
+6. `QUALIFICATION_INDEX.md` — current external-gate matrix and immutable
+   handoff pointers.
+7. The remaining files here — product, design, research, roadmap, and history.
 
 `handoff.yaml` is the machine-readable index for this package.
 
