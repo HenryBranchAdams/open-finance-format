@@ -7,7 +7,7 @@ const packageRoot = path.dirname(fileURLToPath(import.meta.url));
 const outputDir = path.join(
   packageRoot,
   "outputs",
-  "019f8fa1-90aa-7002-a17f-ddffc4552a84",
+  "2026-07-30-q2-refresh",
 );
 const previewDir = path.join(outputDir, "previews");
 const outputPath = path.join(outputDir, "pagaya-valuation-model.xlsx");
@@ -167,7 +167,7 @@ for (const name of names) {
     "Status",
   ]];
   header(s.getRange("A3:J3"));
-  s.getRange("A4:J11").values = [
+  s.getRange("A4:J13").values = [
     [
       "S1",
       "SEC filing",
@@ -207,14 +207,14 @@ for (const name of names) {
     [
       "S4",
       "Market snapshot",
-      "Stock Analysis / S&P Global / CBOE",
-      "PGY overview and valuation snapshot",
-      "2026-07-23 15:37 EDT",
-      "Intraday 2026-07-23",
-      "Price, shares, valuation ratios",
-      "https://stockanalysis.com/stocks/pgy/",
-      "Price $16.29, 82.92mm shares, 5.25x forward P/E",
-      "Verified secondary; intraday",
+      "Public market data",
+      "PGY intraday market snapshot",
+      "2026-07-30 09:28 CDT",
+      "Intraday 2026-07-30",
+      "Price, market capitalization, trading range",
+      "https://finance.yahoo.com/quote/PGY/",
+      "Price $16.32; market cap $1.579bn; 09:28 CDT snapshot",
+      "Verified current-market snapshot; intraday",
     ],
     [
       "S5",
@@ -264,19 +264,43 @@ for (const name of names) {
       "Confirmed Q2 2026 catalyst date",
       "Verified primary",
     ],
+    [
+      "S9",
+      "SEC exhibit",
+      "Pagaya / SEC",
+      "Q2 2026 earnings release",
+      "2026-07-30",
+      "Quarter and six months ended 2026-06-30",
+      "Exhibit 99.1, pp. 1-9",
+      "https://www.sec.gov/Archives/edgar/data/1883085/000188308526000052/earningspressreleasefina.htm",
+      "Q2 actuals, balance sheet, cash flow, revised FY2026 guidance",
+      "Verified primary",
+    ],
+    [
+      "S10",
+      "SEC exhibit",
+      "Pagaya / SEC",
+      "Q2 2026 shareholder letter",
+      "2026-07-30",
+      "Quarter ended 2026-06-30 and FY2026 outlook",
+      "Exhibit 99.2, pp. 2-11",
+      "https://www.sec.gov/Archives/edgar/data/1883085/000188308526000052/shareholderletter2q2026.htm",
+      "Funding, partner, credit, FRLPC, and revised outlook commentary",
+      "Verified primary",
+    ],
   ];
-  body(s.getRange("A4:J11"));
-  s.getRange("H4:H11").format.font = { color: "#0563C1", underline: true, size: 9 };
-  s.getRange("H4:H11").format.wrapText = true;
-  s.getRange("A4:J11").format.wrapText = true;
-  s.getRange("A4:J11").format.rowHeight = 42;
-  section(s, "A13:J13", "Source limitations", bearDark);
-  s.getRange("A14:D16").values = [
+  body(s.getRange("A4:J13"));
+  s.getRange("H4:H13").format.font = { color: "#0563C1", underline: true, size: 9 };
+  s.getRange("H4:H13").format.wrapText = true;
+  s.getRange("A4:J13").format.wrapText = true;
+  s.getRange("A4:J13").format.rowHeight = 42;
+  section(s, "A15:J15", "Source limitations", bearDark);
+  s.getRange("A16:D18").values = [
     ["Limitation", "Status", "Decision effect", "Required action"],
     [
       "Current price",
       "Verified intraday",
-      "Current at 15:37 EDT, but not an official closing price.",
+      "Current at 09:28 CDT, but not an official closing price.",
       "Refresh after market close or immediately before a position decision.",
     ],
     [
@@ -286,10 +310,10 @@ for (const name of names) {
       "Use comps only as corroboration and bridge against a licensed dataset before underwriting.",
     ],
   ];
-  header(s.getRange("A14:D14"));
-  body(s.getRange("A15:D16"));
-  s.getRange("A14:D16").format.wrapText = true;
-  s.getRange("A15:D16").format.rowHeight = 44;
+  header(s.getRange("A16:D16"));
+  body(s.getRange("A17:D18"));
+  s.getRange("A16:D18").format.wrapText = true;
+  s.getRange("A17:D18").format.rowHeight = 44;
   setWidths(s, { A: 16, B: 19, C: 24, D: 32, E: 18, F: 20, G: 26, H: 44, I: 38, J: 24 });
   s.freezePanes.freezeRows(3);
 }
@@ -300,7 +324,7 @@ for (const name of names) {
   title(s, "A1:H1", "Pagaya Valuation Assumptions");
   s.getRange("A2:H2").merge();
   s.getRange("A2").values = [[
-    "Editable inputs use blue text, pale yellow fill, and a border. USD millions unless stated. Source cutoff: 2026-07-23 15:37 EDT.",
+    "Editable inputs use blue text, pale yellow fill, and a border. USD millions unless stated. Source cutoff: 2026-07-30 09:28 CDT.",
   ]];
   s.getRange("A2:H2").format = {
     fill: paleGray,
@@ -310,18 +334,18 @@ for (const name of names) {
   section(s, "A3:D3", "Shared assumptions");
   s.getRange("A4:D16").values = [
     ["Assumption", "Value", "Unit", "Basis / source"],
-    ["Valuation date", new Date("2026-07-23T00:00:00Z"), "date", "Analyst convention"],
-    ["Market price", 16.29, "$/share", "S4; intraday at 15:37 EDT on 2026-07-23"],
-    ["Basic shares outstanding", 82.92, "mm", "S4; current public market snapshot"],
-    ["Valuation diluted shares", 86.0, "mm", "Analyst assumption; exchangeable debt remains in capital bridge"],
+    ["Valuation date", new Date("2026-07-30T00:00:00Z"), "date", "Analyst convention"],
+    ["Market price", 16.32, "$/share", "S4; intraday at 09:28 CDT on 2026-07-30"],
+    ["Basic shares outstanding", 83.185, "mm", "S9; Q2 weighted-average basic shares"],
+    ["Valuation diluted shares", 97.25, "mm", "S9; Q2 weighted-average diluted shares"],
     ["Tax rate", 0.21, "%", "Analyst long-run cash tax assumption"],
     ["D&A / FRLPC", 0.05, "%", "Anchored to FY2025 and normalized"],
     ["Capex / FRLPC", 0.04, "%", "Anchored to FY2025 purchases of PP&E/software"],
     ["Opening Network Volume", 10.534, "$bn", "S1; FY2025"],
     ["Opening FRLPC", 512.172, "$mm", "S1; FY2025"],
-    ["Opening cash", 317.813, "$mm", "S2; 2026-03-31"],
-    ["Risk-retention investments", 941.367, "$mm", "S2; 2026-03-31"],
-    ["Secured borrowing", 156.275, "$mm", "S2; 2026-03-31"],
+    ["Opening cash", 249.257, "$mm", "S9; 2026-06-30"],
+    ["Risk-retention investments", 1040.118, "$mm", "S9; 2026-06-30"],
+    ["Secured borrowing", 252.995, "$mm", "S9; 2026-06-30"],
   ];
   header(s.getRange("A4:D4"));
   body(s.getRange("A5:D16"));
@@ -333,17 +357,17 @@ for (const name of names) {
   s.getRange("B12").setNumberFormat("0.000");
   s.getRange("B13:B16").setNumberFormat("$#,##0.0");
 
-  section(s, "F3:H3", "Capital bridge (2026-03-31)");
+  section(s, "F3:H3", "Capital bridge (2026-06-30)");
   s.getRange("F4:H13").values = [
     ["Item", "Value", "Treatment"],
-    ["Cash", 317.813, "Add"],
-    ["Risk-retention investments", 941.367, "Operating capital; not added in FCFE"],
-    ["Secured borrowing", 156.275, "Operating funding; captured in required capital"],
-    ["Revolver", 114.7, "Corporate debt"],
-    ["Exchangeable notes", 149.416, "Corporate debt"],
-    ["Long-term debt", 474.988, "Corporate debt"],
+    ["Cash", 249.257, "Add"],
+    ["Risk-retention investments", 1040.118, "Operating capital; not added in FCFE"],
+    ["Secured borrowing", 252.995, "Operating funding; captured in required capital"],
+    ["Revolver", 0, "No balance outstanding at 2026-06-30"],
+    ["Exchangeable notes", 150.07, "Corporate debt"],
+    ["Long-term debt", 471.866, "Corporate debt"],
     ["Redeemable preferred", 30.103, "Separate claim"],
-    ["Noncontrolling interests", 69.843, "Separate claim"],
+    ["Noncontrolling interests", 54.63, "Separate claim"],
     ["Net risk assets", null, "Investments less secured borrowing"],
   ];
   s.getRange("G13").formulas = [["='Assumptions'!$G$6-'Assumptions'!$G$7"]];
@@ -357,28 +381,28 @@ for (const name of names) {
   const cases = {
     Bear: {
       start: 19,
-      vol: [11.45, 12.0, 12.6, 13.2, 13.7, 14.1],
-      rate: [0.044, 0.0435, 0.043, 0.0425, 0.042, 0.0415],
-      margin: [0.18, 0.20, 0.22, 0.24, 0.25, 0.26],
+      vol: [12.5, 13.0, 13.5, 14.0, 14.5, 15.0],
+      rate: [0.041, 0.04, 0.04, 0.0395, 0.039, 0.039],
+      margin: [0.3025, 0.30, 0.295, 0.29, 0.285, 0.28],
       risk: 0.02,
       ke: 0.16,
       g: 0.025,
     },
     Base: {
       start: 27,
-      vol: [12.225, 13.7, 15.2, 16.7, 18.0, 19.2],
-      rate: [0.0465, 0.0465, 0.046, 0.0455, 0.045, 0.0445],
-      margin: [0.24, 0.26, 0.28, 0.30, 0.32, 0.34],
-      risk: 0.015,
+      vol: [12.875, 14.5, 16.2, 17.9, 19.5, 21.0],
+      rate: [0.043, 0.043, 0.043, 0.0435, 0.0435, 0.0435],
+      margin: [0.3025, 0.32, 0.34, 0.36, 0.37, 0.38],
+      risk: 0.0125,
       ke: 0.14,
       g: 0.03,
     },
     Bull: {
       start: 35,
-      vol: [13.0, 15.0, 17.0, 19.0, 21.0, 23.0],
-      rate: [0.048, 0.0485, 0.0485, 0.048, 0.0475, 0.047],
-      margin: [0.26, 0.29, 0.32, 0.35, 0.37, 0.39],
-      risk: 0.0125,
+      vol: [13.25, 15.4, 17.8, 20.2, 22.6, 24.8],
+      rate: [0.044, 0.0445, 0.045, 0.0455, 0.046, 0.046],
+      margin: [0.309, 0.34, 0.37, 0.40, 0.42, 0.44],
+      risk: 0.0075,
       ke: 0.125,
       g: 0.035,
     },
@@ -389,9 +413,9 @@ for (const name of names) {
     section(s, `A${r}:H${r}`, `${name} case`, scenarioFill);
     s.getRange(`A${r + 1}:H${r + 5}`).values = [
       ["Driver", ...years, "Source / rationale"],
-      ["Network Volume ($bn)", ...c.vol, name === "Base" ? "2026 guidance midpoint; analyst fade" : "Scenario assumption"],
-      ["FRLPC %", ...c.rate, "Q1 2026 = 4.6%; mix and funding sensitivity"],
-      ["Normalized net income / FRLPC", ...c.margin, "Owner-earnings margin after recurring costs"],
+      ["Network Volume ($bn)", ...c.vol, name === "Base" ? "S9 revised 2026 guidance midpoint; analyst path thereafter" : "S9 revised guidance bound; analyst path thereafter"],
+      ["FRLPC %", ...c.rate, "S9 Q2 2026 = 4.2%; mix and funding sensitivity"],
+      ["Normalized net income / FRLPC", ...c.margin, "2026 calibrated to S9 GAAP net-income guidance; analyst path thereafter"],
       ["Equity capital / incremental volume", c.risk, null, null, null, null, null, "Required risk-retention equity capital"],
     ];
     header(s.getRange(`A${r + 1}:H${r + 1}`));
@@ -407,7 +431,7 @@ for (const name of names) {
     input(s.getRange(`B${r + 6}`));
     input(s.getRange(`D${r + 6}`));
   }
-  s.getRange("B6").comments?.add?.("Source: https://stockanalysis.com/stocks/pgy/. Intraday price snapshot at 15:37 EDT on 2026-07-23.");
+  s.getRange("B6").comments?.add?.("Source: public market-data snapshot. Intraday price at 09:28 CDT on 2026-07-30.");
   setWidths(s, { A: 35, B: 14, C: 14, D: 34, E: 14, F: 24, G: 14, H: 48 });
   s.freezePanes.freezeRows(4);
 }
@@ -415,66 +439,70 @@ for (const name of names) {
 // Historicals
 {
   const s = wb.worksheets.getItem("Historicals");
-  title(s, "A1:F1", "Historical Financials and Operating KPIs");
-  s.getRange("A2:F2").merge();
-  s.getRange("A2").values = [["USD millions except Network Volume • Fiscal years ended December 31 • Q1 2026 quarter ended March 31"]];
-  s.getRange("A2:F2").format = { fill: paleGray, font: { color: darkGray, italic: true, size: 9 } };
-  s.getRange("A3:F3").values = [["Metric", "2023A", "2024A", "2025A", "Q1 2026A", "Source"]];
-  header(s.getRange("A3:F3"));
-  s.getRange("A4:F19").values = [
-    ["Network Volume ($bn)", 8.299, 9.705, 10.534, 2.624, "S1 / S2"],
-    ["Total revenue and other income", 812.051, 1032.248, 1301.36, 317.944, "S1 / S2"],
-    ["Revenue from fees", 772.814, 1004.55, 1261.341, 298.991, "S1 / S2"],
-    ["Production costs", 508.944, 597.652, 749.169, 177.561, "S1 / S2"],
-    ["FRLPC", 263.87, 406.898, 512.172, 121.0, "S1 / S2"],
-    ["FRLPC %", null, null, null, null, "Calculated"],
-    ["Adjusted EBITDA", 82.022, 210.378, 370.987, 94.0, "S1 / S2"],
-    ["Adjusted EBITDA / FRLPC", null, null, null, null, "Calculated"],
-    ["Operating income (loss)", -24.4, 66.84, 263.827, 80.005, "S1 / S2"],
-    ["Net income attributable to Pagaya", -128.438, -401.406, 81.389, 24.694, "S1 / S2"],
-    ["Operating cash flow", -21.659, 47.751, 238.62, 43.184, "S1 / S2"],
-    ["Share-based compensation", 71.055, 61.497, 54.118, 7.196, "S1 / S2"],
-    ["Depreciation & amortization", 19.127, 28.753, 30.077, 3.862, "S1 / S2"],
-    ["Capex / PP&E and software purchases", 20.189, 17.737, 13.902, 3.176, "S1 / S2"],
-    ["Diluted weighted-average shares", 60.039, 70.88, 83.097, 96.745, "S1 / S2"],
-    ["GAAP diluted EPS", -2.14, -5.66, 0.93, 0.28, "S1 / S2"],
+  title(s, "A1:G1", "Historical Financials and Operating KPIs");
+  s.getRange("A2:G2").merge();
+  s.getRange("A2").values = [["USD millions except Network Volume • Fiscal years ended December 31 • Quarterly data for Q1 and Q2 2026"]];
+  s.getRange("A2:G2").format = { fill: paleGray, font: { color: darkGray, italic: true, size: 9 } };
+  s.getRange("A3:G3").values = [["Metric", "2023A", "2024A", "2025A", "Q1 2026A", "Q2 2026A", "Source"]];
+  header(s.getRange("A3:G3"));
+  s.getRange("A4:G19").values = [
+    ["Network Volume ($bn)", 8.299, 9.705, 10.534, 2.624, 3.535, "S1 / S2 / S9"],
+    ["Total revenue and other income", 812.051, 1032.248, 1301.36, 317.944, 387.042, "S1 / S2 / S9"],
+    ["Revenue from fees", 772.814, 1004.55, 1261.341, 298.991, 365.639, "S1 / S2 / S9"],
+    ["Production costs", 508.944, 597.652, 749.169, 177.561, 218.715, "S1 / S2 / S9"],
+    ["FRLPC", 263.87, 406.898, 512.172, 121.0, 146.924, "S1 / S2 / S9"],
+    ["FRLPC %", null, null, null, null, null, "Calculated"],
+    ["Adjusted EBITDA", 82.022, 210.378, 370.987, 94.0, 123.52, "S1 / S2 / S9"],
+    ["Adjusted EBITDA / FRLPC", null, null, null, null, null, "Calculated"],
+    ["Operating income (loss)", -24.4, 66.84, 263.827, 80.005, 105.799, "S1 / S2 / S9"],
+    ["Net income attributable to Pagaya", -128.438, -401.406, 81.389, 24.694, 45.273, "S1 / S2 / S9"],
+    ["Operating cash flow", -21.659, 47.751, 238.62, 43.184, 74.703, "S1 / S2 / S9; Q2 derived from H1 less Q1"],
+    ["Share-based compensation", 71.055, 61.497, 54.118, 7.196, 8.569, "S1 / S2 / S9"],
+    ["Depreciation & amortization", 19.127, 28.753, 30.077, 3.862, 3.915, "S1 / S2 / S9; Q2 derived from H1 less Q1"],
+    ["Capex / PP&E and software purchases", 20.189, 17.737, 13.902, 3.176, 3.449, "S1 / S2 / S9; Q2 derived from H1 less Q1"],
+    ["Diluted weighted-average shares", 60.039, 70.88, 83.097, 96.745, 97.248, "S1 / S2 / S9"],
+    ["GAAP diluted EPS", -2.14, -5.66, 0.93, 0.28, 0.49, "S1 / S2 / S9"],
   ];
-  s.getRange("B9:E9").formulas = [[
+  s.getRange("B9:F9").formulas = [[
     "='Historicals'!B8/('Historicals'!B4*1000)",
     "='Historicals'!C8/('Historicals'!C4*1000)",
     "='Historicals'!D8/('Historicals'!D4*1000)",
     "='Historicals'!E8/('Historicals'!E4*1000)",
+    "='Historicals'!F8/('Historicals'!F4*1000)",
   ]];
-  s.getRange("B11:E11").formulas = [[
+  s.getRange("B11:F11").formulas = [[
     "='Historicals'!B10/'Historicals'!B8",
     "='Historicals'!C10/'Historicals'!C8",
     "='Historicals'!D10/'Historicals'!D8",
     "='Historicals'!E10/'Historicals'!E8",
+    "='Historicals'!F10/'Historicals'!F8",
   ]];
-  body(s.getRange("A4:F19"));
-  s.getRange("B4:E19").setNumberFormat("$#,##0.0;[Red]($#,##0.0);-");
-  s.getRange("B4:E4").setNumberFormat("0.0");
-  s.getRange("B9:E9").setNumberFormat("0.0%");
-  s.getRange("B11:E11").setNumberFormat("0.0%");
-  s.getRange("B18:E18").setNumberFormat("0.0");
-  s.getRange("B19:E19").setNumberFormat("$0.00;[Red]($0.00);-");
-  s.getRange("B4:E19").format.font = { color: linkedGreen };
-  s.getRange("B9:E9").format.font = { color: black };
-  s.getRange("B11:E11").format.font = { color: black };
-  total(s.getRange("A8:E8"));
-  total(s.getRange("A10:E10"));
-  s.getRange("A21:F24").values = [
-    ["Analytical read-through", null, null, null, null, null],
-    ["Scale", "Network Volume grew 27% from 2023 to 2025, but 2026 guidance implies a wide 9%-23% range.", null, null, null, null],
-    ["Monetization", "FRLPC expanded from 3.2% to 4.9% of volume before easing to 4.6% in Q1 2026.", null, null, null, null],
-    ["Owner economics", "SBC fell materially while GAAP profitability and cash generation improved; the July 2026 $750mm auto ABS transaction supports funding execution, but retained-credit capital remains the key valuation constraint.", null, null, null, null],
+  body(s.getRange("A4:G19"));
+  s.getRange("B4:F19").setNumberFormat("$#,##0.0;[Red]($#,##0.0);-");
+  s.getRange("B4:F4").setNumberFormat("0.0");
+  s.getRange("B9:F9").setNumberFormat("0.0%");
+  s.getRange("B11:F11").setNumberFormat("0.0%");
+  s.getRange("B18:F18").setNumberFormat("0.0");
+  s.getRange("B19:F19").setNumberFormat("$0.00;[Red]($0.00);-");
+  s.getRange("B4:F19").format.font = { color: linkedGreen };
+  s.getRange("G4:G19").format.wrapText = true;
+  s.getRange("A4:G19").format.rowHeight = 26;
+  s.getRange("B9:F9").format.font = { color: black };
+  s.getRange("B11:F11").format.font = { color: black };
+  total(s.getRange("A8:F8"));
+  total(s.getRange("A10:F10"));
+  s.getRange("A21:G24").values = [
+    ["Analytical read-through", null, null, null, null, null, null],
+    ["Scale", "Q2 Network Volume grew 33% year over year; revised FY2026 guidance of $12.50bn-$13.25bn implies 19%-26% growth.", null, null, null, null, null],
+    ["Monetization", "FRLPC fell to 4.2% in Q2 from 4.6% in Q1 as new-product mix and benchmark rates pressured funding economics.", null, null, null, null, null],
+    ["Owner economics", "Q2 GAAP net income rose to $45.3mm and operating cash flow was $74.7mm derived, while investments rose roughly in line with secured borrowing; profit conversion improved but fee economics remain the hinge.", null, null, null, null, null],
   ];
-  section(s, "A21:F21", "Analytical read-through", navy);
-  for (const row of [22, 23, 24]) s.getRange(`B${row}:F${row}`).merge();
-  s.getRange("B22:F24").format.wrapText = true;
+  section(s, "A21:G21", "Analytical read-through", navy);
+  for (const row of [22, 23, 24]) s.getRange(`B${row}:G${row}`).merge();
+  s.getRange("B22:G24").format.wrapText = true;
   s.getRange("A22:A24").format.font = { bold: true, color: navyDark };
-  s.getRange("A22:F24").format.rowHeight = 34;
-  setWidths(s, { A: 40, B: 15, C: 15, D: 15, E: 15, F: 22 });
+  s.getRange("A22:G24").format.rowHeight = 38;
+  setWidths(s, { A: 40, B: 14, C: 14, D: 14, E: 14, F: 14, G: 34 });
   s.freezePanes.freezeRows(3);
 }
 
@@ -634,11 +662,12 @@ for (const name of names) {
   s.getRange("A10:D14").values = [
     ["Method", "Low", "Central", "High"],
     ["Primary FCFE", null, null, null],
-    ["Forward P/E cross-check", 15.4, 18.9, 23.1],
+    ["Forward P/E cross-check", null, null, null],
     ["Fee-platform SOTP screen", 25.0, 40.0, 55.0],
     ["Current market price", null, null, null],
   ];
   s.getRange("B11:D11").formulas = [["=G4", "=G5", "=G6"]];
+  s.getRange("B12:D12").formulas = [["='Comps'!B14", "='Comps'!C14", "='Comps'!D14"]];
   s.getRange("B14:D14").formulas = [[
     "='Assumptions'!$B$6",
     "='Assumptions'!$B$6",
@@ -656,8 +685,8 @@ for (const name of names) {
     ["Base value / share", null, null],
     ["Market price", null, null],
     ["Base upside", null, null],
-    ["Posture", "Watchlist / wait for proof", null],
-    ["Key reason", "The lower market price improves base upside, but risk-retention capital and funding sensitivity still make the downside mechanism more immediate than the rerating case.", null],
+    ["Posture", "Constructive watchlist / starter only", null],
+    ["Key reason", "Raised profit guidance and near-flat sequential net risk assets improve the setup, but Q2 FRLPC compression keeps funding and product-mix execution as the gating risk.", null],
   ];
   s.getRange("F9:H9").merge();
   s.getRange("F9:H9").format.fill = navy;
@@ -700,10 +729,10 @@ for (const name of names) {
   section(s, "F17:H17", "Decision hinge", bearDark);
   s.getRange("F18:H22").values = [
     ["Question", "Current read", "Next evidence"],
-    ["What is priced in?", "A higher equity hurdle than the 14% base case.", "Q2 volume, FRLPC, and funding commentary"],
-    ["What proves the variant?", "Mid-4% FRLPC with sub-1.5% incremental equity intensity.", "Q2 and 2H retained-capital disclosures"],
+    ["What is priced in?", "An equity hurdle near 18.5%, above the 14% base case.", "Post-earnings price and H2 execution"],
+    ["What proves the variant?", "Low-to-mid-4% FRLPC with sub-1.5% incremental equity intensity.", "Q3 FRLPC and retained-capital disclosures"],
     ["What breaks first?", "Funding spreads or retained capital rise faster than fee economics.", "ABS pricing, credit marks, and cash conversion"],
-    ["What changes the target?", "A durable change in FRLPC, owner-earnings conversion, or required equity.", "Refresh the model after the 2026-07-30 print"],
+    ["What changes the target?", "A durable change in FRLPC, owner-earnings conversion, or required equity.", "Refresh on Q3 results or a material funding update"],
   ];
   header(s.getRange("F18:H18"));
   body(s.getRange("F19:H22"));
@@ -718,7 +747,7 @@ for (const name of names) {
   const s = wb.worksheets.getItem("Comps");
   title(s, "A1:G1", "Comparable-Company Cross-Check");
   s.getRange("A2:G2").merge();
-  s.getRange("A2").values = [["Screen-grade public snapshot • 2026E P/E • Peer definitions are secondary evidence and have not been independently normalized"]];
+  s.getRange("A2").values = [["Screen-grade public snapshot • Forward P/E corroboration • Peer definitions are secondary evidence and have not been independently normalized"]];
   s.getRange("A2:G2").format = { fill: paleGray, font: { color: darkGray, italic: true, size: 9 } };
   s.getRange("A3:G3").values = [[
     "Company",
@@ -731,7 +760,7 @@ for (const name of names) {
   ]];
   header(s.getRange("A3:G3"));
   s.getRange("A4:G9").values = [
-    ["Pagaya", "PGY", "AI-enabled lending infrastructure / capital markets", 5.25, "2026-07-23", "Target", "S4; current intraday snapshot"],
+    ["Pagaya", "PGY", "AI-enabled lending infrastructure / capital markets", 9.5, "2026-07-30", "Target", "S4 price / S9 revised FY2026 net-income midpoint"],
     ["Upstart", "UPST", "AI lending marketplace / platform", 13.2, "2026-05", "Core", "S6; closest platform analog, but different funding and credit economics"],
     ["SoFi", "SOFI", "Digital financial platform / balance-sheet lender", 26.1, "2026-05", "Secondary", "S6; broader bank/platform mix and greater scale"],
     ["LendingClub", "LC", "Digital marketplace bank", 9.0, "2026-05", "Secondary", "S6; funding and credit-cycle reference"],
@@ -846,10 +875,10 @@ for (const name of names) {
   ];
   const reverseValueAt = (rate) =>
     `(SUMPRODUCT('Forecast'!$B$29:$G$29,1/(1+${rate})^{1,2,3,4,5,6})+('Forecast'!$G$29*(1+'Assumptions'!$D$33)/(${rate}-'Assumptions'!$D$33))/(1+${rate})^6)/'Assumptions'!$B$8`;
-  const valueAt175 = reverseValueAt("17.5%");
-  const valueAt176 = reverseValueAt("17.6%");
+  const valueAt184 = reverseValueAt("18.4%");
+  const valueAt185 = reverseValueAt("18.5%");
   s.getRange("G14").formulas = [[
-    `=17.5%+((${valueAt175}-'Assumptions'!$B$6)/(${valueAt175}-${valueAt176}))*(17.6%-17.5%)`,
+    `=18.4%+((${valueAt184}-'Assumptions'!$B$6)/(${valueAt184}-${valueAt185}))*(18.5%-18.4%)`,
   ]];
   s.getRange("G15").formulas = [[
     "=(SUMPRODUCT('Forecast'!$B$29:$G$29,1/(1+$G$14)^{1,2,3,4,5,6})+('Forecast'!$G$29*(1+'Assumptions'!$D$33)/($G$14-'Assumptions'!$D$33))/(1+$G$14)^6)/'Assumptions'!$B$8",
@@ -864,8 +893,8 @@ for (const name of names) {
   s.getRange("G14:G16").format.font = { bold: true, color: navyDark };
   s.getRange("A24:H26").values = [
     ["Interpretation", null, null, null, null, null, null, null],
-    ["Market-implied cost of equity", "At the $16.29 intraday snapshot, the base operating path is consistent with roughly a 17.6% cost of equity—well above the 14% base assumption.", null, null, null, null, null, null],
-    ["Decision hinge", "The rerating requires proof that FRLPC holds near the mid-4% range while required risk-retention equity capital does not absorb the operating leverage.", null, null, null, null, null, null],
+    ["Market-implied cost of equity", "At the $16.32 intraday snapshot, the refreshed base path is consistent with roughly an 18.5% cost of equity—well above the 14% base assumption.", null, null, null, null, null, null],
+    ["Decision hinge", "The rerating requires proof that FRLPC stabilizes in the low-to-mid-4% range while retained-credit capital does not absorb the operating leverage.", null, null, null, null, null, null],
   ];
   section(s, "A24:H24", "Interpretation", navy);
   s.getRange("B25:H25").merge();
@@ -1002,10 +1031,10 @@ for (const name of names) {
   section(s, "A21:G21", "Open issues and limitations", bearDark);
   s.getRange("A22:C28").values = [
     ["Open issue / limitation", "Severity", "Decision effect"],
-    ["Market price is an intraday 2026-07-23 snapshot, not the official close.", "Medium", "Current-market verified at 15:37 EDT only; refresh before a position decision."],
+    ["Market price is an intraday 2026-07-30 snapshot, not the official close.", "Medium", "Current-market verified at 09:28 CDT only; refresh before a position decision."],
     ["No licensed consensus or fully normalized peer workbook.", "Medium", "Comps remain corroborative and screen-grade."],
     ["Risk-retention equity requirement is an analyst assumption.", "High", "This is the most important intrinsic-valuation sensitivity."],
-    ["Q2 2026 results are scheduled for 2026-07-30.", "High", "Refresh volume, FRLPC, cash conversion, and retained-capital intensity after the print."],
+    ["No Q2 Form 10-Q or official earnings-call transcript was available at refresh time.", "Medium", "The model uses the filed earnings release and shareholder letter; refresh if the 10-Q adds material detail."],
     ["Cross-engine spreadsheet execution has not been independently tested.", "Low", "OFF conformance does not prove formula equivalence."],
     ["Native Excel Accessibility Checker and print/PDF QA were not run.", "Low", "This is a screen-first workbook; no print/PDF circulation claim is made."],
   ];
@@ -1022,7 +1051,7 @@ for (const name of names) {
   const s = wb.worksheets.getItem("Cover");
   title(s, "A1:L2", "Pagaya Technologies | NASDAQ: PGY");
   s.getRange("A3:L3").merge();
-  s.getRange("A3").values = [["Equity valuation • Risk-retention FCFE • USD per share • Valuation date 23 July 2026"]];
+  s.getRange("A3").values = [["Equity valuation • Risk-retention FCFE • USD per share • Valuation date 30 July 2026"]];
   s.getRange("A3:L3").format = {
     fill: navyDark,
     font: { color: "#D9EAF7", size: 10, italic: true },
@@ -1031,10 +1060,10 @@ for (const name of names) {
 
   const metadata = [
     ["A4:B4", "Prepared by: Henry Adams"],
-    ["C4:D4", "Valuation date: 2026-07-23"],
-    ["E4:G4", "Market snapshot: 2026-07-23 15:37 EDT"],
+    ["C4:D4", "Valuation date: 2026-07-30"],
+    ["E4:G4", "Market snapshot: 2026-07-30 09:28 CDT"],
     ["H4:J4", "Status: locally verified • screen-grade"],
-    ["K4:L4", "Version: v2"],
+    ["K4:L4", "Version: Q2 refresh"],
   ];
   for (const [range, value] of metadata) {
     s.getRange(range).merge();
@@ -1048,7 +1077,7 @@ for (const name of names) {
   }
   s.getRange("A5:L5").format.rowHeight = 8;
 
-  card(s, "A6:C10", "Current price • intraday", "='Assumptions'!$B$6", "$0.00", paleGray, "15:37 EDT • Source S4");
+  card(s, "A6:C10", "Current price • intraday", "='Assumptions'!$B$6", "$0.00", paleGray, "09:28 CDT • Source S4");
   card(s, "D6:F10", "Bear value • downside", "='DCF'!$G$4", "$0.00", amber, null, "='DCF'!$H$4");
   card(s, "G6:I10", "Base value • upside", "='DCF'!$G$5", "$0.00", paleBlue, null, "='DCF'!$H$5");
   card(s, "J6:L10", "Bull value • upside", "='DCF'!$G$6", "$0.00", paleGreen, null, "='DCF'!$H$6");
@@ -1057,7 +1086,7 @@ for (const name of names) {
   s.getRange("A12:B12").merge();
   s.getRange("A12").values = [["Investment posture"]];
   s.getRange("C12:F12").merge();
-  s.getRange("C12").values = [["WATCHLIST / WAIT FOR PROOF"]];
+  s.getRange("C12").values = [["CONSTRUCTIVE WATCHLIST / STARTER ONLY"]];
   s.getRange("G12:H12").merge();
   s.getRange("G12").values = [["Model status"]];
   s.getRange("I12:L12").merge();
@@ -1094,9 +1123,9 @@ for (const name of names) {
       borders: { preset: "outside", style: "thin", color: borderGray },
     };
   }
-  s.getRange("C15").values = [["At $16.29, the base operating path implies roughly a 17.6% cost of equity versus the model's 14% base hurdle. This is a model-derived reverse-DCF inference, not quoted consensus."]];
-  s.getRange("C17").values = [["Pagaya can hold FRLPC near the mid-4% range while normalized owner earnings grow faster than Network Volume and funding execution remains durable."]];
-  s.getRange("C19").values = [["FRLPC near 4.5%; normalized net-income conversion rising toward 34%; incremental risk-retention equity near 1.5% of volume growth."]];
+  s.getRange("C15").values = [["At $16.32, the refreshed base path implies roughly an 18.5% cost of equity versus the model's 14% base hurdle. This is a model-derived reverse-DCF inference, not quoted consensus."]];
+  s.getRange("C17").values = [["Raised GAAP profit guidance and low incremental net risk assets can outweigh FRLPC compression if volume growth and funding execution remain durable."]];
+  s.getRange("C19").values = [["FRLPC stabilizes near 4.3%; normalized net-income conversion rises toward 38%; incremental risk-retention equity stays near 1.25% of volume growth."]];
 
   for (const range of ["G15:I17", "G18:I20"]) {
     s.getRange(range).merge();
@@ -1108,8 +1137,8 @@ for (const name of names) {
       borders: { preset: "outside", style: "thin", color: borderGray },
     };
   }
-  s.getRange("G15").values = [["Q2 2026 on 30 July • Network Volume, FRLPC %, GAAP profit, cash conversion, and retained-capital intensity."]];
-  s.getRange("G18").values = [["Funding proof • The 16 July $750mm auto ABS transaction was Pagaya's largest auto deal to date; the next test is pricing and repeatability."]];
+  s.getRange("G15").values = [["Q2 proof • $3.535bn Network Volume, $45.3mm GAAP net income, $123.5mm adjusted EBITDA, and raised FY2026 profit guidance."]];
+  s.getRange("G18").values = [["Funding proof • Record $3.7bn Q2 ABS issuance; investments rose $98.8mm sequentially while secured borrowing rose $96.7mm."]];
 
   for (const range of ["J15:L17", "J18:L20"]) {
     s.getRange(range).merge();
@@ -1122,13 +1151,13 @@ for (const name of names) {
     };
   }
   s.getRange("J15").values = [["Funding spreads, credit marks, or retained-capital needs rise faster than fee economics and operating leverage."]];
-  s.getRange("J18").values = [["Volume growth misses the low end of guidance or FRLPC falls below the mid-4% range before owner-earnings conversion improves."]];
+  s.getRange("J18").values = [["Volume misses revised guidance or FRLPC slips below 4% before owner-earnings conversion and cash funding improve."]];
 
   section(s, "A22:F22", "Scenario value per share ($)", navy);
   section(s, "G22:L22", "Base Network Volume path ($bn)", navy);
   const valuationChart = s.charts.add("bar", {
     chartType: "bar",
-    title: "FCFE scenario values vs. $16.29 market",
+    title: "FCFE scenario values vs. $16.32 market",
     hasLegend: false,
   });
   const valuationSeries = valuationChart.series.add("Value / share");
@@ -1142,7 +1171,7 @@ for (const name of names) {
 
   const volumeChart = s.charts.add("line", {
     chartType: "line",
-    title: "Base case: $12.2bn to $19.2bn",
+    title: "Base case: $12.9bn to $21.0bn",
     hasLegend: false,
   });
   const volumeSeries = volumeChart.series.add("Network Volume");
@@ -1156,9 +1185,9 @@ for (const name of names) {
 
   section(s, "A36:L36", "Method comparison, conventions, and limitations", navy);
   const controlRows = [
-    [37, "Primary method", "Risk-retention FCFE: $10.21 bear / $22.34 base / $38.91 bull", "Corroboration", "Forward P/E: $15.41–$23.11; fee-platform SOTP: $25–$55 (screen only)"],
-    [38, "Reverse DCF", "Market-implied cost of equity: approximately 17.6% under base path and 3.0% terminal growth", "Purpose / audience", "Public-equity diligence for an investment team"],
-    [39, "Owner / version", "Henry Adams • v2 • revised 2026-07-23", "Units / signs", "USD mm unless stated; capital outflows are shown positive where deducted"],
+    [37, "Primary method", "Formula-driven risk-retention FCFE; see headline scenario cards", "Corroboration", "Forward P/E: formula-driven from 2027 normalized EPS; fee-platform SOTP: $25–$55 (screen only)"],
+    [38, "Reverse DCF", "Market-implied cost of equity: approximately 18.5% under base path and 3.0% terminal growth", "Purpose / audience", "Public-equity diligence for an investment team"],
+    [39, "Owner / version", "Henry Adams • Q2 refresh • revised 2026-07-30", "Units / signs", "USD mm unless stated; capital outflows are shown positive where deducted"],
   ];
   for (const [row, leftLabel, leftValue, rightLabel, rightValue] of controlRows) {
     s.getRange(`A${row}:B${row}`).merge();

@@ -14,6 +14,7 @@ const scenarioByRole = Object.fromEntries(
 const formatPrice = (value: number) => `$${value.toFixed(2)}`;
 const formatReturn = (value: number) => `${value >= 0 ? "+" : ""}${value.toFixed(1)}%`;
 const embedBaseUrl = "/models/pagaya/embed/";
+const workbookUrl = "/models/pagaya/pagaya-valuation-model-2026-07-30.xlsx";
 ---
 
 <main class="pg-app" id="main-content">
@@ -63,14 +64,14 @@ const embedBaseUrl = "/models/pagaya/embed/";
     </nav>
 
     <dl class="pg-metadata">
-      <div><dt>Release</dt><dd>{model.releaseVersion.replace("-v2", " · v2")}</dd></div>
-      <div><dt>Freshness</dt><dd>{model.marketAsOf} 15:37 EDT</dd></div>
+      <div><dt>Release</dt><dd>{model.releaseVersion.replace("-q2-refresh", " · Q2 refresh")}</dd></div>
+      <div><dt>Freshness</dt><dd>{model.marketAsOf} 09:28 CDT</dd></div>
       <div><dt>Traceability</dt><dd>{model.traceability}</dd></div>
       <div><dt>Status</dt><dd>Locally verified · screen-grade</dd></div>
     </dl>
 
     <div class="pg-sidebar__links">
-      <a href="/models/pagaya/pagaya-valuation-model.xlsx">
+      <a href={workbookUrl}>
         <span>Open workbook</span>
         <Icon name="ph:arrow-square-out" aria-hidden="true" />
       </a>
@@ -86,12 +87,12 @@ const embedBaseUrl = "/models/pagaya/embed/";
       <p>
         Prepared by {model.author}
         <span aria-hidden="true">·</span>
-        Valuation date 23 July 2026
+        Valuation date 30 July 2026
         <span aria-hidden="true">·</span>
-        Market snapshot 23 July 2026 15:37 EDT
+        Market snapshot 30 July 2026 09:28 CDT
       </p>
       <div class="pg-toolbar__actions">
-        <a href="/models/pagaya/pagaya-valuation-model.xlsx">Open workbook</a>
+        <a href={workbookUrl}>Open workbook</a>
         <button class="pg-share-button" type="button" data-open-share>
           <Icon name="ph:share-network" aria-hidden="true" />
           <span>Share / Embed</span>
@@ -112,7 +113,7 @@ const embedBaseUrl = "/models/pagaya/embed/";
         <div>
           <span>Current intraday price</span>
           <strong>{formatPrice(model.marketPrice)}</strong>
-          <small>15:37 EDT · Source S4</small>
+          <small>09:28 CDT · Source S4</small>
         </div>
         <div>
           <span>Base value (upside)</span>

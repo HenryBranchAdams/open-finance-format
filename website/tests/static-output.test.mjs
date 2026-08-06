@@ -23,6 +23,7 @@ test("emits the human documentation routes and canonical metadata", async () => 
     "models/pagaya/index.html",
     "models/pagaya/embed/index.html",
     "models/pagaya/pagaya-valuation-model.xlsx",
+    "models/pagaya/pagaya-valuation-model-2026-07-30.xlsx",
     "404.html",
   ];
 
@@ -42,8 +43,9 @@ test("emits the human documentation routes and canonical metadata", async () => 
 
   const pagaya = await read("models/pagaya/index.html");
   assert.match(pagaya, /Pagaya Technologies/);
-  assert.match(pagaya, /\$16\.29/);
-  assert.match(pagaya, /\$22\.34/);
+  assert.match(pagaya, /\$16\.32/);
+  assert.match(pagaya, /\$23\.93/);
+  assert.match(pagaya, /pagaya-valuation-model-2026-07-30\.xlsx/);
   assert.match(pagaya, /Share \/ Embed/);
 
   const pagayaEmbed = await read("models/pagaya/embed/index.html");
