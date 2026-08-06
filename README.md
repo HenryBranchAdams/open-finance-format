@@ -92,6 +92,18 @@ current development tree.
 
 The corpus proves the behavior of this reference implementation under local tests. It does not by itself prove that an independent consumer will interpret OFF the same way.
 
+The mutable tree also includes non-normative, source-backed research examples,
+including the versioned [Pagaya Q2 2026 refresh](examples/pagaya-valuation/)
+and [Neuraxis valuation package](examples/nrxs-valuation/). Their narratives,
+workbooks, generators, inspection artifacts, and bounded OpenProse sources are
+authoring and review aids; only each package's `off.json` is authoritative for
+that package, and validation does not establish financial correctness.
+
+The [local OpenBB Research Workspace adapter](integrations/openbb-workspace/)
+is a read-only reference consumer of the current evaluator. It is optional,
+non-normative, and outside the frozen rc.1 closure; OFF conformance never
+depends on OpenBB or on this adapter.
+
 ## Local verification
 
 Contributor runtime:
