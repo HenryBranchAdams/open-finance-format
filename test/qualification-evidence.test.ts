@@ -88,6 +88,18 @@ test("the copied pending report is a canonical evidence record", async () => {
   });
 });
 
+test("the exported parser rejects unsupported source kinds", async () => {
+  const pending = await template();
+  await errorCode(
+    Promise.resolve().then(() =>
+      parseQualificationEvidence(pending, {
+        sourceKind: "local_rehearsal" as "local-rehearsal",
+      }),
+    ),
+    "invalid_source_kind",
+  );
+});
+
 test("missing and internally contradictory evidence fails closed", async () => {
   await errorCode(
     Promise.resolve().then(() => parseQualificationEvidence("# no record\n")),

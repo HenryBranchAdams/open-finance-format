@@ -157,3 +157,9 @@ The timed Core claim uses a finite nonnegative numeric duration no greater than
 600 seconds. Publicly reviewed states use `reviewed` and require a non-empty
 reviewer plus immutable review-evidence path. Pending and inapplicable gates
 cannot contain populated qualifying evidence.
+
+The frozen rc.1 independence record has one `evidencePath` rather than a
+separate review-path field. When independence becomes `publicly-reviewed` or
+`failed`, that path must identify the immutable record containing both the
+participant attestations and the named public review. Authentication and gate
+records use their separate `reviewEvidencePath` fields.

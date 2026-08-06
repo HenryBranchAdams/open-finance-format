@@ -237,6 +237,8 @@ function requireIndependenceState(value, path, sourceKind) {
       fail("evidence_state_contradiction", `${path} reviewed or failed state requires a publicly-reviewed claim basis.`, { path });
     }
     requireAttestations();
+    // The frozen rc.1 independence record has one evidencePath. In reviewed
+    // states it must bind both the participant attestations and named review.
     requirePublicReview(value, path, { reviewEvidencePath: false });
     return;
   }
@@ -530,6 +532,13 @@ function validateAuthentication(record, sourceKind) {
 }
 
 export function parseQualificationEvidence(markdown, { sourceKind = "external-attempt" } = {}) {
+  if (sourceKind !== "external-attempt" && sourceKind !== "local-rehearsal") {
+    fail(
+      "invalid_source_kind",
+      "sourceKind must be external-attempt or local-rehearsal.",
+      { sourceKind },
+    );
+  }
   if (typeof markdown !== "string") fail("evidence_input_invalid", "Report content must be text.");
   const start = markdown.indexOf(BEGIN);
   if (start < 0 || markdown.indexOf(BEGIN, start + BEGIN.length) >= 0) {
