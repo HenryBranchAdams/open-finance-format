@@ -47,12 +47,15 @@ the required public anchors through their separately authenticated channels:
       --candidate-root /absolute/path/to/clean-candidate-checkout \
       --public-commit <40-character-commit-sha> \
       --checksum-manifest-sha256 <64-character-sha256> \
-      --output /absolute/path/to/new-attempt-directory
+      --output /absolute/path/to/new-attempt-directory \
+      --created-at <whole-second-UTC-timestamp>
 
-The output directory must not exist and must be outside the candidate
-repository. The command refuses pending anchors, a dirty candidate checkout,
-commit or digest mismatches, modified candidate authentication fields, and
-unsafe output paths. It never overwrites an attempt directory.
+The output directory must not exist, its direct parent must already exist, and
+it must be outside the candidate repository. The creation timestamp is an
+explicit evidence input and must identify a real whole-second UTC instant. The
+command refuses pending anchors, a dirty candidate checkout, commit or digest
+mismatches, modified candidate authentication fields, and unsafe output paths.
+It never overwrites an attempt directory.
 
 The generated candidate/ files and tasks/ files are copied from the
 authenticated candidate checkout. The copied report remains a template; a
@@ -145,3 +148,12 @@ Use `--source-kind local-rehearsal` only for a mechanics rehearsal. That mode
 rejects any populated authentication, independence, or qualifying gate state.
 The checker never edits a report and cannot create public authentication,
 independence, public review, or promotion evidence.
+
+The machine record is deliberately closed and literal. A successful consumer
+claim records `evaluatorFailureVectorsReproduced` as `reproduced`. A successful
+producer claim records `packageBytesFrozenBeforeValidation` as `confirmed`,
+both first validator results as `pass`, and `postValidationRepairs` as `0`.
+The timed Core claim uses a finite nonnegative numeric duration no greater than
+600 seconds. Publicly reviewed states use `reviewed` and require a non-empty
+reviewer plus immutable review-evidence path. Pending and inapplicable gates
+cannot contain populated qualifying evidence.

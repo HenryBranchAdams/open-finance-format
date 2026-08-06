@@ -6,6 +6,10 @@ const BEGIN = "<!-- OFF-INTEROPERABILITY-RECORD-BEGIN\n";
 const END = "\nOFF-INTEROPERABILITY-RECORD-END -->";
 const CANDIDATE = "v0.1-rc.1";
 const PENDING = "pending";
+const REVIEWED = "reviewed";
+const PINNED_PUBLIC_COMMIT = "2570e38998dd735b83da301a5b6f0e95aca47073";
+const PINNED_CHECKSUM_MANIFEST_SHA256 =
+  "65ac8b6b7521ab1582275317d43d7fff819a706a233be599f2285b40f7d3a59e";
 const STATUS = new Set([
   "pending",
   "author-claimed",
@@ -51,6 +55,48 @@ function status(value, path) {
   }
 }
 
+function isMeaningfulText(value) {
+  if (typeof value !== "string") return false;
+  const trimmed = value.trim();
+  return trimmed.length > 0 && trimmed !== PENDING;
+}
+
+function requireMeaningfulText(value, path) {
+  if (!isMeaningfulText(value)) {
+    fail(
+      "evidence_state_contradiction",
+      `${path} must contain non-empty immutable evidence rather than pending text.`,
+      { path, value },
+    );
+  }
+}
+
+function requirePendingFields(value, path, except = []) {
+  for (const [key, field] of Object.entries(value)) {
+    if (!except.includes(key) && field !== PENDING) {
+      fail(
+        "evidence_state_contradiction",
+        `${path} cannot contain populated evidence in its current state.`,
+        { path: `${path}.${key}`, value: field },
+      );
+    }
+  }
+}
+
+function requirePublicReview(value, path, { reviewEvidencePath = true } = {}) {
+  if (value.publicHumanReview !== REVIEWED) {
+    fail(
+      "evidence_state_contradiction",
+      `${path} must use the canonical reviewed public-human-review state.`,
+      { path: `${path}.publicHumanReview`, value: value.publicHumanReview },
+    );
+  }
+  requireMeaningfulText(value.reviewer, `${path}.reviewer`);
+  if (reviewEvidencePath) {
+    requireMeaningfulText(value.reviewEvidencePath, `${path}.reviewEvidencePath`);
+  }
+}
+
 function requireClaimState(value, path, sourceKind) {
   if (sourceKind === "local-rehearsal") {
     for (const [key, field] of Object.entries(value)) {
@@ -64,13 +110,15 @@ function requireClaimState(value, path, sourceKind) {
     }
   }
   status(value, path);
-  if (value.status === PENDING && value.claimBasis !== PENDING) {
-    fail("evidence_state_contradiction", `${path} is pending but claimBasis is not pending.`, { path });
+  if (value.status === PENDING) {
+    requirePendingFields(value, path, ["status"]);
+    return;
   }
   if (value.status === "author-claimed") {
-    if (value.claimBasis !== "author-claimed" || value.evidencePath === PENDING) {
+    if (value.claimBasis !== "author-claimed") {
       fail("evidence_state_contradiction", `${path} author-claimed state lacks its claim basis or evidence path.`, { path });
     }
+    requireMeaningfulText(value.evidencePath, `${path}.evidencePath`);
     if (
       value.publicHumanReview !== PENDING ||
       value.reviewer !== PENDING ||
@@ -80,20 +128,17 @@ function requireClaimState(value, path, sourceKind) {
     }
   }
   if (value.status === "publicly-reviewed") {
-    if (
-      value.claimBasis !== "publicly-reviewed" ||
-      value.evidencePath === PENDING ||
-      value.publicHumanReview === PENDING ||
-      value.reviewer === PENDING ||
-      value.reviewEvidencePath === PENDING
-    ) {
+    if (value.claimBasis !== "publicly-reviewed") {
       fail("evidence_state_contradiction", `${path} publicly-reviewed state lacks named review evidence.`, { path });
     }
+    requireMeaningfulText(value.evidencePath, `${path}.evidencePath`);
+    requirePublicReview(value, path);
   }
   if (["publicly-authenticated", "independently-executed"].includes(value.status)) {
-    if (value.claimBasis !== value.status || value.evidencePath === PENDING) {
+    if (value.claimBasis !== value.status) {
       fail("evidence_state_contradiction", `${path} lacks the evidence basis for its claimed state.`, { path });
     }
+    requireMeaningfulText(value.evidencePath, `${path}.evidencePath`);
     if (
       value.status === "independently-executed" &&
       (value.publicHumanReview !== PENDING || value.reviewer !== PENDING || value.reviewEvidencePath !== PENDING)
@@ -102,22 +147,21 @@ function requireClaimState(value, path, sourceKind) {
     }
   }
   if (value.status === "failed") {
-    if (
-      value.evidencePath === PENDING ||
-      value.claimBasis !== "publicly-reviewed" ||
-      value.publicHumanReview === PENDING ||
-      value.reviewer === PENDING ||
-      value.reviewEvidencePath === PENDING
-    ) {
+    if (value.claimBasis !== "publicly-reviewed") {
       fail(
         "evidence_state_contradiction",
         `${path} failed state may be recorded only by a named public reviewer against immutable evidence.`,
         { path },
       );
     }
+    requireMeaningfulText(value.evidencePath, `${path}.evidencePath`);
+    requirePublicReview(value, path);
   }
-  if (value.status === "inapplicable" && value.claimBasis !== "inapplicable") {
-    fail("evidence_state_contradiction", `${path} is inapplicable but claimBasis disagrees.`, { path });
+  if (value.status === "inapplicable") {
+    if (value.claimBasis !== "inapplicable") {
+      fail("evidence_state_contradiction", `${path} is inapplicable but claimBasis disagrees.`, { path });
+    }
+    requirePendingFields(value, path, ["status", "claimBasis"]);
   }
 }
 
@@ -149,29 +193,33 @@ function requireIndependenceState(value, path, sourceKind) {
   ];
   const requireAttestations = () => {
     for (const field of substantiveFields) {
-      if (value[field] === PENDING) {
+      requireMeaningfulText(value[field], `${path}.${field}`);
+    }
+    for (const field of [
+      "publicMaterialsOnly",
+      "noPrivateGuidance",
+      "sourceCodeNotInspected",
+      "distributionNotReverseEngineered",
+    ]) {
+      if (value[field] !== "confirmed") {
         fail(
           "evidence_state_contradiction",
-          `${path} cannot advance before ${field} is recorded.`,
-          { path: `${path}.${field}` },
+          `${path}.${field} must be confirmed before independence can advance.`,
+          { path: `${path}.${field}`, value: value[field] },
         );
       }
     }
   };
 
   if (value.status === PENDING) {
-    if (Object.values(value).some((field) => field !== PENDING && field !== value.status)) {
-      fail("evidence_state_contradiction", `${path} is pending but contains a populated claim.`, { path });
-    }
+    requirePendingFields(value, path, ["status"]);
     return;
   }
   if (value.status === "inapplicable") {
     if (value.claimBasis !== "inapplicable") {
       fail("evidence_state_contradiction", `${path} is inapplicable but claimBasis disagrees.`, { path });
     }
-    if (Object.entries(value).some(([key, field]) => key !== "status" && key !== "claimBasis" && field !== PENDING)) {
-      fail("evidence_state_contradiction", `${path} inapplicable state cannot contain qualifying evidence.`, { path });
-    }
+    requirePendingFields(value, path, ["status", "claimBasis"]);
     return;
   }
   if (value.status === "author-claimed" || value.status === "independently-executed") {
@@ -189,9 +237,7 @@ function requireIndependenceState(value, path, sourceKind) {
       fail("evidence_state_contradiction", `${path} reviewed or failed state requires a publicly-reviewed claim basis.`, { path });
     }
     requireAttestations();
-    if (value.publicHumanReview === PENDING || value.reviewer === PENDING) {
-      fail("evidence_state_contradiction", `${path} reviewed state lacks named public review evidence.`, { path });
-    }
+    requirePublicReview(value, path, { reviewEvidencePath: false });
     return;
   }
   fail(
@@ -266,13 +312,64 @@ function requireGatePrerequisites(record) {
     }
     if (["author-claimed", "publicly-reviewed", "failed"].includes(gate.status)) {
       for (const field of gateEvidenceFields[name]) {
-        if (gate[field] === PENDING) {
+        if (field === "durationSeconds") {
+          if (
+            typeof gate[field] !== "number" ||
+            !Number.isFinite(gate[field]) ||
+            gate[field] < 0
+          ) {
+            fail(
+              "evidence_state_contradiction",
+              `gates.${name} requires a finite nonnegative durationSeconds value.`,
+              { path: `gates.${name}.${field}`, value: gate[field] },
+            );
+          }
+        } else if (!isMeaningfulText(gate[field])) {
           fail(
             "evidence_state_contradiction",
             `gates.${name} requires immutable evidence for ${field}.`,
             { path: `gates.${name}.${field}` },
           );
         }
+      }
+    }
+    if (["author-claimed", "publicly-reviewed"].includes(gate.status)) {
+      if (
+        name === "independentConsumer" &&
+        gate.evaluatorFailureVectorsReproduced !== "reproduced"
+      ) {
+        fail(
+          "evidence_state_contradiction",
+          "gates.independentConsumer requires reproduced evaluator-failure vectors.",
+          { path: "gates.independentConsumer.evaluatorFailureVectorsReproduced" },
+        );
+      }
+      if (name === "independentProducer") {
+        const expected = {
+          packageBytesFrozenBeforeValidation: "confirmed",
+          firstCurrentValidatorResult: "pass",
+          firstStaleValidatorResult: "pass",
+          postValidationRepairs: "0",
+        };
+        for (const [field, required] of Object.entries(expected)) {
+          if (gate[field] !== required) {
+            fail(
+              "evidence_state_contradiction",
+              `gates.independentProducer.${field} must equal ${required} for a successful claim.`,
+              { path: `gates.independentProducer.${field}`, value: gate[field] },
+            );
+          }
+        }
+      }
+      if (
+        name === "tenMinuteCoreAuthoring" &&
+        gate.durationSeconds > 600
+      ) {
+        fail(
+          "evidence_state_contradiction",
+          "gates.tenMinuteCoreAuthoring cannot pass when durationSeconds exceeds 600.",
+          { path: "gates.tenMinuteCoreAuthoring.durationSeconds", value: gate.durationSeconds },
+        );
       }
     }
   }
@@ -361,9 +458,10 @@ function validateRecordShape(record) {
   }
   if (
     !(
-      typeof record.gates.tenMinuteCoreAuthoring.durationSeconds === "string" ||
+      record.gates.tenMinuteCoreAuthoring.durationSeconds === PENDING ||
       (typeof record.gates.tenMinuteCoreAuthoring.durationSeconds === "number" &&
-        Number.isFinite(record.gates.tenMinuteCoreAuthoring.durationSeconds))
+        Number.isFinite(record.gates.tenMinuteCoreAuthoring.durationSeconds) &&
+        record.gates.tenMinuteCoreAuthoring.durationSeconds >= 0)
     )
   ) {
     fail("evidence_shape_invalid", "The timed-author duration must be a finite number or pending string.");
@@ -372,6 +470,13 @@ function validateRecordShape(record) {
 
 function validateAuthentication(record, sourceKind) {
   const authentication = record.authentication;
+  if (sourceKind === "local-rehearsal") {
+    for (const key of ["publicVcsCommit", "checksumManifestSha256", "claimBasis", "publicHumanReview", "reviewer", "reviewEvidencePath"]) {
+      if (authentication[key] !== PENDING) {
+        fail("local_rehearsal_evidence_forbidden", `A local rehearsal cannot populate authentication.${key}.`, { key });
+      }
+    }
+  }
   if (
     authentication.publicVcsCommit !== PENDING && !HEX40.test(authentication.publicVcsCommit)
   ) {
@@ -382,27 +487,45 @@ function validateAuthentication(record, sourceKind) {
   ) {
     fail("evidence_authentication_invalid", "checksumManifestSha256 must be pending or a full lowercase SHA-256.");
   }
+  if (
+    authentication.publicVcsCommit !== PENDING &&
+    authentication.publicVcsCommit !== PINNED_PUBLIC_COMMIT
+  ) {
+    fail("evidence_authentication_invalid", "publicVcsCommit does not identify the frozen v0.1-rc.1 candidate.");
+  }
+  if (
+    authentication.checksumManifestSha256 !== PENDING &&
+    authentication.checksumManifestSha256 !== PINNED_CHECKSUM_MANIFEST_SHA256
+  ) {
+    fail("evidence_authentication_invalid", "checksumManifestSha256 does not bind the frozen v0.1-rc.1 checksum manifest.");
+  }
   const anchorsPending =
     authentication.publicVcsCommit === PENDING ||
     authentication.checksumManifestSha256 === PENDING;
   if (anchorsPending && authentication.claimBasis !== PENDING) {
     fail("evidence_state_contradiction", "Pending authentication anchors require a pending claim basis.");
   }
+  if (
+    anchorsPending &&
+    (
+      authentication.publicHumanReview !== PENDING ||
+      authentication.reviewer !== PENDING ||
+      authentication.reviewEvidencePath !== PENDING
+    )
+  ) {
+    fail("evidence_state_contradiction", "Pending authentication anchors cannot carry public-review evidence.");
+  }
   if (!anchorsPending && authentication.claimBasis !== "publicly-authenticated") {
     fail("evidence_state_contradiction", "Authenticated anchors require a publicly-authenticated claim basis.");
   }
   if (
-    authentication.publicHumanReview !== PENDING &&
-    (authentication.reviewer === PENDING || authentication.reviewEvidencePath === PENDING)
+    authentication.publicHumanReview === PENDING
   ) {
-    fail("evidence_state_contradiction", "Authentication review status requires a named reviewer and evidence path.");
-  }
-  if (sourceKind === "local-rehearsal") {
-    for (const key of ["publicVcsCommit", "checksumManifestSha256", "claimBasis", "publicHumanReview", "reviewer", "reviewEvidencePath"]) {
-      if (authentication[key] !== PENDING) {
-        fail("local_rehearsal_evidence_forbidden", `A local rehearsal cannot populate authentication.${key}.`, { key });
-      }
+    if (authentication.reviewer !== PENDING || authentication.reviewEvidencePath !== PENDING) {
+      fail("evidence_state_contradiction", "Pending authentication review cannot contain reviewer evidence.");
     }
+  } else {
+    requirePublicReview(authentication, "authentication");
   }
 }
 

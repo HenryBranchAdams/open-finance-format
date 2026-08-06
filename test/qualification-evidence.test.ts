@@ -10,6 +10,9 @@ import {
 } from "../tools/qualification-evidence.mjs";
 
 const repositoryRoot = dirname(dirname(fileURLToPath(import.meta.url)));
+const pinnedPublicCommit = "2570e38998dd735b83da301a5b6f0e95aca47073";
+const pinnedChecksumManifestSha256 =
+  "65ac8b6b7521ab1582275317d43d7fff819a706a233be599f2285b40f7d3a59e";
 
 function mutateIndependence(
   markdown: string,
@@ -44,6 +47,21 @@ async function template(): Promise<string> {
     join(repositoryRoot, "clean-room/INTEROPERABILITY_REPORT.template.md"),
     "utf8",
   );
+}
+
+function authenticateAndEstablishIndependence(record: Record<string, any>): void {
+  record.authentication.publicVcsCommit = pinnedPublicCommit;
+  record.authentication.checksumManifestSha256 = pinnedChecksumManifestSha256;
+  record.authentication.claimBasis = "publicly-authenticated";
+  record.independence.status = "independently-executed";
+  record.independence.claimBasis = "independently-executed";
+  record.independence.evidencePath = "attempt/independence.json";
+  record.independence.unaffiliatedImplementer = "Participant";
+  record.independence.relationshipDisclosure = "No relationship disclosed";
+  record.independence.publicMaterialsOnly = "confirmed";
+  record.independence.noPrivateGuidance = "confirmed";
+  record.independence.sourceCodeNotInspected = "confirmed";
+  record.independence.distributionNotReverseEngineered = "confirmed";
 }
 
 async function errorCode(
@@ -81,6 +99,14 @@ test("missing and internally contradictory evidence fails closed", async () => {
       parseQualificationEvidence(mutateIndependence(pending, [
         ['"claimBasis": "pending"', '"claimBasis": "author-claimed"'],
       ])),
+    ),
+    "evidence_state_contradiction",
+  );
+  await errorCode(
+    Promise.resolve().then(() =>
+      parseQualificationEvidence(mutateRecord(pending, (record) => {
+        record.gates.independentConsumer.evidencePath = "attempt/consumer.json";
+      })),
     ),
     "evidence_state_contradiction",
   );
@@ -143,6 +169,15 @@ test("author-claimed and publicly-reviewed states require their distinct evidenc
   });
   const result = parseQualificationEvidence(reviewed);
   assert.equal(result.states.independence, "publicly-reviewed");
+
+  await errorCode(
+    Promise.resolve().then(() =>
+      parseQualificationEvidence(mutateRecord(reviewed, (record) => {
+        record.independence.reviewer = "";
+      })),
+    ),
+    "evidence_state_contradiction",
+  );
 });
 
 test("local rehearsal cannot populate qualifying evidence", async () => {
@@ -170,18 +205,7 @@ test("local rehearsal cannot populate qualifying evidence", async () => {
 test("reviewed gates require candidate authentication, independence, and immutable gate evidence", async () => {
   const pending = await template();
   const reviewed = mutateRecord(pending, (record) => {
-    record.authentication.publicVcsCommit = "0000000000000000000000000000000000000000";
-    record.authentication.checksumManifestSha256 = "0000000000000000000000000000000000000000000000000000000000000000";
-    record.authentication.claimBasis = "publicly-authenticated";
-    record.independence.status = "independently-executed";
-    record.independence.claimBasis = "independently-executed";
-    record.independence.evidencePath = "attempt/independence.json";
-    record.independence.unaffiliatedImplementer = "Participant";
-    record.independence.relationshipDisclosure = "No relationship disclosed";
-    record.independence.publicMaterialsOnly = "confirmed";
-    record.independence.noPrivateGuidance = "confirmed";
-    record.independence.sourceCodeNotInspected = "confirmed";
-    record.independence.distributionNotReverseEngineered = "confirmed";
+    authenticateAndEstablishIndependence(record);
     record.gates.independentConsumer.status = "publicly-reviewed";
     record.gates.independentConsumer.claimBasis = "publicly-reviewed";
     record.gates.independentConsumer.evidencePath = "attempt/consumer.json";
@@ -214,18 +238,7 @@ test("gate records reject authentication and implementation states as unsupporte
 test("author-claimed gates require complete immutable result fields before review", async () => {
   const pending = await template();
   const complete = (missingLanguage: boolean): string => mutateRecord(pending, (record) => {
-    record.authentication.publicVcsCommit = "0000000000000000000000000000000000000000";
-    record.authentication.checksumManifestSha256 = "0000000000000000000000000000000000000000000000000000000000000000";
-    record.authentication.claimBasis = "publicly-authenticated";
-    record.independence.status = "independently-executed";
-    record.independence.claimBasis = "independently-executed";
-    record.independence.evidencePath = "attempt/independence.json";
-    record.independence.unaffiliatedImplementer = "Participant";
-    record.independence.relationshipDisclosure = "No relationship disclosed";
-    record.independence.publicMaterialsOnly = "confirmed";
-    record.independence.noPrivateGuidance = "confirmed";
-    record.independence.sourceCodeNotInspected = "confirmed";
-    record.independence.distributionNotReverseEngineered = "confirmed";
+    authenticateAndEstablishIndependence(record);
     record.gates.independentConsumer.status = "author-claimed";
     record.gates.independentConsumer.claimBasis = "author-claimed";
     record.gates.independentConsumer.evidencePath = "attempt/consumer.json";
@@ -237,6 +250,69 @@ test("author-claimed gates require complete immutable result fields before revie
   assert.equal(result.states.independentConsumer, "author-claimed");
   await errorCode(
     Promise.resolve().then(() => parseQualificationEvidence(complete(true))),
+    "evidence_state_contradiction",
+  );
+  await errorCode(
+    Promise.resolve().then(() =>
+      parseQualificationEvidence(mutateRecord(complete(false), (record) => {
+        record.gates.independentConsumer.evidencePath = " pending ";
+      })),
+    ),
+    "evidence_state_contradiction",
+  );
+});
+
+test("authentication anchors must bind the exact frozen candidate", async () => {
+  const pending = await template();
+  await errorCode(
+    Promise.resolve().then(() =>
+      parseQualificationEvidence(mutateRecord(pending, (record) => {
+        record.authentication.publicVcsCommit = "0000000000000000000000000000000000000000";
+        record.authentication.checksumManifestSha256 = pinnedChecksumManifestSha256;
+        record.authentication.claimBasis = "publicly-authenticated";
+      })),
+    ),
+    "evidence_authentication_invalid",
+  );
+});
+
+test("successful gate claims enforce the frozen task results", async () => {
+  const pending = await template();
+  const timed = (durationSeconds: number): string => mutateRecord(pending, (record) => {
+    authenticateAndEstablishIndependence(record);
+    record.gates.tenMinuteCoreAuthoring.status = "author-claimed";
+    record.gates.tenMinuteCoreAuthoring.durationSeconds = durationSeconds;
+    record.gates.tenMinuteCoreAuthoring.evidencePath = "attempt/timed-core.json";
+    record.gates.tenMinuteCoreAuthoring.claimBasis = "author-claimed";
+  });
+  assert.equal(
+    parseQualificationEvidence(timed(600)).states.tenMinuteCoreAuthoring,
+    "author-claimed",
+  );
+  await errorCode(
+    Promise.resolve().then(() => parseQualificationEvidence(timed(601))),
+    "evidence_state_contradiction",
+  );
+
+  const producer = (frozen: string): string => mutateRecord(pending, (record) => {
+    authenticateAndEstablishIndependence(record);
+    Object.assign(record.gates.independentProducer, {
+      status: "author-claimed",
+      packageId: "clean-room-producer-package",
+      packageBytesFrozenBeforeValidation: frozen,
+      firstCurrentValidatorResult: "pass",
+      firstStaleValidatorResult: "pass",
+      postValidationRepairs: "0",
+      evidencePath: "attempt/producer.json",
+      claimBasis: "author-claimed",
+    });
+  });
+  assert.equal(
+    parseQualificationEvidence(producer("confirmed")).states.independentProducer,
+    "author-claimed",
+  );
+  await errorCode(
+    Promise.resolve().then(() => parseQualificationEvidence(producer("not-confirmed"))),
     "evidence_state_contradiction",
   );
 });

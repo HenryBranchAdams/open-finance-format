@@ -15,7 +15,7 @@ export interface QualificationLaunchpadInput {
   readonly publicCommit: string;
   readonly checksumManifestSha256: string;
   readonly outputRoot: string;
-  readonly createdAt?: string;
+  readonly createdAt: string;
 }
 
 export interface QualificationLaunchpadManifest {
@@ -38,6 +38,19 @@ export interface QualificationLaunchpadManifest {
     readonly tenMinuteCoreAuthoring: string;
     readonly adoption: string;
   };
+  readonly verifierCheckout: {
+    readonly repositoryRoot: string;
+    readonly head: string;
+    readonly status: string;
+    readonly trustStatus: string;
+    readonly trustBasis: string;
+  };
+  readonly localChecks: readonly {
+    readonly name: string;
+    readonly command: string;
+    readonly status: string;
+    readonly value: string | number;
+  }[];
   readonly sequence: readonly string[];
   readonly sourceMaterials: readonly {
     readonly source: string;

@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { execFile } from "node:child_process";
 import {
+  access,
+  chmod,
   mkdtemp,
   mkdir,
   readFile,
@@ -110,6 +112,13 @@ test("commit and checksum mismatches fail closed", async (t) => {
     }),
     "checksum_digest_mismatch",
   );
+  await launchpadError(
+    prepareQualificationLaunchpad({
+      ...input(fixture, join(fixture.parent, "invalid-created-at")),
+      createdAt: "2026-02-30T12:00:00Z",
+    }),
+    "invalid_created_at",
+  );
 });
 
 test("allowlisted candidate and clean-room bytes are checked before copying", async (t) => {
@@ -207,6 +216,98 @@ test("dirty candidates, unsafe paths, and existing outputs are rejected", async 
     prepareQualificationLaunchpad(input(cleanFixture, existing)),
     "output_exists",
   );
+  const existingDirectory = join(cleanFixture.parent, "existing-directory");
+  await mkdir(existingDirectory);
+  await launchpadError(
+    prepareQualificationLaunchpad(input(cleanFixture, existingDirectory)),
+    "output_exists",
+  );
+});
+
+test("candidate-local Git commands and paths cannot affect the launch", async (t) => {
+  const fixture = await candidateFixture(t);
+  const marker = join(fixture.parent, "fsmonitor-ran");
+  const monitor = join(fixture.parent, "fsmonitor.sh");
+  await writeFile(monitor, `#!/bin/sh\n: > '${marker}'\nprintf '\\n'\n`);
+  await chmod(monitor, 0o700);
+  await execute("git", ["-C", fixture.root, "config", "core.fsmonitor", monitor]);
+
+  const result = await prepareQualificationLaunchpad(
+    input(fixture, join(fixture.parent, "config-isolated")),
+  );
+  await assert.rejects(access(marker));
+  assert.equal(result.manifest.verifierCheckout.repositoryRoot, "<candidate-root>");
+  assert.equal(
+    result.manifest.localChecks.find((check: { name: string }) => check.name === "candidate-root")?.value,
+    "<candidate-root>",
+  );
+  assert.doesNotMatch(
+    await readFile(join(result.outputRoot, "launchpad.json"), "utf8"),
+    new RegExp(fixture.root.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&"), "u"),
+  );
+
+  const filterFixture = await candidateFixture(t);
+  const filterMarker = join(filterFixture.parent, "filter-ran");
+  const filter = join(filterFixture.parent, "filter.sh");
+  await writeFile(filter, `#!/bin/sh\n: > '${filterMarker}'\ncat\n`);
+  await chmod(filter, 0o700);
+  await execute("git", [
+    "-C",
+    filterFixture.root,
+    "config",
+    "filter.launchpad-test.clean",
+    filter,
+  ]);
+  await writeFile(
+    join(filterFixture.root, ".git/info/attributes"),
+    "README.md filter=launchpad-test\n",
+  );
+  await writeFile(
+    join(filterFixture.root, "README.md"),
+    (await readFile(join(filterFixture.root, "README.md"), "utf8")) +
+      "\nfilter execution probe\n",
+  );
+  await launchpadError(
+    prepareQualificationLaunchpad(
+      input(filterFixture, join(filterFixture.parent, "filter-isolated")),
+    ),
+    "candidate_repository_config_unsafe",
+  );
+  await assert.rejects(access(filterMarker));
+
+  const alternateConfig = join(filterFixture.parent, "alternate.gitconfig");
+  await writeFile(alternateConfig, "");
+  await assert.rejects(
+    execute(
+      process.execPath,
+      [
+        join(repositoryRoot, "tools/qualification-launchpad.mjs"),
+        "--candidate-root",
+        filterFixture.root,
+        "--public-commit",
+        filterFixture.frozenCommit,
+        "--checksum-manifest-sha256",
+        filterFixture.checksumManifestSha256,
+        "--output",
+        join(filterFixture.parent, "filter-isolated-with-git-config"),
+        "--created-at",
+        "2026-08-04T12:00:00Z",
+      ],
+      { env: { ...process.env, GIT_CONFIG: alternateConfig } },
+    ),
+    (error: unknown) => {
+      assert.equal(
+        typeof error === "object" && error !== null && "stderr" in error,
+        true,
+      );
+      assert.match(
+        String((error as { stderr: string }).stderr),
+        /candidate_repository_config_unsafe/u,
+      );
+      return true;
+    },
+  );
+  await assert.rejects(access(filterMarker));
 });
 
 test("the launchpad creates deterministic external scaffolding and preserves the candidate template", async (t) => {

@@ -4,10 +4,10 @@ import {
   mkdir,
   readFile,
   realpath,
-  stat,
   writeFile,
 } from "node:fs/promises";
 import { execFile } from "node:child_process";
+import { devNull } from "node:os";
 import { dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { promisify } from "node:util";
@@ -19,17 +19,44 @@ const launchpadRepositoryRoot = resolve(
 );
 const gitEnvironment = {
   ...process.env,
+  GIT_ATTR_NOSYSTEM: "1",
+  GIT_CONFIG_GLOBAL: devNull,
+  GIT_CONFIG_NOSYSTEM: "1",
+  GIT_CONFIG_SYSTEM: devNull,
   GIT_NO_REPLACE_OBJECTS: "1",
+  GIT_OPTIONAL_LOCKS: "0",
+  GIT_PAGER: "cat",
+  GIT_TERMINAL_PROMPT: "0",
 };
+for (const variable of Object.keys(gitEnvironment)) {
+  if (
+    variable.startsWith("GIT_CONFIG_") &&
+    !["GIT_CONFIG_GLOBAL", "GIT_CONFIG_NOSYSTEM", "GIT_CONFIG_SYSTEM"].includes(variable)
+  ) {
+    delete gitEnvironment[variable];
+  }
+}
 for (const variable of [
+  "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+  "GIT_CONFIG",
   "GIT_DIR",
-  "GIT_WORK_TREE",
+  "GIT_EXEC_PATH",
+  "GIT_EXTERNAL_DIFF",
   "GIT_INDEX_FILE",
   "GIT_OBJECT_DIRECTORY",
-  "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+  "GIT_WORK_TREE",
 ]) {
   delete gitEnvironment[variable];
 }
+const gitSafetyArguments = [
+  "--no-pager",
+  "-c",
+  "core.fsmonitor=false",
+  "-c",
+  `core.hooksPath=${devNull}`,
+  "-c",
+  "core.untrackedCache=false",
+];
 
 export const CANDIDATE = "v0.1-rc.1";
 export const CHECKSUM_MANIFEST = "release/v0.1-rc.1/checksums.json";
@@ -81,6 +108,18 @@ function digest(bytes) {
   return createHash("sha256").update(bytes).digest("hex");
 }
 
+function isWholeSecondUtcTimestamp(value) {
+  if (
+    typeof value !== "string" ||
+    !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/u.test(value)
+  ) {
+    return false;
+  }
+  const timestamp = Date.parse(value);
+  return Number.isFinite(timestamp) &&
+    new Date(timestamp).toISOString() === value.replace(/Z$/u, ".000Z");
+}
+
 function isWithin(path, root) {
   const relation = relative(root, path);
   return relation === "" ||
@@ -89,26 +128,14 @@ function isWithin(path, root) {
       !relation.startsWith(sep));
 }
 
-async function existingParent(path) {
-  let current = dirname(path);
-  while (true) {
-    try {
-      return await realpath(current);
-    } catch (error) {
-      if (error && typeof error === "object" && error.code === "ENOENT") {
-        const next = dirname(current);
-        if (next === current) throw error;
-        current = next;
-        continue;
-      }
-      throw error;
-    }
-  }
-}
-
 async function git(repositoryRoot, args) {
   try {
-    const result = await execute("git", ["-C", repositoryRoot, ...args], {
+    const result = await execute("git", [
+      ...gitSafetyArguments,
+      "-C",
+      repositoryRoot,
+      ...args,
+    ], {
       encoding: "utf8",
       maxBuffer: 1024 * 1024,
       env: gitEnvironment,
@@ -126,7 +153,12 @@ async function git(repositoryRoot, args) {
 
 async function gitBytes(repositoryRoot, args) {
   try {
-    const result = await execute("git", ["-C", repositoryRoot, ...args], {
+    const result = await execute("git", [
+      ...gitSafetyArguments,
+      "-C",
+      repositoryRoot,
+      ...args,
+    ], {
       encoding: null,
       maxBuffer: 32 * 1024 * 1024,
       env: gitEnvironment,
@@ -154,6 +186,25 @@ async function resolvedCandidateRoot(candidateRoot) {
       );
     }
     throw error;
+  }
+}
+
+async function rejectCommandBearingGitConfig(repositoryRoot) {
+  const keys = (await git(repositoryRoot, [
+    "config",
+    "--null",
+    "--name-only",
+    "--list",
+  ])).split("\0").filter(Boolean);
+  const commandBearingFilters = keys.filter((key) =>
+    /^filter\..+\.(?:clean|process|smudge)$/u.test(key)
+  );
+  if (commandBearingFilters.length > 0) {
+    fail(
+      "candidate_repository_config_unsafe",
+      "The candidate repository config must not define external clean, smudge, or process filters.",
+      { keys: commandBearingFilters.sort() },
+    );
   }
 }
 
@@ -241,7 +292,7 @@ function helpText() {
     "    --public-commit <40-char-commit> \\",
     "    --checksum-manifest-sha256 <64-char-digest> \\",
     "    --output <external-attempt-directory> \\",
-    "    [--created-at <whole-second-UTC-timestamp>]",
+    "    --created-at <whole-second-UTC-timestamp>",
   ].join("\n");
 }
 
@@ -386,7 +437,7 @@ export async function prepareQualificationLaunchpad({
   publicCommit,
   checksumManifestSha256,
   outputRoot,
-  createdAt = "2026-08-04T00:00:00Z",
+  createdAt,
 }) {
   if (typeof candidateRoot !== "string" || candidateRoot.length === 0) {
     fail("invalid_arguments", "candidateRoot is required.");
@@ -412,11 +463,11 @@ export async function prepareQualificationLaunchpad({
       "checksumManifestSha256 must be a lowercase SHA-256 digest.",
     );
   }
-  if (
-    typeof createdAt !== "string" ||
-    !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/u.test(createdAt)
-  ) {
-    fail("invalid_created_at", "createdAt must be a whole-second UTC timestamp.");
+  if (!isWholeSecondUtcTimestamp(createdAt)) {
+    fail(
+      "invalid_created_at",
+      "createdAt must be an explicit, real whole-second UTC timestamp.",
+    );
   }
 
   const pinnedCommit = await pinnedCandidateCommit();
@@ -440,6 +491,7 @@ export async function prepareQualificationLaunchpad({
       "candidateRoot must be the clean repository root.",
     );
   }
+  await rejectCommandBearingGitConfig(candidatePath);
   const head = await git(candidatePath, ["rev-parse", "HEAD"]);
   if (head !== publicCommit) {
     fail(
@@ -527,7 +579,26 @@ export async function prepareQualificationLaunchpad({
   }
 
   let outputPath = resolve(outputRoot);
-  const outputParent = await existingParent(outputPath);
+  let outputParent;
+  try {
+    outputParent = await realpath(dirname(outputPath));
+  } catch (error) {
+    if (error && typeof error === "object" && error.code === "ENOENT") {
+      fail(
+        "output_parent_missing",
+        "The attempt directory's direct parent must already exist.",
+        { parent: dirname(outputPath) },
+      );
+    }
+    throw error;
+  }
+  if (!(await lstat(outputParent)).isDirectory()) {
+    fail(
+      "output_parent_invalid",
+      "The attempt directory's direct parent must be a directory.",
+      { parent: outputParent },
+    );
+  }
   if (
     isWithin(outputParent, candidateRepositoryPath) ||
     isWithin(outputPath, candidateRepositoryPath)
@@ -618,7 +689,7 @@ export async function prepareQualificationLaunchpad({
       name: "candidate-root",
       command: "git -C <candidate-root> rev-parse --show-toplevel",
       status: "pass",
-      value: candidateRepositoryPath,
+      value: "<candidate-root>",
     },
     {
       name: "candidate-head",
@@ -652,18 +723,17 @@ export async function prepareQualificationLaunchpad({
     },
   ];
   try {
-    await stat(outputPath);
-    fail(
-      "output_exists",
-      "The launchpad refuses to overwrite an existing attempt directory.",
-      { output: outputPath },
-    );
+    await mkdir(outputPath, { mode: 0o700 });
   } catch (error) {
-    if (!(error && typeof error === "object" && error.code === "ENOENT")) {
-      throw error;
+    if (error && typeof error === "object" && error.code === "EEXIST") {
+      fail(
+        "output_exists",
+        "The launchpad refuses to overwrite an existing attempt directory.",
+        { output: outputPath },
+      );
     }
+    throw error;
   }
-  await mkdir(outputPath, { recursive: true });
   outputPath = await realpath(outputPath);
   if (isWithin(outputPath, candidateRepositoryPath)) {
     fail(
@@ -672,9 +742,10 @@ export async function prepareQualificationLaunchpad({
       { output: outputPath, repository: candidateRepositoryPath },
     );
   }
+  await mkdir(join(outputPath, "candidate"), { mode: 0o700 });
+  await mkdir(join(outputPath, "tasks"), { mode: 0o700 });
   for (const { source, target } of REQUIRED_MATERIALS) {
     const destination = join(outputPath, target);
-    await mkdir(dirname(destination), { recursive: true });
     const bytes = verifiedBytes.get(source);
     if (bytes === undefined) {
       fail(
@@ -688,7 +759,7 @@ export async function prepareQualificationLaunchpad({
   await writeFile(
     join(outputPath, "qualification-sequence.md"),
     sequenceDocument({ publicCommit, checksumManifestSha256 }),
-    "utf8",
+    { encoding: "utf8", flag: "wx" },
   );
   const outputManifest = manifest({
     publicCommit,
@@ -702,7 +773,7 @@ export async function prepareQualificationLaunchpad({
     },
     checksumManifest: { bytesHashed: checksumBytes.length },
     verifierCheckout: {
-      repositoryRoot: candidateRepositoryPath,
+      repositoryRoot: "<candidate-root>",
       head,
       status: "clean",
       trustStatus: "unverified",
@@ -713,7 +784,7 @@ export async function prepareQualificationLaunchpad({
   await writeFile(
     join(outputPath, "launchpad.json"),
     JSON.stringify(outputManifest, null, 2) + "\n",
-    "utf8",
+    { encoding: "utf8", flag: "wx" },
   );
 
   return {
@@ -741,7 +812,7 @@ async function main() {
       publicCommit: values["public-commit"],
       checksumManifestSha256: values["checksum-manifest-sha256"],
       outputRoot: values.output,
-      createdAt: values["created-at"] ?? "2026-08-04T00:00:00Z",
+      createdAt: values["created-at"],
     });
     process.stdout.write(JSON.stringify(result, null, 2) + "\n");
   } catch (error) {
