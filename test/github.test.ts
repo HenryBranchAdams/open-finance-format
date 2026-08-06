@@ -12,6 +12,37 @@ test("GitHub CI is read-only, pinned, and runs the complete local matrix", async
     "utf8",
   );
 
+  assert.match(workflow, /workflow_dispatch:/u);
+  assert.match(workflow, /candidate_ref:/u);
+  assert.match(
+    workflow,
+    /default: "2570e38998dd735b83da301a5b6f0e95aca47073"/u,
+  );
+  assert.match(
+    workflow,
+    /test "\$REQUESTED_REF" = "\$FROZEN_CANDIDATE_COMMIT"/u,
+  );
+  assert.match(workflow, /if: github\.event_name == 'workflow_dispatch'/u);
+  assert.match(workflow, /if: github\.event_name != 'workflow_dispatch'/u);
+  assert.match(
+    workflow,
+    /ref: \$\{\{ inputs\.candidate_ref \|\| github\.sha \}\}/u,
+  );
+  assert.match(
+    workflow,
+    /FROZEN_CANDIDATE_TREE: "61e15ac00bd7c8d5500b03ca463f9f6521df2e65"/u,
+  );
+  assert.match(
+    workflow,
+    /FROZEN_RELEASE_TREE: "d688aef11d951c86582f4fcd698400c0095d2a02"/u,
+  );
+  assert.match(
+    workflow,
+    /test "\$actual_repository_tree" = "\$FROZEN_CANDIDATE_TREE"/u,
+  );
+  assert.match(workflow, /git rev-parse HEAD\^\{tree\}/u);
+  assert.match(workflow, /git rev-parse HEAD:release\/v0\.1-rc\.1/u);
+  assert.match(workflow, /GITHUB_STEP_SUMMARY/u);
   assert.match(workflow, /^permissions:\n  contents: read$/mu);
   assert.match(workflow, /runs-on: ubuntu-24\.04/u);
   assert.match(
@@ -30,6 +61,7 @@ test("GitHub CI is read-only, pinned, and runs the complete local matrix", async
   assert.match(workflow, /COREPACK_ENABLE_NETWORK: "0"/u);
   assert.doesNotMatch(workflow, /secrets\./u);
 
+  assert.match(workflow, /^        run: pnpm verify$/mu);
   for (const command of [
     "pnpm build",
     "pnpm check",
