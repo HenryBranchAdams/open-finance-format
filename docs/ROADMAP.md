@@ -46,6 +46,14 @@ repository-local handoff for staging those later public tasks. It verifies the
 candidate bytes and records local preflight only; it does not clear any
 external gate.
 
+The companion [qualification index](QUALIFICATION_INDEX.md),
+[role-separated handoff](QUALIFICATION_HANDOFF.md), [evidence template](QUALIFICATION_EVIDENCE.template.md),
+and [public review packet](QUALIFICATION_REVIEW_PACKET.template.md) now make
+the coordinator, participant, and reviewer responsibilities executable without
+changing the frozen candidate. These documents close a repository-preparation
+gap only; the external actions, immutable evidence, and named review remain
+pending.
+
 Local acceptance demonstrates only that the reference artifacts agree with one another. It is not independent interoperability proof.
 
 ## Promotion gate — v0.1
@@ -64,7 +72,13 @@ Promotion would support a clean-room implementability and interoperability claim
 
 ## First post-v0.1 milestone — real-model adoption
 
-After format interoperability is demonstrated, recruit an external design partner to publish and maintain a real public-equity model. This milestone should measure:
+After format interoperability is demonstrated, use the [design-partner pilot
+brief](DESIGN_PARTNER_PILOT.md) to invite an opted-in external design partner
+to publish and maintain a real public-equity model. The brief defines entry and
+exit criteria, category-based selection rationale, evidence retention, and a
+separate exploratory path when qualification is not yet complete. It does not
+name or contact a partner and does not create an adoption claim. The milestone
+should measure:
 
 - time to publish and validator repair burden;
 - structural coverage of headline outputs;

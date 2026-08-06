@@ -139,6 +139,16 @@ files:
     role: implementation_and_clean_room_router
   - path: docs/QUALIFICATION_LAUNCHPAD.md
     role: non_normative_clean_room_handoff
+  - path: docs/QUALIFICATION_INDEX.md
+    role: external_gate_current_state_and_immutable_pointers
+  - path: docs/QUALIFICATION_HANDOFF.md
+    role: role_separated_external_qualification_instructions
+  - path: docs/QUALIFICATION_EVIDENCE.template.md
+    role: external_gate_evidence_submission_template
+  - path: docs/QUALIFICATION_REVIEW_PACKET.template.md
+    role: public_review_and_adjudication_template
+  - path: docs/DESIGN_PARTNER_PILOT.md
+    role: non_normative_adoption_pilot_brief
   - path: tools/qualification-launchpad.mjs
     role: local_fail_closed_candidate_staging
   - path: tools/qualification-evidence.mjs
@@ -159,8 +169,10 @@ ambiguity_policy: >-
   a new immutable release candidate before the clean-room test restarts.
 
 next_task: >-
-  Use the local qualification launchpad only after binding the public candidate
-  to an immutable public commit and publishing the checksum-manifest digest
-  through the required authenticated channels. Then run the unaffiliated
-  consumer, producer, and timed Core-authoring tasks while leaving every result
-  pending until its immutable evidence is publicly reviewed.
+  Use the qualification index and role-separated handoff only after verifying
+  the public candidate's immutable commit and checksum-manifest digest through
+  the required authenticated channels. Then run the unaffiliated consumer,
+  producer, and timed Core-authoring tasks while leaving every result pending
+  until its immutable evidence is publicly reviewed. Treat the design-partner
+  pilot as a separate, opted-in adoption track with no claim until its own
+  evidence exists and is reviewed.

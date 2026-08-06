@@ -9,6 +9,13 @@ The launchpad is deliberately outside clean-room/ and
 release/v0.1-rc.1/. Those trees are closed by the release validator. The
 launchpad never edits the pending interoperability report in the candidate.
 
+Use the companion [qualification index](QUALIFICATION_INDEX.md) for the
+immutable release pointers and current-state matrix, the
+[role-separated handoff](QUALIFICATION_HANDOFF.md) for participant
+coordination, and the [review packet](QUALIFICATION_REVIEW_PACKET.template.md)
+for public adjudication. These companion documents remain mutable,
+non-normative coordination material.
+
 ## What it does
 
 tools/qualification-launchpad.mjs accepts:
