@@ -22,13 +22,23 @@ test("GitHub CI is read-only, pinned, and runs the complete local matrix", async
     workflow,
     /test "\$REQUESTED_REF" = "\$FROZEN_CANDIDATE_COMMIT"/u,
   );
+  assert.match(workflow, /if: github\.event_name == 'workflow_dispatch'/u);
+  assert.match(workflow, /if: github\.event_name != 'workflow_dispatch'/u);
   assert.match(
     workflow,
     /ref: \$\{\{ inputs\.candidate_ref \|\| github\.sha \}\}/u,
   );
   assert.match(
     workflow,
+    /FROZEN_CANDIDATE_TREE: "61e15ac00bd7c8d5500b03ca463f9f6521df2e65"/u,
+  );
+  assert.match(
+    workflow,
     /FROZEN_RELEASE_TREE: "d688aef11d951c86582f4fcd698400c0095d2a02"/u,
+  );
+  assert.match(
+    workflow,
+    /test "\$actual_repository_tree" = "\$FROZEN_CANDIDATE_TREE"/u,
   );
   assert.match(workflow, /git rev-parse HEAD\^\{tree\}/u);
   assert.match(workflow, /git rev-parse HEAD:release\/v0\.1-rc\.1/u);
@@ -52,6 +62,16 @@ test("GitHub CI is read-only, pinned, and runs the complete local matrix", async
   assert.doesNotMatch(workflow, /secrets\./u);
 
   assert.match(workflow, /^        run: pnpm verify$/mu);
+  for (const command of [
+    "pnpm build",
+    "pnpm check",
+    "pnpm test",
+    "pnpm test:node22",
+    "pnpm test:offline",
+    "pnpm release:self-check",
+  ]) {
+    assert.match(workflow, new RegExp(`^          ${command}$`, "mu"));
+  }
 });
 
 test("repository intake routes protocol and security work without overstating evidence", async () => {
