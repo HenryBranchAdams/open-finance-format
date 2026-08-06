@@ -1,0 +1,271 @@
+{
+  "package_context": {
+    "name": "Package / Release Context",
+    "description": "Persistent OFF identity, release, evaluation time, outcome, declared profiles, and the non-normative OpenBB boundary.",
+    "category": "OFF Research",
+    "type": "markdown",
+    "ai": true,
+    "endpoint": "/off/context",
+    "gridData": { "w": 40, "h": 6 },
+    "params": [
+      { "paramName": "package_id", "value": "pkg__QU3vjyKzzG5Ogl3Rgx2ZRT5", "label": "OFF package", "description": "Select a locally discovered OFF package by opaque ID.", "type": "endpoint", "optionsEndpoint": "/off/packages/options" },
+      { "paramName": "evaluated_at", "value": "", "label": "Evaluated at", "description": "Optional whole-second UTC timestamp. Blank uses the backend's current whole-second UTC time.", "type": "text" }
+    ]
+  },
+  "narrative": {
+    "name": "Research Narrative",
+    "description": "Evaluator-verified local entrypoint narrative, sanitized for safe Markdown display; remote resources are never fetched.",
+    "category": "OFF Research",
+    "type": "markdown",
+    "ai": true,
+    "endpoint": "/off/narrative",
+    "gridData": { "w": 24, "h": 14 },
+    "params": [
+      { "paramName": "package_id", "value": "pkg__QU3vjyKzzG5Ogl3Rgx2ZRT5", "label": "OFF package", "description": "Opaque local package ID.", "type": "endpoint", "optionsEndpoint": "/off/packages/options" },
+      { "paramName": "evaluated_at", "value": "", "label": "Evaluated at", "description": "Optional whole-second UTC timestamp.", "type": "text" }
+    ]
+  },
+  "headline_outputs": {
+    "name": "Headline Output Ledger",
+    "description": "Compact ledger of author-declared headline outputs with canonical string values, units, scenario, methodology, attestation, and freshness.",
+    "category": "OFF Research",
+    "type": "table",
+    "ai": true,
+    "endpoint": "/off/headline-outputs",
+    "gridData": { "w": 16, "h": 14 },
+    "data": { "table": { "columnsDefs": [
+      { "field": "label", "headerName": "Output", "cellDataType": "text" },
+      { "field": "value", "headerName": "Value", "cellDataType": "text" },
+      { "field": "unit_symbol", "headerName": "Unit", "cellDataType": "text" },
+      { "field": "scenario", "headerName": "Scenario", "cellDataType": "text" },
+      { "field": "as_of_date", "headerName": "As of", "cellDataType": "dateString" },
+      { "field": "freshness_status", "headerName": "Freshness", "cellDataType": "text" }
+    ] } },
+    "params": [
+      { "paramName": "package_id", "value": "pkg__QU3vjyKzzG5Ogl3Rgx2ZRT5", "label": "OFF package", "description": "Opaque local package ID.", "type": "endpoint", "optionsEndpoint": "/off/packages/options" },
+      { "paramName": "evaluated_at", "value": "", "label": "Evaluated at", "description": "Optional whole-second UTC timestamp.", "type": "text" }
+    ]
+  },
+  "assumptions": {
+    "name": "Assumptions",
+    "description": "Author-declared model assumptions with stable IDs, canonical values, units, scenario applicability, designation, and review state.",
+    "category": "OFF Research",
+    "type": "table",
+    "ai": true,
+    "endpoint": "/off/assumptions",
+    "gridData": { "w": 40, "h": 14 },
+    "data": { "table": { "columnsDefs": [
+      { "field": "id", "headerName": "Stable ID", "cellDataType": "text" },
+      { "field": "label", "headerName": "Assumption", "cellDataType": "text" },
+      { "field": "value", "headerName": "Value", "cellDataType": "text" },
+      { "field": "unit_symbol", "headerName": "Unit", "cellDataType": "text" },
+      { "field": "designation", "headerName": "Designation", "cellDataType": "text" },
+      { "field": "review_by", "headerName": "Review by", "cellDataType": "dateString" },
+      { "field": "freshness_status", "headerName": "Freshness", "cellDataType": "text" }
+    ] } },
+    "params": [
+      { "paramName": "package_id", "value": "pkg__QU3vjyKzzG5Ogl3Rgx2ZRT5", "label": "OFF package", "description": "Opaque local package ID.", "type": "endpoint", "optionsEndpoint": "/off/packages/options" },
+      { "paramName": "evaluated_at", "value": "", "label": "Evaluated at", "description": "Optional whole-second UTC timestamp.", "type": "text" }
+    ]
+  },
+  "source_facts": {
+    "name": "Source Facts",
+    "description": "Sourced facts with stable IDs, canonical values, effective dates, linked source records, and evaluator freshness.",
+    "category": "OFF Evidence",
+    "type": "table",
+    "ai": true,
+    "endpoint": "/off/source-facts",
+    "gridData": { "w": 24, "h": 14 },
+    "data": { "table": { "columnsDefs": [
+      { "field": "label", "headerName": "Fact", "cellDataType": "text" },
+      { "field": "value", "headerName": "Value", "cellDataType": "text" },
+      { "field": "unit_symbol", "headerName": "Unit", "cellDataType": "text" },
+      { "field": "effective_date", "headerName": "Effective", "cellDataType": "dateString" },
+      { "field": "source_id", "headerName": "Source ID", "cellDataType": "text" },
+      { "field": "freshness_status", "headerName": "Freshness", "cellDataType": "text" }
+    ] } },
+    "params": [
+      { "paramName": "package_id", "value": "pkg__QU3vjyKzzG5Ogl3Rgx2ZRT5", "label": "OFF package", "description": "Opaque local package ID.", "type": "endpoint", "optionsEndpoint": "/off/packages/options" },
+      { "paramName": "evaluated_at", "value": "", "label": "Evaluated at", "description": "Optional whole-second UTC timestamp.", "type": "text" }
+    ]
+  },
+  "sources": {
+    "name": "Sources / Evidence",
+    "description": "Source records and evidence-resource references. URLs are descriptors only and are not fetched by this service.",
+    "category": "OFF Evidence",
+    "type": "table",
+    "ai": true,
+    "endpoint": "/off/sources",
+    "gridData": { "w": 16, "h": 14 },
+    "data": { "table": { "columnsDefs": [
+      { "field": "title", "headerName": "Source", "cellDataType": "text" },
+      { "field": "publisher", "headerName": "Publisher", "cellDataType": "text" },
+      { "field": "url", "headerName": "Descriptor", "cellDataType": "text" },
+      { "field": "evidence_resource_id", "headerName": "Evidence ID", "cellDataType": "text" }
+    ] } },
+    "params": [
+      { "paramName": "package_id", "value": "pkg__QU3vjyKzzG5Ogl3Rgx2ZRT5", "label": "OFF package", "description": "Opaque local package ID.", "type": "endpoint", "optionsEndpoint": "/off/packages/options" },
+      { "paramName": "evaluated_at", "value": "", "label": "Evaluated at", "description": "Optional whole-second UTC timestamp.", "type": "text" }
+    ]
+  },
+  "freshness": {
+    "name": "Freshness / Affected Outputs",
+    "description": "Leaf and headline freshness at evaluated_at, including stale dependency IDs without implying live source refresh.",
+    "category": "OFF Evidence",
+    "type": "table",
+    "ai": true,
+    "endpoint": "/off/freshness",
+    "gridData": { "w": 20, "h": 12 },
+    "data": { "table": { "columnsDefs": [
+      { "field": "kind", "headerName": "Kind", "cellDataType": "text" },
+      { "field": "entityId", "headerName": "Entity", "cellDataType": "text" },
+      { "field": "status", "headerName": "Status", "cellDataType": "text" },
+      { "field": "staleDependencyIds", "headerName": "Stale dependencies", "cellDataType": "object" }
+    ] } },
+    "params": [
+      { "paramName": "package_id", "value": "pkg__QU3vjyKzzG5Ogl3Rgx2ZRT5", "label": "OFF package", "description": "Opaque local package ID.", "type": "endpoint", "optionsEndpoint": "/off/packages/options" },
+      { "paramName": "evaluated_at", "value": "", "label": "Evaluated at", "description": "Optional whole-second UTC timestamp.", "type": "text" }
+    ]
+  },
+  "lineage": {
+    "name": "Material Lineage",
+    "description": "Evaluator-resolved material edges. Traceable — author-declared lineage is structural conformance, not independent verification.",
+    "category": "OFF Evidence",
+    "type": "table",
+    "ai": true,
+    "endpoint": "/off/lineage",
+    "gridData": { "w": 20, "h": 12 },
+    "data": { "table": { "columnsDefs": [
+      { "field": "fromId", "headerName": "Output / From", "cellDataType": "text" },
+      { "field": "toId", "headerName": "Input / To", "cellDataType": "text" },
+      { "field": "material", "headerName": "Material", "cellDataType": "boolean" }
+    ] } },
+    "params": [
+      { "paramName": "package_id", "value": "pkg__QU3vjyKzzG5Ogl3Rgx2ZRT5", "label": "OFF package", "description": "Opaque local package ID.", "type": "endpoint", "optionsEndpoint": "/off/packages/options" },
+      { "paramName": "evaluated_at", "value": "", "label": "Evaluated at", "description": "Optional whole-second UTC timestamp.", "type": "text" }
+    ]
+  },
+  "resources": {
+    "name": "Resource Inventory",
+    "description": "Bounded OFF resource inventory with availability and integrity state. Local paths are deliberately excluded.",
+    "category": "OFF Files",
+    "type": "table",
+    "ai": true,
+    "endpoint": "/off/resources",
+    "gridData": { "w": 20, "h": 14 },
+    "data": { "table": { "columnsDefs": [
+      { "field": "id", "headerName": "Resource ID", "cellDataType": "text" },
+      { "field": "media_type", "headerName": "Media type", "cellDataType": "text" },
+      { "field": "roles", "headerName": "Roles", "cellDataType": "object" },
+      { "field": "availability", "headerName": "Availability", "cellDataType": "text" },
+      { "field": "integrity", "headerName": "Integrity", "cellDataType": "text" },
+      { "field": "local_file_exposed", "headerName": "Safe local access", "cellDataType": "boolean" }
+    ] } },
+    "params": [
+      { "paramName": "package_id", "value": "pkg__QU3vjyKzzG5Ogl3Rgx2ZRT5", "label": "OFF package", "description": "Opaque local package ID.", "type": "endpoint", "optionsEndpoint": "/off/packages/options" },
+      { "paramName": "evaluated_at", "value": "", "label": "Evaluated at", "description": "Optional whole-second UTC timestamp.", "type": "text" }
+    ]
+  },
+  "workbook_bindings": {
+    "name": "Workbook Binding",
+    "description": "Post-v0.1-rc.1 sidecar bindings. Bound — author-declared workbook locators; existence, values, formulas, recalculation, and live-sheet equivalence remain unevaluated.",
+    "category": "OFF Files",
+    "type": "table",
+    "ai": true,
+    "endpoint": "/off/workbook-bindings",
+    "gridData": { "w": 20, "h": 14 },
+    "data": { "table": { "columnsDefs": [
+      { "field": "subject_id", "headerName": "Subject", "cellDataType": "text" },
+      { "field": "workbook_id", "headerName": "Workbook", "cellDataType": "text" },
+      { "field": "locator", "headerName": "Locator", "cellDataType": "object" },
+      { "field": "role", "headerName": "Role", "cellDataType": "text" },
+      { "field": "status", "headerName": "Status", "cellDataType": "text" },
+      { "field": "unevaluated", "headerName": "Unevaluated properties", "cellDataType": "object" }
+    ] } },
+    "params": [
+      { "paramName": "package_id", "value": "pkg__QU3vjyKzzG5Ogl3Rgx2ZRT5", "label": "OFF package", "description": "Opaque local package ID.", "type": "endpoint", "optionsEndpoint": "/off/packages/options" },
+      { "paramName": "evaluated_at", "value": "", "label": "Evaluated at", "description": "Optional whole-second UTC timestamp.", "type": "text" }
+    ]
+  },
+  "native_files": {
+    "name": "Verified Local Files",
+    "description": "Native viewer for evaluator-verified safe local resources selected only by opaque file IDs. Raw paths, remote descriptors, and unsafe inline formats are excluded.",
+    "category": "OFF Files",
+    "type": "multi_file_viewer",
+    "ai": false,
+    "endpoint": "/off/files",
+    "gridData": { "w": 40, "h": 14 },
+    "params": [
+      { "paramName": "file_id", "value": [], "label": "Verified files", "description": "Choose up to 20 evaluator-verified local resources by opaque ID.", "type": "endpoint", "optionsEndpoint": "/off/files/options", "optionsParams": { "package_id": "$package_id", "evaluated_at": "$evaluated_at" }, "multiSelect": true, "roles": ["fileSelector"] },
+      { "paramName": "package_id", "value": "pkg__QU3vjyKzzG5Ogl3Rgx2ZRT5", "label": "OFF package", "description": "Opaque local package ID.", "type": "endpoint", "optionsEndpoint": "/off/packages/options", "show": false },
+      { "paramName": "evaluated_at", "value": "", "label": "Evaluated at", "description": "Optional whole-second UTC timestamp.", "type": "text", "show": false }
+    ]
+  },
+  "profile_results": {
+    "name": "Profile Results",
+    "description": "Core and declared-profile request/status distinctions, including failed, passed, and notEvaluated states.",
+    "category": "OFF Conformance",
+    "type": "table",
+    "ai": true,
+    "endpoint": "/off/profile-results",
+    "gridData": { "w": 20, "h": 10 },
+    "data": { "table": { "columnsDefs": [
+      { "field": "profile", "headerName": "Profile", "cellDataType": "text" },
+      { "field": "declared", "headerName": "Declared", "cellDataType": "boolean" },
+      { "field": "requested", "headerName": "Requested", "cellDataType": "boolean" },
+      { "field": "status", "headerName": "Status", "cellDataType": "text" },
+      { "field": "claim", "headerName": "Claim", "cellDataType": "text" }
+    ] } },
+    "params": [
+      { "paramName": "package_id", "value": "pkg__QU3vjyKzzG5Ogl3Rgx2ZRT5", "label": "OFF package", "description": "Opaque local package ID.", "type": "endpoint", "optionsEndpoint": "/off/packages/options" },
+      { "paramName": "evaluated_at", "value": "", "label": "Evaluated at", "description": "Optional whole-second UTC timestamp.", "type": "text" }
+    ]
+  },
+  "diagnostics": {
+    "name": "Diagnostics",
+    "description": "Structured evaluator diagnostics. Instance locations and parameters describe package data, never unrestricted local filesystem paths.",
+    "category": "OFF Conformance",
+    "type": "table",
+    "ai": false,
+    "endpoint": "/off/diagnostics",
+    "gridData": { "w": 20, "h": 10 },
+    "data": { "table": { "columnsDefs": [
+      { "field": "code", "headerName": "Code", "cellDataType": "text" },
+      { "field": "severity", "headerName": "Severity", "cellDataType": "text" },
+      { "field": "rule", "headerName": "Rule", "cellDataType": "text" },
+      { "field": "instance_location", "headerName": "Instance location", "cellDataType": "text" },
+      { "field": "entity_id", "headerName": "Entity", "cellDataType": "text" },
+      { "field": "parameters", "headerName": "Parameters", "cellDataType": "object" }
+    ] } },
+    "params": [
+      { "paramName": "package_id", "value": "pkg__QU3vjyKzzG5Ogl3Rgx2ZRT5", "label": "OFF package", "description": "Opaque local package ID.", "type": "endpoint", "optionsEndpoint": "/off/packages/options" },
+      { "paramName": "evaluated_at", "value": "", "label": "Evaluated at", "description": "Optional whole-second UTC timestamp.", "type": "text" }
+    ]
+  },
+  "normalized_view": {
+    "name": "Canonical Normalized Inspection",
+    "description": "Bounded Markdown inspection of the evaluator-produced normalized JSON; the canonical JSON export remains available at /off/normalized.",
+    "category": "OFF Conformance",
+    "type": "markdown",
+    "ai": false,
+    "endpoint": "/off/normalized-view",
+    "gridData": { "w": 40, "h": 18 },
+    "params": [
+      { "paramName": "package_id", "value": "pkg__QU3vjyKzzG5Ogl3Rgx2ZRT5", "label": "OFF package", "description": "Opaque local package ID.", "type": "endpoint", "optionsEndpoint": "/off/packages/options" },
+      { "paramName": "evaluated_at", "value": "", "label": "Evaluated at", "description": "Optional whole-second UTC timestamp.", "type": "text" }
+    ]
+  },
+  "claims_boundary": {
+    "name": "Claims Boundary",
+    "description": "Exact OFF conformance claims and explicit limits: no financial correctness, adoption, independent interoperability, deployment, advice, or execution claims.",
+    "category": "OFF Conformance",
+    "type": "markdown",
+    "ai": true,
+    "endpoint": "/off/claims",
+    "gridData": { "w": 40, "h": 10 },
+    "params": [
+      { "paramName": "package_id", "value": "pkg__QU3vjyKzzG5Ogl3Rgx2ZRT5", "label": "OFF package", "description": "Opaque local package ID.", "type": "endpoint", "optionsEndpoint": "/off/packages/options" },
+      { "paramName": "evaluated_at", "value": "", "label": "Evaluated at", "description": "Optional whole-second UTC timestamp.", "type": "text" }
+    ]
+  }
+}
