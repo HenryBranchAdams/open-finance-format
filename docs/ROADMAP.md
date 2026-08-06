@@ -41,6 +41,11 @@ Before any public candidate is treated as ready for a clean-room attempt:
 3. the release allowlist and checksums must identify the immutable public artifacts; and
 4. every external evidence field must remain pending until evidence actually exists.
 
+The non-normative [qualification launchpad](QUALIFICATION_LAUNCHPAD.md) is the
+repository-local handoff for staging those later public tasks. It verifies the
+candidate bytes and records local preflight only; it does not clear any
+external gate.
+
 Local acceptance demonstrates only that the reference artifacts agree with one another. It is not independent interoperability proof.
 
 ## Promotion gate — v0.1

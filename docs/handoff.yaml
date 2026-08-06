@@ -1,7 +1,7 @@
 package: open-finance-format-development-handoff
 version: 0.1.0-dev
 prepared_at: 2026-07-17
-updated_at: 2026-07-27
+updated_at: 2026-08-04
 status: mutable-development
 repository_state: mutable-post-v0.1-rc.1-development
 name: Open Finance Format
@@ -137,6 +137,16 @@ files:
     role: current_public_change_authority
   - path: docs/IMPLEMENTERS.md
     role: implementation_and_clean_room_router
+  - path: docs/QUALIFICATION_LAUNCHPAD.md
+    role: non_normative_clean_room_handoff
+  - path: tools/qualification-launchpad.mjs
+    role: local_fail_closed_candidate_staging
+  - path: tools/qualification-evidence.mjs
+    role: read_only_campaign_evidence_state_checker
+  - path: test/qualification-launchpad.test.ts
+    role: launchpad_boundary_regression_tests
+  - path: test/qualification-evidence.test.ts
+    role: evidence_state_regression_tests
   - path: protocol/catalog-0.1.json
     role: development_protocol_discovery_catalog
   - path: spec/profiles/public-equity-research-0.1.md
@@ -149,7 +159,8 @@ ambiguity_policy: >-
   a new immutable release candidate before the clean-room test restarts.
 
 next_task: >-
-  Bind the public candidate to an immutable public commit and publish the
-  checksum-manifest digest through an authenticated channel, then run the
-  unaffiliated consumer, producer, and timed Core-authoring tasks while leaving
-  every result pending until its immutable evidence is publicly reviewed.
+  Use the local qualification launchpad only after binding the public candidate
+  to an immutable public commit and publishing the checksum-manifest digest
+  through the required authenticated channels. Then run the unaffiliated
+  consumer, producer, and timed Core-authoring tasks while leaving every result
+  pending until its immutable evidence is publicly reviewed.
