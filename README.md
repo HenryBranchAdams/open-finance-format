@@ -92,6 +92,18 @@ current development tree.
 
 The corpus proves the behavior of this reference implementation under local tests. It does not by itself prove that an independent consumer will interpret OFF the same way.
 
+The mutable tree also includes non-normative, source-backed research examples,
+including the versioned [Pagaya Q2 2026 refresh](examples/pagaya-valuation/)
+and [Neuraxis valuation package](examples/nrxs-valuation/). Their narratives,
+workbooks, generators, inspection artifacts, and bounded OpenProse sources are
+authoring and review aids; only each package's `off.json` is authoritative for
+that package, and validation does not establish financial correctness.
+
+The [local OpenBB Research Workspace adapter](integrations/openbb-workspace/)
+is a read-only reference consumer of the current evaluator. It is optional,
+non-normative, and outside the frozen rc.1 closure; OFF conformance never
+depends on OpenBB or on this adapter.
+
 ## Local verification
 
 Contributor runtime:
@@ -189,4 +201,4 @@ The rc.1 release validator checks local artifact consistency only. It cannot cer
 - [docs/handoff.yaml](docs/handoff.yaml) records current development status,
   the frozen candidate boundary, and pending external evidence.
 
-The repository is licensed under Apache-2.0. The checked-in bundle's third-party components retain their upstream terms in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). A package's declared license describes that package; validation does not prove identity, ownership, or legal rights.
+The repository is licensed under MIT. The checked-in bundle's third-party components retain their upstream terms in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). A package's declared license describes that package; validation does not prove identity, ownership, or legal rights.

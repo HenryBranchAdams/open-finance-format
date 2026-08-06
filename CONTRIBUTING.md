@@ -51,4 +51,4 @@ correctness from repository tests.
 The current founder-maintainer makes final merge and proposal decisions under
 [GOVERNANCE.md](GOVERNANCE.md). Reviews should address the work rather than the
 person. Contributors retain authorship of their commits and contribute under
-the repository's [Apache-2.0 license](LICENSE).
+the repository's [MIT license](LICENSE).

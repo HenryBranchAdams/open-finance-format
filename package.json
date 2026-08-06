@@ -3,7 +3,7 @@
   "version": "0.1.0-dev",
   "private": true,
   "description": "Reference contracts and tooling for Open Finance Format 0.1 development after v0.1-rc.1",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/HenryBranchAdams/open-finance-format.git"

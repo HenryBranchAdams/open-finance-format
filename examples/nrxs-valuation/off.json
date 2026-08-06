@@ -1,0 +1,740 @@
+{
+  "offVersion": "0.1",
+  "package": {
+    "id": "https://openfinanceformat.org/examples/nrxs-valuation",
+    "releaseId": "https://openfinanceformat.org/examples/nrxs-valuation/releases/2026-07-30-v1",
+    "releaseVersion": "2026-07-30-v1",
+    "title": "Neuraxis valuation — probability-weighted commercial FCFF",
+    "authors": [
+      {
+        "id": "https://github.com/HenryBranchAdams",
+        "name": "Henry Adams"
+      }
+    ],
+    "license": {
+      "id": "Apache-2.0",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0"
+    },
+    "publishedAt": "2026-07-30T16:00:00Z",
+    "canonicalUrl": "https://github.com/HenryBranchAdams/open-finance-format/tree/main/examples/nrxs-valuation",
+    "entrypointResourceId": "https://openfinanceformat.org/examples/nrxs-valuation/resources/narrative"
+  },
+  "profiles": [
+    "https://openfinanceformat.org/profiles/public-equity-research/0.1"
+  ],
+  "resources": [
+    {
+      "id": "https://openfinanceformat.org/examples/nrxs-valuation/resources/narrative",
+      "mediaType": "text/markdown",
+      "roles": [
+        "entrypoint",
+        "narrative"
+      ],
+      "locations": [
+        {
+          "kind": "local",
+          "path": "OFF.md"
+        }
+      ],
+      "byteSize": 5203,
+      "sha256": "aeab24eb484a08032c0b273325452252b3940f2c47670434d72444ebdeffabc5"
+    },
+    {
+      "id": "https://openfinanceformat.org/examples/nrxs-valuation/resources/model",
+      "mediaType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "roles": [
+        "model-artifact"
+      ],
+      "locations": [
+        {
+          "kind": "local",
+          "path": "outputs/20260730-nrxs01/nrxs-valuation-model.xlsx"
+        }
+      ],
+      "byteSize": 57479,
+      "sha256": "d5c3b1645d1b0d28b48f41dad74d4258dc2ffd64035bba1270090a37ce48defe"
+    },
+    {
+      "id": "https://openfinanceformat.org/examples/nrxs-valuation/resources/evidence",
+      "mediaType": "text/markdown",
+      "roles": [
+        "source-evidence"
+      ],
+      "locations": [
+        {
+          "kind": "local",
+          "path": "SOURCES.md"
+        }
+      ],
+      "byteSize": 6626,
+      "sha256": "841a53f0453031afa98d3deae6bdf8ab874edc9029a92a17bcc4d80a9b6b9fe5"
+    }
+  ],
+  "relationships": [
+    {
+      "fromResourceId": "https://openfinanceformat.org/examples/nrxs-valuation/resources/narrative",
+      "relation": "describes",
+      "toResourceId": "https://openfinanceformat.org/examples/nrxs-valuation/resources/model"
+    },
+    {
+      "fromResourceId": "https://openfinanceformat.org/examples/nrxs-valuation/resources/evidence",
+      "relation": "supports",
+      "toResourceId": "https://openfinanceformat.org/examples/nrxs-valuation/resources/model"
+    }
+  ],
+  "profileData": {
+    "https://openfinanceformat.org/profiles/public-equity-research/0.1": {
+      "securities": [
+        {
+          "id": "https://openfinanceformat.org/examples/nrxs-valuation/entities/security/nrxs",
+          "issuerName": "Neuraxis, Inc.",
+          "ticker": "NRXS",
+          "exchange": "XASE",
+          "securityType": "common-stock",
+          "reportingCurrencyUnitId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/unit/usd-mm",
+          "identifiers": {
+            "CIK": "0001933567"
+          }
+        }
+      ],
+      "scenarios": [
+        {
+          "id": "https://openfinanceformat.org/examples/nrxs-valuation/entities/scenario/bear",
+          "label": "Downside case",
+          "role": "bear",
+          "description": "Slow reimbursement conversion, limited operating leverage, $10 million financing at $2.50 per share, and full disputed option/RSU overhang."
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/nrxs-valuation/entities/scenario/base",
+          "label": "Base case",
+          "role": "base",
+          "description": "Steady hospital activation, 23% mature EBIT margin, $5 million financing at $5 per share, and full disputed option/RSU overhang."
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/nrxs-valuation/entities/scenario/bull",
+          "label": "Upside case",
+          "role": "bull",
+          "description": "Rapid utilization, 30% mature EBIT margin, $2 million financing at $6 per share, and no full-value option-replacement overhang."
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/nrxs-valuation/entities/scenario/probability-weighted",
+          "label": "Probability-weighted case",
+          "role": "other",
+          "description": "Thirty percent downside, fifty percent base, and twenty percent upside value per share."
+        }
+      ],
+      "units": [
+        {
+          "id": "https://openfinanceformat.org/examples/nrxs-valuation/entities/unit/usd-mm",
+          "label": "US dollars in millions",
+          "kind": "currency",
+          "symbol": "$mm",
+          "currency": "USD"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/nrxs-valuation/entities/unit/usd-per-share",
+          "label": "US dollars per share",
+          "kind": "custom",
+          "symbol": "$/share"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/nrxs-valuation/entities/unit/shares-mm",
+          "label": "Shares in millions",
+          "kind": "shares",
+          "symbol": "mm"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/nrxs-valuation/entities/unit/percentage",
+          "label": "Percentage expressed as decimal",
+          "kind": "percentage",
+          "symbol": "%"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/nrxs-valuation/entities/unit/multiple",
+          "label": "Valuation or operating multiple",
+          "kind": "multiple",
+          "symbol": "x"
+        }
+      ],
+      "sources": [
+        {
+          "id": "https://openfinanceformat.org/examples/nrxs-valuation/entities/source/sec-2025-10k",
+          "title": "Neuraxis FY2025 Form 10-K",
+          "publisher": "U.S. Securities and Exchange Commission",
+          "canonicalUrl": "https://www.sec.gov/Archives/edgar/data/1933567/000149315226011505/form10-k.htm",
+          "evidenceResourceId": "https://openfinanceformat.org/examples/nrxs-valuation/resources/evidence"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/nrxs-valuation/entities/source/sec-2026-q1",
+          "title": "Neuraxis Q1 2026 Form 10-Q",
+          "publisher": "U.S. Securities and Exchange Commission",
+          "canonicalUrl": "https://www.sec.gov/Archives/edgar/data/1933567/000149315226022384/form10-q.htm",
+          "evidenceResourceId": "https://openfinanceformat.org/examples/nrxs-valuation/resources/evidence"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/nrxs-valuation/entities/source/sec-2026-s3",
+          "title": "Neuraxis July 2026 Form S-3",
+          "publisher": "U.S. Securities and Exchange Commission",
+          "canonicalUrl": "https://www.sec.gov/Archives/edgar/data/1933567/000149315226034417/forms-3.htm",
+          "evidenceResourceId": "https://openfinanceformat.org/examples/nrxs-valuation/resources/evidence"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/nrxs-valuation/entities/source/fda-k252024",
+          "title": "FDA 510(k) decision summary K252024",
+          "publisher": "U.S. Food and Drug Administration",
+          "canonicalUrl": "https://www.accessdata.fda.gov/cdrh_docs/pdf25/K252024.pdf",
+          "evidenceResourceId": "https://openfinanceformat.org/examples/nrxs-valuation/resources/evidence"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/nrxs-valuation/entities/source/cms-2026",
+          "title": "CMS CY2026 PFS and OPPS evidence",
+          "publisher": "Centers for Medicare & Medicaid Services",
+          "canonicalUrl": "https://www.cms.gov/medicare/payment/fee-schedules/physician/pfs-relative-value-files/rvu26c",
+          "evidenceResourceId": "https://openfinanceformat.org/examples/nrxs-valuation/resources/evidence"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/nrxs-valuation/entities/source/market-snapshot",
+          "title": "NRXS public market-data snapshot",
+          "publisher": "Aggregated public market data",
+          "canonicalUrl": "https://www.nyse.com/quote/XASE:NRXS",
+          "evidenceResourceId": "https://openfinanceformat.org/examples/nrxs-valuation/resources/evidence"
+        }
+      ],
+      "sourceFacts": [
+        {
+          "id": "https://openfinanceformat.org/examples/nrxs-valuation/entities/fact/revenue-2025",
+          "label": "FY2025 net sales",
+          "value": {
+            "type": "decimal",
+            "value": "3.569282"
+          },
+          "unitId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/unit/usd-mm",
+          "effectiveDate": "2025-12-31",
+          "sourceId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/source/sec-2025-10k",
+          "staleAt": "2027-03-01T00:00:00Z"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/nrxs-valuation/entities/fact/revenue-q1-2026",
+          "label": "Q1 2026 net sales",
+          "value": {
+            "type": "decimal",
+            "value": "1.607883"
+          },
+          "unitId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/unit/usd-mm",
+          "effectiveDate": "2026-03-31",
+          "sourceId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/source/sec-2026-q1",
+          "staleAt": "2026-08-15T00:00:00Z"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/nrxs-valuation/entities/fact/gross-margin-q1-2026",
+          "label": "Q1 2026 gross margin",
+          "value": {
+            "type": "decimal",
+            "value": "0.864378"
+          },
+          "unitId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/unit/percentage",
+          "effectiveDate": "2026-03-31",
+          "sourceId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/source/sec-2026-q1",
+          "staleAt": "2026-08-15T00:00:00Z"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/nrxs-valuation/entities/fact/cash-q1-2026",
+          "label": "Cash and equivalents",
+          "value": {
+            "type": "decimal",
+            "value": "7.078659"
+          },
+          "unitId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/unit/usd-mm",
+          "effectiveDate": "2026-03-31",
+          "sourceId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/source/sec-2026-q1",
+          "staleAt": "2026-08-15T00:00:00Z"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/nrxs-valuation/entities/fact/notes-payable-q1-2026",
+          "label": "Notes payable",
+          "value": {
+            "type": "decimal",
+            "value": "0.100735"
+          },
+          "unitId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/unit/usd-mm",
+          "effectiveDate": "2026-03-31",
+          "sourceId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/source/sec-2026-q1",
+          "staleAt": "2026-08-15T00:00:00Z"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/nrxs-valuation/entities/fact/federal-nol-2025",
+          "label": "Federal net operating loss carryforward",
+          "value": {
+            "type": "decimal",
+            "value": "43.16"
+          },
+          "unitId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/unit/usd-mm",
+          "effectiveDate": "2025-12-31",
+          "sourceId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/source/sec-2025-10k",
+          "staleAt": "2027-03-01T00:00:00Z"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/nrxs-valuation/entities/fact/common-shares-2026-07-22",
+          "label": "Common shares outstanding",
+          "value": {
+            "type": "decimal",
+            "value": "12.477309"
+          },
+          "unitId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/unit/shares-mm",
+          "effectiveDate": "2026-07-22",
+          "sourceId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/source/sec-2026-s3",
+          "staleAt": "2026-10-31T00:00:00Z"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/nrxs-valuation/entities/fact/unvested-rsus-2026-07-22",
+          "label": "Unvested RSUs identified in S-3",
+          "value": {
+            "type": "decimal",
+            "value": "0.923776"
+          },
+          "unitId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/unit/shares-mm",
+          "effectiveDate": "2026-07-22",
+          "sourceId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/source/sec-2026-s3",
+          "staleAt": "2026-10-31T00:00:00Z"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/nrxs-valuation/entities/fact/share-price-2026-07-30",
+          "label": "NRXS intraday share-price snapshot at 13:36:28 UTC",
+          "value": {
+            "type": "decimal",
+            "value": "6.235"
+          },
+          "unitId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/unit/usd-per-share",
+          "effectiveDate": "2026-07-30",
+          "sourceId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/source/market-snapshot",
+          "staleAt": "2026-07-31T00:00:00Z"
+        }
+      ],
+      "assumptions": [
+        {
+          "id": "https://openfinanceformat.org/examples/nrxs-valuation/entities/assumption/common-fcff-policy",
+          "label": "Common FCFF and equity-bridge policy",
+          "value": {
+            "type": "string",
+            "value": "Fifteen-year FCFF; $43.16m opening federal NOL with an 80% taxable-income limitation and no separately capitalized DTA; 21% cash tax thereafter; D&A 1.5% of revenue; capex 2.0%; NWC 5.0% of revenue change; March cash and notes; negative FCFF remains in operating enterprise value while scenario financing proceeds are added once to post-money equity and create new shares at externally fixed issue prices; no value for unapproved indications."
+          },
+          "effectiveDate": "2026-07-30",
+          "designation": "analystJudgment",
+          "reviewBy": "2026-10-31T00:00:00Z"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/nrxs-valuation/entities/assumption/common-wacc",
+          "label": "Common WACC",
+          "value": {
+            "type": "decimal",
+            "value": "0.19"
+          },
+          "unitId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/unit/percentage",
+          "effectiveDate": "2026-07-30",
+          "designation": "analystJudgment",
+          "reviewBy": "2026-10-31T00:00:00Z"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/nrxs-valuation/entities/assumption/common-terminal-growth",
+          "label": "Common terminal growth",
+          "value": {
+            "type": "decimal",
+            "value": "0.025"
+          },
+          "unitId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/unit/percentage",
+          "effectiveDate": "2026-07-30",
+          "designation": "analystJudgment",
+          "reviewBy": "2026-10-31T00:00:00Z"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/nrxs-valuation/entities/assumption/bear-path",
+          "label": "Downside operating and financing path",
+          "value": {
+            "type": "string",
+            "value": "2026 revenue $6.0m; 2030 revenue $10.7m; mature EBIT margin 10%; $10m financing at $2.50; 23.224m fully diluted shares after financing."
+          },
+          "effectiveDate": "2026-07-30",
+          "designation": "analystJudgment",
+          "reviewBy": "2026-10-31T00:00:00Z",
+          "scenarioIds": [
+            "https://openfinanceformat.org/examples/nrxs-valuation/entities/scenario/bear"
+          ]
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/nrxs-valuation/entities/assumption/base-path",
+          "label": "Base operating and financing path",
+          "value": {
+            "type": "string",
+            "value": "2026 revenue $7.2m; 2030 revenue $19.5m; mature EBIT margin 23%; $5m financing at $5.00; 20.224m fully diluted shares after financing."
+          },
+          "effectiveDate": "2026-07-30",
+          "designation": "analystJudgment",
+          "reviewBy": "2026-10-31T00:00:00Z",
+          "scenarioIds": [
+            "https://openfinanceformat.org/examples/nrxs-valuation/entities/scenario/base"
+          ]
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/nrxs-valuation/entities/assumption/bull-path",
+          "label": "Upside operating and financing path",
+          "value": {
+            "type": "string",
+            "value": "2026 revenue $9.2m; 2030 revenue $47.0m; mature EBIT margin 30%; $2m financing at $6.00; 18.237m fully diluted shares after financing."
+          },
+          "effectiveDate": "2026-07-30",
+          "designation": "analystJudgment",
+          "reviewBy": "2026-10-31T00:00:00Z",
+          "scenarioIds": [
+            "https://openfinanceformat.org/examples/nrxs-valuation/entities/scenario/bull"
+          ]
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/nrxs-valuation/entities/assumption/bear-probability",
+          "label": "Downside probability",
+          "value": {
+            "type": "decimal",
+            "value": "0.3"
+          },
+          "unitId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/unit/percentage",
+          "effectiveDate": "2026-07-30",
+          "designation": "analystJudgment",
+          "reviewBy": "2026-10-31T00:00:00Z",
+          "scenarioIds": [
+            "https://openfinanceformat.org/examples/nrxs-valuation/entities/scenario/bear"
+          ]
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/nrxs-valuation/entities/assumption/base-probability",
+          "label": "Base probability",
+          "value": {
+            "type": "decimal",
+            "value": "0.5"
+          },
+          "unitId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/unit/percentage",
+          "effectiveDate": "2026-07-30",
+          "designation": "analystJudgment",
+          "reviewBy": "2026-10-31T00:00:00Z",
+          "scenarioIds": [
+            "https://openfinanceformat.org/examples/nrxs-valuation/entities/scenario/base"
+          ]
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/nrxs-valuation/entities/assumption/bull-probability",
+          "label": "Upside probability",
+          "value": {
+            "type": "decimal",
+            "value": "0.2"
+          },
+          "unitId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/unit/percentage",
+          "effectiveDate": "2026-07-30",
+          "designation": "analystJudgment",
+          "reviewBy": "2026-10-31T00:00:00Z",
+          "scenarioIds": [
+            "https://openfinanceformat.org/examples/nrxs-valuation/entities/scenario/bull"
+          ]
+        }
+      ],
+      "outputs": [
+        {
+          "id": "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/bear-value-per-share",
+          "label": "Downside case implied value per share",
+          "value": {
+            "type": "decimal",
+            "value": "0.24972126534621417"
+          },
+          "unitId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/unit/usd-per-share",
+          "asOfDate": "2026-07-30",
+          "scenarioId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/scenario/bear",
+          "headline": true,
+          "artifactResourceId": "https://openfinanceformat.org/examples/nrxs-valuation/resources/model",
+          "methodology": "Fifteen-year FCFF DCF for approved commercial operations, common 19% WACC and 2.5% terminal growth, current cash less notes, scenario financing proceeds added once to post-money equity with corresponding new shares, and a zero floor for common equity.",
+          "attestationId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/attestation/valuation"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/base-value-per-share",
+          "label": "Base case implied value per share",
+          "value": {
+            "type": "decimal",
+            "value": "1.1287390588006745"
+          },
+          "unitId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/unit/usd-per-share",
+          "asOfDate": "2026-07-30",
+          "scenarioId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/scenario/base",
+          "headline": true,
+          "artifactResourceId": "https://openfinanceformat.org/examples/nrxs-valuation/resources/model",
+          "methodology": "Fifteen-year FCFF DCF for approved commercial operations, common 19% WACC and 2.5% terminal growth, current cash less notes, scenario financing proceeds added once to post-money equity with corresponding new shares, and a zero floor for common equity.",
+          "attestationId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/attestation/valuation"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/bull-value-per-share",
+          "label": "Upside case implied value per share",
+          "value": {
+            "type": "decimal",
+            "value": "4.296203566093978"
+          },
+          "unitId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/unit/usd-per-share",
+          "asOfDate": "2026-07-30",
+          "scenarioId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/scenario/bull",
+          "headline": true,
+          "artifactResourceId": "https://openfinanceformat.org/examples/nrxs-valuation/resources/model",
+          "methodology": "Fifteen-year FCFF DCF for approved commercial operations, common 19% WACC and 2.5% terminal growth, current cash less notes, scenario financing proceeds added once to post-money equity with corresponding new shares, and a zero floor for common equity.",
+          "attestationId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/attestation/valuation"
+        },
+        {
+          "id": "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/probability-weighted-value-per-share",
+          "label": "Probability-weighted implied value per share",
+          "value": {
+            "type": "decimal",
+            "value": "1.4985266222229972"
+          },
+          "unitId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/unit/usd-per-share",
+          "asOfDate": "2026-07-30",
+          "scenarioId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/scenario/probability-weighted",
+          "headline": true,
+          "artifactResourceId": "https://openfinanceformat.org/examples/nrxs-valuation/resources/model",
+          "methodology": "Thirty percent downside, fifty percent base, and twenty percent upside value per share.",
+          "attestationId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/attestation/valuation"
+        }
+      ],
+      "lineageEdges": [
+        {
+          "fromId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/bear-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/fact/revenue-2025",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/bear-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/fact/revenue-q1-2026",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/bear-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/fact/gross-margin-q1-2026",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/bear-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/fact/cash-q1-2026",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/bear-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/fact/notes-payable-q1-2026",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/bear-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/fact/federal-nol-2025",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/bear-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/fact/common-shares-2026-07-22",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/bear-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/fact/unvested-rsus-2026-07-22",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/bear-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/assumption/common-fcff-policy",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/bear-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/assumption/common-wacc",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/bear-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/assumption/common-terminal-growth",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/bear-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/assumption/bear-path",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/base-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/fact/revenue-2025",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/base-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/fact/revenue-q1-2026",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/base-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/fact/gross-margin-q1-2026",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/base-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/fact/cash-q1-2026",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/base-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/fact/notes-payable-q1-2026",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/base-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/fact/federal-nol-2025",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/base-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/fact/common-shares-2026-07-22",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/base-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/fact/unvested-rsus-2026-07-22",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/base-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/assumption/common-fcff-policy",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/base-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/assumption/common-wacc",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/base-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/assumption/common-terminal-growth",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/base-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/assumption/base-path",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/bull-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/fact/revenue-2025",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/bull-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/fact/revenue-q1-2026",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/bull-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/fact/gross-margin-q1-2026",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/bull-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/fact/cash-q1-2026",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/bull-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/fact/notes-payable-q1-2026",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/bull-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/fact/federal-nol-2025",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/bull-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/fact/common-shares-2026-07-22",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/bull-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/fact/unvested-rsus-2026-07-22",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/bull-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/assumption/common-fcff-policy",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/bull-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/assumption/common-wacc",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/bull-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/assumption/common-terminal-growth",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/bull-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/assumption/bull-path",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/probability-weighted-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/bear-value-per-share",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/probability-weighted-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/base-value-per-share",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/probability-weighted-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/bull-value-per-share",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/probability-weighted-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/assumption/bear-probability",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/probability-weighted-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/assumption/base-probability",
+          "material": true
+        },
+        {
+          "fromId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/probability-weighted-value-per-share",
+          "toId": "https://openfinanceformat.org/examples/nrxs-valuation/entities/assumption/bull-probability",
+          "material": true
+        }
+      ],
+      "attestations": [
+        {
+          "id": "https://openfinanceformat.org/examples/nrxs-valuation/entities/attestation/valuation",
+          "outputIds": [
+            "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/bear-value-per-share",
+            "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/base-value-per-share",
+            "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/bull-value-per-share",
+            "https://openfinanceformat.org/examples/nrxs-valuation/entities/output/probability-weighted-value-per-share"
+          ],
+          "authorId": "https://github.com/HenryBranchAdams",
+          "attestedAt": "2026-07-30T16:00:00Z",
+          "artifactResourceId": "https://openfinanceformat.org/examples/nrxs-valuation/resources/model",
+          "artifactSha256": "d5c3b1645d1b0d28b48f41dad74d4258dc2ffd64035bba1270090a37ce48defe",
+          "lineageBasis": "author-declared",
+          "materialityPolicy": "All sourced opening financial and capital inputs, common FCFF policies, discount and terminal assumptions, scenario operating paths, financing dilution, and scenario probabilities material to the four headline outputs are declared.",
+          "scope": "Bear, base, bull, and probability-weighted NRXS implied values per share produced by the bound workbook as of 2026-07-30.",
+          "knownExclusions": [
+            "The $6.235 market reference is an intraday secondary snapshot and not an official closing price.",
+            "No licensed consensus or time-synchronized normalized peer-estimate dataset was available.",
+            "Realized reimbursement, prior-authorization success, active ordering centers, patient starts, repeat utilization, and product-level RED economics are not disclosed.",
+            "The July preferred dividend is approximate, the option-for-RSU consummation remains unresolved, and current transfer-agent fully diluted shares were unavailable.",
+            "Unapproved indications receive zero value because an evidence-complete indication-level rNPV was unavailable.",
+            "Formula recalculation and financial reasonableness were locally reviewed but are outside the OFF structural-conformance claim."
+          ],
+          "lineageCompleteness": "attested-not-independently-verified"
+        }
+      ]
+    }
+  }
+}

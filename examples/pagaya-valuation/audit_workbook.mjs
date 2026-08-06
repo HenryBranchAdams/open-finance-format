@@ -5,7 +5,7 @@ import { FileBlob, SpreadsheetFile } from "@oai/artifact-tool";
 const root = path.dirname(fileURLToPath(import.meta.url));
 const workbookPath = path.join(
   root,
-  "outputs/019f8fa1-90aa-7002-a17f-ddffc4552a84/pagaya-valuation-model.xlsx",
+  "outputs/2026-07-30-q2-refresh/pagaya-valuation-model.xlsx",
 );
 const workbook = await SpreadsheetFile.importXlsx(await FileBlob.load(workbookPath));
 

@@ -115,6 +115,7 @@ function decimal(value: OffValue): number {
 function shortSourceId(source: OffSource, index: number): string {
   if (source.id.endsWith("/sec")) return "S1";
   if (source.id.endsWith("/q1-2026")) return "S2";
+  if (source.id.endsWith("/q2-2026")) return "S9";
   if (source.id.endsWith("/market")) return "S4";
   return `S${index + 1}`;
 }
@@ -185,14 +186,14 @@ export async function getPagayaResearchModel(): Promise<PagayaResearchModel> {
     marketAsOf: marketFact.effectiveDate,
     marketStaleAt: marketFact.staleAt,
     modelStatus: "PASS",
-    investmentPosture: "WATCHLIST / WAIT FOR PROOF",
+    investmentPosture: "CONSTRUCTIVE WATCHLIST / STARTER ONLY",
     traceability: "Traceable · author-declared lineage",
     scenarios: scenarioValues,
     networkVolume: networkValues.map((value, index) => ({
       year: 2026 + index,
       value,
     })),
-    marketImpliedCostOfEquity: Number(marketImpliedMatch?.[1] ?? 17.6),
+    marketImpliedCostOfEquity: Number(marketImpliedMatch?.[1] ?? 18.5),
     baseCostOfEquity: parsePercentage(baseAssumption.value.value, "cost of equity"),
     baseTerminalGrowth: parsePercentage(baseAssumption.value.value, "terminal growth"),
     assumptions,
@@ -203,28 +204,28 @@ export async function getPagayaResearchModel(): Promise<PagayaResearchModel> {
     })),
     whatMustBeTrue: [
       {
-        claim: "FRLPC near 4.5%",
-        details: "Normalized net-income conversion rises toward 34%.",
-        source: "Pagaya model (S1)",
-        freshness: "Current",
+        claim: "FRLPC stabilizes near 4.3%",
+        details: "Normalized net-income conversion rises toward 38%.",
+        source: "Analyst assumption (model)",
+        freshness: "Review by 2026-10-31",
       },
       {
-        claim: "Incremental risk-retention ~1.5%",
-        details: "Equity required stays near 1.5% of incremental Network Volume.",
-        source: "Pagaya model (S1)",
-        freshness: "Current",
+        claim: "Incremental risk-retention ~1.25%",
+        details: "Equity required stays near 1.25% of incremental Network Volume.",
+        source: "Analyst assumption (model)",
+        freshness: "Review by 2026-10-31",
       },
       {
         claim: "Volume growth supports cash conversion",
         details: "Network Volume growth enables GAAP profit and cash conversion.",
-        source: "Pagaya model (S1)",
-        freshness: "Current",
+        source: "Analyst assumption (model)",
+        freshness: "Review by 2026-10-31",
       },
       {
         claim: "Funding execution remains durable",
         details: "Owner earnings grow faster than Network Volume.",
-        source: "Pagaya model (S1)",
-        freshness: "Current",
+        source: "Analyst assumption (model)",
+        freshness: "Review by 2026-10-31",
       },
     ],
     thesisBreaks: [
@@ -260,14 +261,14 @@ export async function getPagayaResearchModel(): Promise<PagayaResearchModel> {
       },
     ],
     proofPoints: [
-      "Q2 2026 on 30 July",
-      "Network Volume",
-      "FRLPC",
-      "GAAP profit",
-      "Cash conversion",
+      "Q3 2026 results",
+      "FRLPC stabilization",
+      "Revised volume guide delivery",
+      "GAAP profit conversion",
+      "ABS pricing and repeatability",
       "Retained-capital intensity",
     ],
     summary:
-      "At $16.29, the base operating path implies roughly a 17.6% cost of equity versus the model’s 14% base hurdle. This is a model-derived reverse-DCF inference, not quoted consensus.",
+      "At $16.32, the refreshed base operating path implies roughly an 18.5% cost of equity versus the model’s 14% base hurdle. This is a model-derived reverse-DCF inference, not quoted consensus.",
   };
 }
