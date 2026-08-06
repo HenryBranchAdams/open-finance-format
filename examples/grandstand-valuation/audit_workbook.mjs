@@ -1,7 +1,10 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { FileBlob, SpreadsheetFile } from "/Users/henryadams/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/@oai/artifact-tool/dist/artifact_tool.mjs";
+
+import { loadArtifactTool } from "./load_artifact_tool.mjs";
+
+const { FileBlob, SpreadsheetFile } = await loadArtifactTool();
 
 const packageRoot = path.dirname(fileURLToPath(import.meta.url));
 const outputDir = path.join(packageRoot, "outputs", "20260728-grsd-multimethod");

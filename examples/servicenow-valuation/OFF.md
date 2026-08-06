@@ -29,4 +29,3 @@ All three operating cases use an 8.63% formula-driven WACC and 3.0% perpetual gr
 ## Evidence and limits
 
 The package is screen-grade. Only the latest full historical year is populated, and aggregate operating net working capital is used because a complete receivables / payables / deferred-revenue component history was not assembled. The frozen market price is a short-lived snapshot. OFF conformance proves package structure and declared lineage, not the correctness of the assumptions or cross-engine spreadsheet equivalence.
-

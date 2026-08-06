@@ -11,7 +11,7 @@ subject: nrxs-bespoke-equity-valuation
 - `ticker`: `NRXS`
 - `issuer`: `Neuraxis, Inc.`
 - `valuation_date`: `2026-07-30`
-- `repository_root`: `/Users/henryadams/Documents/OFF - Open Finance Format`
+- `repository_root`: resolve `../../../..` from this test file's directory to an absolute path before invoking the subject
 - `task_contract`: build and independently verify the NRXS valuation and OFF package under the caller's stated authority
 
 ### Expects

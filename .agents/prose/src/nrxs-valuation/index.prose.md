@@ -51,4 +51,3 @@ kind: function
 
 - `self`: coordinate evidence, valuation judgment, integration, acceptance, and user-facing delivery
 - `prohibited`: trading, issuer contact, credential access, paid-provider use, publication, deployment, live integration effects, frozen-release modification, and unrelated repository mutation
-

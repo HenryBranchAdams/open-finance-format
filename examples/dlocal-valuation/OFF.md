@@ -1,9 +1,9 @@
 # dLocal (NASDAQ: DLO) — Bespoke Equity Valuation
 
-**Valuation date:** 23 July 2026  
-**Reporting and output currency:** USD  
-**Accounting:** IFRS as issued by the IASB  
-**Primary method:** Six-year FCFF DCF  
+**Valuation date:** 23 July 2026<br>
+**Reporting and output currency:** USD<br>
+**Accounting:** IFRS as issued by the IASB<br>
+**Primary method:** Six-year FCFF DCF<br>
 **Status:** Screen-grade; locally verified; author-declared lineage
 
 ## Conclusion
@@ -98,4 +98,3 @@ normalized peer data, native Excel or LibreOffice recalculation, independent
 valuation review, or clean-room interoperability. OFF conformance validates the
 package structure and declared lineage; it does not prove the assumptions or
 investment conclusion.
-

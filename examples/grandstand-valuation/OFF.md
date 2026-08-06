@@ -1,10 +1,10 @@
 # Grandstand Limited (NASDAQ: GRSD) — Multi-Method Equity Valuation
 
-**Valuation date:** 28 July 2026  
-**Market reference:** $1.95 closing price on 27 July 2026  
-**Reporting and output currency:** USD  
-**Accounting:** IFRS as issued by the IASB  
-**Primary method:** Six-year perpetuity-growth FCFF DCF  
+**Valuation date:** 28 July 2026<br>
+**Market reference:** $1.95 closing price on 27 July 2026<br>
+**Reporting and output currency:** USD<br>
+**Accounting:** IFRS as issued by the IASB<br>
+**Primary method:** Six-year perpetuity-growth FCFF DCF<br>
 **Status:** Screen-grade; locally verified formula output; author-declared lineage
 
 ## Conclusion
