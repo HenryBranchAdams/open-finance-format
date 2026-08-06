@@ -55,4 +55,3 @@ The base case uses the midpoint of FY2026 subscription revenue guidance, adjuste
 All cases assume a 21% cash tax rate, D&A equal to 5% of revenue, capex equal to 6% of revenue, and 3% perpetual growth. The base operating NWC ratio remains at approximately (39%) of revenue; downside and upside cases vary the funding benefit after 2026.
 
 The reverse DCF solves for the constant 2026–2031 revenue growth rate that produces the $97.35 market price while holding the base margin, reinvestment, WACC, terminal growth, net debt, and share assumptions constant. The result is 14.47%.
-

@@ -1,7 +1,7 @@
 # Neuraxis, Inc. (NRXS) valuation
 
-Valuation date: **2026-07-30**  
-Primary method: **probability-weighted 15-year FCFF DCF**  
+Valuation date: **2026-07-30**<br>
+Primary method: **probability-weighted 15-year FCFF DCF**<br>
 Evidence status: **screen-grade / high uncertainty**
 
 ## Conclusion

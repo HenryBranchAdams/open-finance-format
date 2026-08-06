@@ -5,7 +5,7 @@
   "decision_impact": "Formula workbook passed integrity gates; Excel or compatible software should recalculate on open before final circulation.",
   "workbook_mode": "banker_formula_workbook",
   "artifact_level": "banker_formula_workbook_template_materializer",
-  "template_path": "/Users/henryadams/.codex/plugins/cache/openai-curated-remote/public-equity-investing/0.1.31/skills/dcf-model-builder/assets/templates/banker_formula_workbook_template.xlsx",
+  "template_path": "public-equity-investing/skills/dcf-model-builder/assets/templates/banker_formula_workbook_template.xlsx",
   "output_paths": {
     "banker_formula_workbook": "examples/servicenow-valuation/outputs/019f8a51-b282-7320-9a22-cc1ef608143b/banker_formula_workbook.xlsx",
     "banker_formula_workbook_run_log": "examples/servicenow-valuation/outputs/019f8a51-b282-7320-9a22-cc1ef608143b/banker_formula_workbook_run_log.json",
